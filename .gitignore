@@ -1,0 +1,9 @@
+# Temp / local
+_snip_*.txt
+_*.py
+_*.txt
+*.log
+.DS_Store
+Thumbs.db
+.env
+.env.*

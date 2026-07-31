@@ -1,0 +1,269 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<title>Tickets — V6 · דף הבית 3</title>
+<link rel="stylesheet" href="css/styles.css">
+<link rel="stylesheet" href="css/seats-hall.css">
+<link rel="stylesheet" href="css/home2.css">
+<link rel="stylesheet" href="css/home3.css">
+<link rel="stylesheet" href="css/demo-mode.css">
+</head>
+<body>
+<header class="site-header site-header-v3"><div class="header-top-row"><div class="container header-inner">
+  <a class="logo" href="index.html">TICKETS</a>
+  <nav class="main-nav">
+    <a href="#events" data-route="events">כל המופעים</a>
+    <div class="nav-item has-mega">
+      <button class="nav-trigger" type="button" aria-expanded="false" aria-haspopup="true">קטגוריות</button>
+      <div class="mega-menu" role="region" aria-label="קטגוריות">
+        <div class="container mega-inner">
+          <div class="mega-popular">
+            <div class="mega-popular-head">
+              <h3>פופולרי</h3>
+            </div>
+            <div class="mega-cards">
+              <a class="mega-card mega-card-music" href="#events" data-route="events"><span>מוזיקה</span></a>
+              <a class="mega-card mega-card-standup" href="#events" data-route="events"><span>סטנדאפ</span></a>
+              <a class="mega-card mega-card-kids" href="#events" data-route="events"><span>ילדים</span></a>
+            </div>
+          </div>
+          <div class="mega-discover">
+            <h3>גלו עוד</h3>
+            <div class="mega-links">
+              <div class="mega-col">
+                <a href="#events" data-route="events"><strong>מוזיקה</strong></a>
+                <a href="#events" data-route="events">קונצרטים</a>
+                <a href="#events" data-route="events">פסטיבלים</a>
+                <a href="#events" data-route="events">מוזיקה חיה</a>
+                <a href="#events" data-route="events">ג׳אז ובלואז</a>
+              </div>
+              <div class="mega-col">
+                <a href="#events" data-route="events"><strong>סטנדאפ</strong></a>
+                <a href="#events" data-route="events">ערבי סטנדאפ</a>
+                <a href="#events" data-route="events">ספיישלים</a>
+                <a href="#events" data-route="events">אופן מייק</a>
+                <a href="#events" data-route="events">קומדיה</a>
+              </div>
+              <div class="mega-col">
+                <a href="#events" data-route="events"><strong>תרבות</strong></a>
+                <a href="#events" data-route="events">תיאטרון</a>
+                <a href="#events" data-route="events">מחול</a>
+                <a href="#events" data-route="events">מופעי אמנות</a>
+                <a href="#events" data-route="events">פסטיבלי תרבות</a>
+              </div>
+              <div class="mega-col">
+                <a href="#events" data-route="events"><strong>ילדים</strong></a>
+                <a href="#events" data-route="events">הצגות ילדים</a>
+                <a href="#events" data-route="events">מופעי משפחה</a>
+                <a href="#events" data-route="events">קרקס</a>
+                <a href="#events" data-route="events">מופעי בובות</a>
+              </div>
+              <div class="mega-col">
+                <a href="#events" data-route="events"><strong>ספורט</strong></a>
+                <a href="#events" data-route="events">כדורגל</a>
+                <a href="#events" data-route="events">כדורסל</a>
+                <a href="#events" data-route="events">אירועי ספורט</a>
+                <a href="#events" data-route="events" class="mega-all-link">כל הקטגוריות ←</a>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <a href="#events" data-route="events">מופעים קרובים</a>
+    <a href="#events" data-route="events">מופעים פופולריים</a>
+    <a href="#contact" data-route="contact">צרו קשר</a>
+  </nav>
+  <div class="header-actions">
+    <div class="header-account-wrap">
+      <button class="header-button header-account-btn" type="button" aria-expanded="false" aria-haspopup="true">
+        <img src="assets/icons/user.svg" alt="">
+        <span class="header-account-text"><strong>אזור אישי</strong><small>שלום, ישראל</small></span>
+        <span class="header-account-caret" aria-hidden="true"></span>
+      </button>
+      <div class="account-menu" role="menu">
+        <button type="button" role="menuitem" data-route="account/tickets"><img src="assets/icons/ticket.svg" alt=""><span>הכרטיסים שלי</span></button>
+        <button type="button" role="menuitem" data-route="account/orders"><img src="assets/icons/clipboard.svg" alt=""><span>הזמנות קודמות</span></button>
+        <button type="button" role="menuitem" data-route="account/profile"><img src="assets/icons/user.svg" alt=""><span>פרטים אישיים</span></button>
+        <hr>
+        <button type="button" role="menuitem" data-logout><img src="assets/icons/logout.svg" alt=""><span>התנתקות</span></button>
+      </div>
+    </div>
+    <button class="header-button header-icon-btn" id="favoritesHeaderBtn" data-route="account/favorites"><img src="assets/icons/heart.svg" alt=""><span class="header-count" id="favoritesHeaderCount">0</span></button>
+    <div class="header-cart-wrap">
+      <button class="header-button header-icon-btn" data-route="cart"><img src="assets/icons/cart.svg" alt=""><span class="header-count hidden" id="cartHeaderCount">0</span></button>
+      <div class="cart-preview" id="cartPreview"><div class="cart-preview-list" id="cartPreviewList"></div><button class="btn primary wide" data-route="cart">מעבר לסל</button></div>
+    </div>
+  </div>
+</div></div><div class="header-search-row"><div class="container"><form class="search-bar" id="homeSearch"><div class="search-field"><img src="assets/icons/location.svg" alt=""><div><label>מיקום</label><select><option>כל הארץ</option><option>מרכז</option><option>צפון</option><option>דרום</option></select></div></div><div class="search-field date-search-field"><img src="assets/icons/calendar.svg" alt=""><div class="date-range-wrap"><label>תאריך</label><button type="button" class="date-range-display" id="dateRangeDisplay" aria-expanded="false" aria-haspopup="true">בכל תאריך</button><div class="date-range-panel" id="dateRangePanel" hidden><button type="button" class="date-preset" data-preset="any">בכל תאריך</button><button type="button" class="date-preset" data-preset="today">היום</button><button type="button" class="date-preset" data-preset="weekend">סוף השבוע</button><button type="button" class="date-preset" data-preset="month">החודש</button><div class="date-range-custom"><label class="date-from-field is-empty"><input type="date" id="dateFrom" aria-label="מתאריך"><span class="date-field-placeholder">מתאריך</span></label><label class="date-to-field is-empty"><input type="date" id="dateTo" aria-label="עד תאריך"><span class="date-field-placeholder">עד תאריך</span></label></div></div></div></div><div class="search-field"><img src="assets/icons/grid.svg" alt=""><div><label>קטגוריה</label><select><option>כל הקטגוריות</option><option>מוזיקה</option><option>סטנדאפ</option><option>ילדים</option></select></div></div><div class="search-field free-search-field"><div><label>חיפוש חופשי</label><input placeholder="מופע, אמן או מקום"></div></div><button class="btn primary">חיפוש</button></form></div></div></header>
+<main>
+<section class="screen active" id="home">
+  <section class="hero hero-v2 hero-v3" aria-roledescription="carousel" aria-label="מופעים מומלצים">
+    <div class="hero-v2-slides" id="heroV2Slides">
+      <div class="hero-v2-slide is-active" data-slide-index="0" role="group" aria-roledescription="slide" aria-label="1 מתוך 3" aria-hidden="false">
+        <div class="hero-v2-bg" role="img" aria-label="קהל בקונצרט — רקע למופע עידן רייכל" style="background-image:url('assets/hero/slide-1.jpg')"></div>
+        <div class="hero-v2-overlay" aria-hidden="true"></div>
+      </div>
+      <div class="hero-v2-slide" data-slide-index="1" role="group" aria-roledescription="slide" aria-label="2 מתוך 3" aria-hidden="true">
+        <div class="hero-v2-bg" role="img" aria-label="במה מוארת — רקע למופע אדיר מילר" style="background-image:url('assets/hero/slide-2.jpg')"></div>
+        <div class="hero-v2-overlay" aria-hidden="true"></div>
+      </div>
+      <div class="hero-v2-slide" data-slide-index="2" role="group" aria-roledescription="slide" aria-label="3 מתוך 3" aria-hidden="true">
+        <div class="hero-v2-bg" role="img" aria-label="פסטיבל בחוץ — רקע לפסטיבל קיץ" style="background-image:url('assets/hero/slide-3.jpg')"></div>
+        <div class="hero-v2-overlay" aria-hidden="true"></div>
+      </div>
+    </div>
+    <div class="container hero-v2-content">
+      <div class="hero-v2-panel">
+        <div class="hero-v2-copy" id="heroV2Copy">
+          <div class="hero-v2-text is-active" data-slide-index="0">
+            <h1>עידן רייכל</h1>
+            <p>מופע חדש ומרגש עם הלהיטים האהובים באמפי שוני.</p>
+            <button type="button" class="btn light-btn hero-v2-cta" data-open-event="1">למידע נוסף</button>
+          </div>
+          <div class="hero-v2-text" data-slide-index="1" hidden>
+            <h1>אדיר מילר</h1>
+            <p>ערב סטנדאפ חדש בהיכל התרבות תל אביב.</p>
+            <button type="button" class="btn light-btn hero-v2-cta" data-open-event="2">למידע נוסף</button>
+          </div>
+          <div class="hero-v2-text" data-slide-index="2" hidden>
+            <h1>פסטיבל קיץ</h1>
+            <p>שלושה ימי מוזיקה, תרבות ואמנות — רכישה מוקדמת.</p>
+            <button type="button" class="btn light-btn hero-v2-cta" data-open-event="3">למידע נוסף</button>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div class="hero-v2-progress" aria-hidden="true">
+      <div class="hero-v2-progress-bar" id="heroV2ProgressBar"></div>
+    </div>
+  </section>
+  <section class="section alt categories-section"><div class="container"><div class="section-header"><h2>מה תרצו לראות היום?</h2></div><div class="category-row"><button class="category-card" data-route="events"><span class="category-card-title"><img class="category-star" src="assets/icons/star.svg" alt=""><strong>מוזיקה</strong></span><small>42 מופעים</small></button><button class="category-card" data-route="events"><span class="category-card-title"><img class="category-star" src="assets/icons/star.svg" alt=""><strong>סטנדאפ</strong></span><small>18 מופעים</small></button><button class="category-card" data-route="events"><span class="category-card-title"><img class="category-star" src="assets/icons/star.svg" alt=""><strong>תרבות</strong></span><small>31 מופעים</small></button><button class="category-card" data-route="events"><span class="category-card-title"><img class="category-star" src="assets/icons/star.svg" alt=""><strong>ילדים</strong></span><small>24 מופעים</small></button><button class="category-card" data-route="events"><span class="category-card-title"><img class="category-star" src="assets/icons/star.svg" alt=""><strong>ספורט</strong></span><small>12 מופעים</small></button><button class="category-card" data-route="events"><span class="category-card-title"><img class="category-star" src="assets/icons/star.svg" alt=""><strong>הצג הכל</strong></span><small>כל התחומים</small></button></div></div></section>
+  <div id="homeSections"></div>
+  <section class="section join-section"><div class="container join-grid"><div><span class="kicker light">נשארים בלופ</span><h2>לא מפספסים אף מופע</h2><p>עדכונים על מופעים חדשים, פתיחת מכירות והטבות ישירות אליכם.</p></div><div class="join-actions"><button class="btn light-btn" id="whatsappJoin">הצטרפות לקבוצת WhatsApp</button><form id="newsletterForm"><div class="newsletter-row"><input type="email" required placeholder="כתובת דוא״ל"><button class="btn light-btn">הרשמה לניוזלטר</button></div><label class="newsletter-consent"><input type="checkbox" required><span>אני מאשר/ת קבלת דיוור פרסומי ומסחרי לכתובת הדוא״ל שמסרתי, בהתאם לחוק התקשורת (בזק ושידורים), ואת <a href="#">תנאי השימוש</a> ו<a href="#">מדיניות הפרטיות</a>. ידוע לי שאוכל לבטל את ההסכמה בכל עת.</span></label></form></div></div></section>
+</section>
+
+<section class="screen" id="events"><section class="page-hero"><div class="container"><nav class="breadcrumbs" aria-label="פירורי לחם"><a href="#home" data-route="home">דף הבית</a><span class="breadcrumb-sep" aria-hidden="true">/</span><span aria-current="page">המופעים</span></nav><h1>המופעים</h1><p>סינון מדויק ותוצאות שקל לסרוק.</p></div></section><div class="container events-layout"><div class="results-toolbar"><div><h2><span id="resultsCount">12</span> מופעים</h2></div></div><div class="events-filters-row"><div class="active-filters" id="eventsDateFilters" role="group" aria-label="סינון לפי תאריך"><button type="button" class="filter-chip active" data-events-range="all">הכל</button><button type="button" class="filter-chip" data-events-range="today">היום</button><button type="button" class="filter-chip" data-events-range="week">השבוע</button><button type="button" class="filter-chip" data-events-range="month">החודש</button></div><select class="btn secondary events-sort-select"><option>מיון: מומלצים</option><option>תאריך קרוב</option><option>מחיר נמוך</option></select></div><div class="results-grid" id="eventsGrid"></div><div class="load-more-wrap"><button class="btn secondary" id="loadMoreEvents" type="button">טען עוד</button></div></div></section>
+
+<section class="screen" id="event"><section class="event-hero" id="eventHero"><div class="container event-hero-grid"><div class="event-hero-copy"><span class="event-hero-badge" id="eventHeroBadge" hidden>המכירה בקרוב</span><nav class="breadcrumbs" id="eventBreadcrumbs" aria-label="פירורי לחם"><a href="#home" data-route="home">דף הבית</a><span class="breadcrumb-sep" aria-hidden="true">/</span><a href="#events" data-route="events">המופעים</a><span class="breadcrumb-sep" aria-hidden="true">/</span><span aria-current="page" id="eventBreadcrumbCurrent">עידן רייכל</span></nav><h1>עידן רייכל</h1><p>מופע חדש ומרגש עם הלהיטים האהובים.</p><div class="event-hero-meta">12.08.2026 · 21:00 · אמפי שוני, בנימינה</div><div class="event-hero-countdown" id="eventHeroCountdown" hidden></div></div><div class="event-poster">תמונת מופע</div></div></section><div class="container event-layout"><section class="content-card"><div class="event-tabs" role="tablist"><button class="event-tab active" data-tab="dates">מועדים</button><button class="event-tab" data-tab="info">מידע אודות המופע</button><button class="event-tab" data-tab="important">חשוב לדעת</button></div><div class="tab-panel active" data-panel="dates"><h2 id="eventDatesTitle">בחירת מועד</h2><div id="showDates"></div></div><div class="tab-panel" data-panel="info"><div class="info-split"><div class="info-copy"><h2>אודות המופע</h2><p>עידן רייכל במופע חדש המשלב את מיטב הלהיטים, עיבודים חדשים והפקה מלאה. ערב מוזיקלי עשיר שחוצה סגנונות, עם אורחים מיוחדים ואווירה אינטימית על הבמה.</p></div><div class="info-video"><iframe title="סרטון אודות המופע" src="https://www.youtube-nocookie.com/embed/dG3NAutpEoY?rel=0" loading="lazy" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" allowfullscreen referrerpolicy="strict-origin-when-cross-origin"></iframe></div></div></div><div class="tab-panel" data-panel="important"><h2>מידע חשוב</h2><dl class="important-list"><div><dt>פתיחת דלתות</dt><dd>20:00</dd></div><div><dt>משך המופע</dt><dd>75 דקות</dd></div><div><dt>סוג מופע</dt><dd>ישיבה</dd></div><div><dt>מגבלת גיל</dt><dd>ללא הגבלה</dd></div></dl><div class="directions-block"><h2>דרכי הגעה לאמפי שוני, בנימינה</h2><div class="directions-grid"><div class="directions-copy"><h3>כתובת:</h3><p>אמפי שוני (זאפה), פארק ז׳בוטינסקי, בנימינה־גבעת עדה, ישראל</p><h3>הגעה ברכב:</h3><ul><li>האמפי ממוקם בפארק ז׳בוטינסקי, בין בנימינה לזיכרון יעקב.</li><li>חניה חינם ומסודרת למרגלות האמפי; במקום יש הכוונה בחניון.</li><li>מכביש 4: יציאה לבנימינה / זיכרון יעקב והמשך לפי השילוט לפארק ז׳בוטינסקי / אמפי שוני.</li><li>מכביש 70: יציאה לכיוון בנימינה והמשך לפי השילוט לאמפי שוני.</li><li>מומלץ לנווט ליעד ״חניה אמפי שוני״ להגעה ישירה לחניון.</li></ul><h3>ניווט ברכב:</h3><p class="nav-links"><a href="https://waze.com/ul?q=%D7%97%D7%A0%D7%99%D7%94%20%D7%90%D7%9E%D7%A4%D7%99%20%D7%A9%D7%95%D7%A0%D7%99" target="_blank" rel="noopener">Waze</a><a href="https://www.google.com/maps/search/?api=1&amp;query=%D7%90%D7%9E%D7%A4%D7%99+%D7%A9%D7%95%D7%A0%D7%99+%D7%91%D7%A0%D7%99%D7%9E%D7%99%D7%A0%D7%94" target="_blank" rel="noopener">Google Maps</a></p><h3>תחבורה ציבורית:</h3><ul><li>תחנת רכבת בנימינה קרובה; ממנה ניתן להמשיך באוטובוס מקומי או במונית.</li><li>קווי אוטובוס עירוניים ובינעירוניים מגיעים לאזור בנימינה וזיכרון יעקב.</li><li>עצירות קרובות: בנימינה מרכז · כניסה לפארק ז׳בוטינסקי.</li></ul><h3>תכנון מסלול בתחבורה ציבורית:</h3><p class="nav-links"><a href="https://moovitapp.com/?lang=he" target="_blank" rel="noopener">Moovit</a></p><h3>טיפ לניווט מהיר:</h3><p>חפשו ״אמפי שוני בנימינה״ או ״חניה אמפי שוני״ ב־Waze או ב־Google Maps כדי להגיע בקלות ובמהירות.</p></div><div class="directions-map"><a class="map-open-btn" href="https://www.google.com/maps/search/?api=1&amp;query=%D7%90%D7%9E%D7%A4%D7%99+%D7%A9%D7%95%D7%A0%D7%99+%D7%91%D7%A0%D7%99%D7%9E%D7%99%D7%A0%D7%94" target="_blank" rel="noopener">פתח במפות Google</a><iframe title="מפת אמפי שוני בנימינה" loading="lazy" referrerpolicy="no-referrer-when-downgrade" src="https://maps.google.com/maps?q=%D7%90%D7%9E%D7%A4%D7%99+%D7%A9%D7%95%D7%A0%D7%99+%D7%91%D7%A0%D7%99%D7%9E%D7%99%D7%A0%D7%94&amp;hl=he&amp;z=15&amp;output=embed"></iframe></div></div></div></div></section><aside class="content-card summary-card" id="eventSidebar" hidden><div id="eventInterestBox"><form id="eventInterestForm" class="interest-form"><span class="kicker">השארת פרטים</span><h2 class="interest-heading">מתעניין במופע <span id="interestShowName"></span></h2><label>שם מלא<input required name="name" autocomplete="name" placeholder="ישראל ישראלי"></label><label>נייד<input required name="phone" type="tel" autocomplete="tel" placeholder="050-0000000"></label><label>אימייל <small>(לא חובה)</small><input name="email" type="email" autocomplete="email" placeholder="israel@example.com"></label><button class="btn primary wide" type="submit">עדכנו אותי</button></form></div></aside></div><section class="related-section container"><div class="section-header"><div class="heading-icon"><img class="section-star" src="assets/icons/star.svg" alt=""><h2>מופעים קשורים</h2></div></div><div class="event-grid" id="relatedEvents"></div></section></section>
+
+<section class="screen" id="seats"><section class="event-hero"><div class="container event-hero-grid"><div><nav class="breadcrumbs" aria-label="פירורי לחם"><a href="#home" data-route="home">דף הבית</a><span class="breadcrumb-sep" aria-hidden="true">/</span><a href="#event" data-route="event">עידן רייכל</a><span class="breadcrumb-sep" aria-hidden="true">/</span><span aria-current="page">בחירת מושבים</span></nav><h1>עידן רייכל</h1><p>12.08.2026 · 21:00 · אמפי שוני, בנימינה</p><button class="btn light-btn" data-route="event">שינוי מועד</button></div><div class="event-poster">תמונת מופע</div></div></section>
+<div class="seats-page"><div class="container seats-shell" id="seatsShell">
+<section class="content-card seats-map-card seats-map-full">
+<div class="seats-map-header">
+<div class="seats-map-toolbar">
+<div>
+<h2 class="seats-map-title">מבנה אולם ורמות מחיר</h2>
+<div class="seats-legend-row">
+<div class="price-tiers"><span class="legend-title">רמות מחיר</span>
+<div class="price-legend" role="group" aria-label="סינון לפי רמת מחיר">
+<button type="button" class="price-chip" data-price="169"><i class="dot" style="background:#bbb"></i>169 ₪</button>
+<button type="button" class="price-chip" data-price="219"><i class="dot" style="background:#999"></i>219 ₪</button>
+<button type="button" class="price-chip" data-price="269"><i class="dot" style="background:#777"></i>269 ₪</button>
+<button type="button" class="price-chip" data-price="319"><i class="dot" style="background:#555"></i>319 ₪</button>
+</div></div>
+<button type="button" class="accessible-legend-btn" id="accessibleFilterBtn" aria-pressed="false"><span aria-hidden="true">♿</span> מושבים נגישים</button>
+</div>
+</div>
+<div class="seats-zoom" role="group" aria-label="זום מפת אולם">
+<button type="button" class="btn secondary" id="seatsFullscreen" aria-label="מסך מלא" title="מסך מלא">⛶</button>
+<button type="button" class="btn secondary" id="seatsZoomOut" aria-label="הקטנה">−</button>
+<span id="seatsZoomLabel">100%</span>
+<button type="button" class="btn secondary" id="seatsZoomIn" aria-label="הגדלה">+</button>
+<button type="button" class="btn secondary" id="seatsZoomReset" aria-label="איפוס זום">איפוס</button>
+</div>
+</div>
+</div>
+<div class="hall-viewport" id="hallViewport">
+<div class="hall-canvas" id="hallCanvas">
+<div class="hall-stages-top">
+<div class="hall-stage side" aria-hidden="true">במה צד</div>
+<div class="hall-stage main">במה</div>
+<div class="hall-stage side" aria-hidden="true">במה צד</div>
+</div>
+<div class="hall-blocks-row top">
+<div class="hall-block wedge-left" id="block5" data-price="269"></div>
+<div class="hall-block orchestra" id="blockOrchestra" data-price="319"></div>
+<div class="hall-block wedge-right" id="block1" data-price="269"></div>
+</div>
+<div class="hall-accessible-zone" id="accessibleZone" data-price="269">
+<div class="hall-stage accessible-label"><span aria-hidden="true">♿</span> במה נגישה <span aria-hidden="true">♿</span></div>
+<div class="hall-seat-rows"></div>
+</div>
+<div class="hall-blocks-row bottom">
+<div class="hall-block hex-left" id="block4" data-price="219"></div>
+<div class="hall-block" id="block3" data-price="169"></div>
+<div class="hall-block hex-right" id="block2" data-price="219"></div>
+</div>
+<div class="hall-stage rear">במה אחורית / יציע</div>
+</div>
+</div>
+</section>
+<aside class="content-card seats-summary" id="seatsSummary" aria-live="polite">
+<div class="seats-summary-head"><h2>בחירת מושבים</h2><button type="button" class="seats-summary-hide" id="seatsSummaryHide" aria-label="הסתרת סיכום בחירה" title="הסתרה">‹</button></div>
+<strong class="seats-show-name" id="seatsShowName" hidden>עידן רייכל</strong>
+<div class="seats-empty" id="selectedSeatsEmpty"><p>לא נבחרו מושבים</p><p class="meta">בחרו מושב מהמפה</p></div>
+<div id="selectedSeats" class="selected-seats-list" hidden></div>
+<div class="summary-total"><span>סה״כ</span><span id="seatTotal">0 ₪</span></div>
+<button class="btn primary wide" id="toCart" disabled>המשך לרכישה</button>
+</aside>
+<button type="button" class="seats-summary-peek" id="seatsSummaryPeek" hidden aria-label="הצגת סיכום בחירה">בחירה</button>
+</div></div>
+</section>
+<section class="screen" id="cart"><section class="event-hero"><div class="container event-hero-grid"><div><nav class="breadcrumbs" aria-label="פירורי לחם"><a href="#home" data-route="home">דף הבית</a><span class="breadcrumb-sep" aria-hidden="true">/</span><a href="#event" data-route="event">עידן רייכל</a><span class="breadcrumb-sep" aria-hidden="true">/</span><span aria-current="page">סל הקניות</span></nav><h1>עידן רייכל</h1><p>12.08.2026 · 21:00 · אמפי שוני, בנימינה</p></div><div class="event-poster">תמונת מופע</div></div></section><div class="container purchase-grid"><section class="content-card"><h2>הכרטיסים בסל</h2><div id="cartItems"></div><div class="coupon-row"><input id="couponInput" placeholder="קוד קופון"><button class="btn secondary" id="applyCoupon">החלת קופון</button></div><p class="fineprint">מחירי הכרטיסים כוללים מע״מ כחוק ודמי טיפול בסך 5 ₪ לכל כרטיס.</p></section><aside class="content-card"><h2>סיכום</h2><div class="summary-line"><span>כרטיסים</span><strong id="cartSubtotal">0 ₪</strong></div><div class="summary-line"><span>דמי טיפול</span><strong id="feesTotal">0 ₪</strong></div><div class="summary-line"><span>הנחה</span><strong id="discountTotal">0 ₪</strong></div><div class="summary-total"><span>לתשלום</span><span id="cartTotal">0 ₪</span></div><button class="btn primary wide" data-route="login">המשך</button></aside></div></section>
+
+<section class="screen" id="login"><section class="event-hero"><div class="container event-hero-grid"><div><nav class="breadcrumbs" aria-label="פירורי לחם"><a href="#home" data-route="home">דף הבית</a><span class="breadcrumb-sep" aria-hidden="true">/</span><a href="#event" data-route="event">עידן רייכל</a><span class="breadcrumb-sep" aria-hidden="true">/</span><span aria-current="page">התחברות</span></nav><h1>עידן רייכל</h1><p>12.08.2026 · 21:00 · אמפי שוני, בנימינה</p></div><div class="event-poster">תמונת מופע</div></div></section><div class="container auth-grid"><form class="content-card"><h2>משתמש קיים</h2><label>טלפון או דוא״ל<input placeholder="050-0000000"></label><label>סיסמה / קוד חד־פעמי<input placeholder="••••••"></label><button type="button" class="btn primary wide" data-route="details">התחברות והמשך</button></form><section class="content-card"><h2>המשך כאורח</h2><p>אין צורך להירשם מראש. לאחר הרכישה ייווצר עבורכם חשבון אוטומטית.</p><button class="btn secondary wide" data-route="details">המשך כאורח</button></section></div></section>
+
+<section class="screen" id="details"><section class="event-hero"><div class="container event-hero-grid"><div><nav class="breadcrumbs" aria-label="פירורי לחם"><a href="#home" data-route="home">דף הבית</a><span class="breadcrumb-sep" aria-hidden="true">/</span><a href="#event" data-route="event">עידן רייכל</a><span class="breadcrumb-sep" aria-hidden="true">/</span><span aria-current="page">פרטי המזמין</span></nav><h1>עידן רייכל</h1><p>12.08.2026 · 21:00 · אמפי שוני, בנימינה</p></div><div class="event-poster">תמונת מופע</div></div></section><div class="container purchase-grid"><form class="content-card form-grid" id="detailsForm"><label>שם מלא<input required value="ישראל ישראלי"></label><label>טלפון<input required value="050-1234567"></label><label>דוא״ל<input required type="email" value="israel@example.com"></label><label>כתובת <small>(אופציונלי)</small><input value="רחוב הדוגמה 12, תל אביב"></label><label class="full checkbox"><input type="checkbox"> אני מעוניין לקבל עדכונים והטבות</label><label class="full checkbox"><input type="checkbox" required checked> קראתי ואישרתי את תנאי השימוש ומדיניות הפרטיות</label><button class="btn primary" type="submit">המשך לתשלום</button></form><aside class="content-card"><h2>סיכום</h2><div class="summary-total"><span>לתשלום</span><span class="dynamic-total">468 ₪</span></div></aside></div></section>
+
+<section class="screen" id="payment"><section class="event-hero"><div class="container event-hero-grid"><div><nav class="breadcrumbs" aria-label="פירורי לחם"><a href="#home" data-route="home">דף הבית</a><span class="breadcrumb-sep" aria-hidden="true">/</span><a href="#event" data-route="event">עידן רייכל</a><span class="breadcrumb-sep" aria-hidden="true">/</span><span aria-current="page">תשלום</span></nav><h1>עידן רייכל</h1><p>12.08.2026 · 21:00 · אמפי שוני, בנימינה</p></div><div class="event-poster">תמונת מופע</div></div></section><div class="container purchase-grid"><form class="content-card form-grid" id="paymentForm"><label class="full">שם בעל הכרטיס<input required value="ישראל ישראלי"></label><label class="full">מספר כרטיס<input required placeholder="0000 0000 0000 0000"></label><label>תוקף<input required placeholder="MM/YY"></label><label>CVV<input required placeholder="123"></label><label class="full">תעודת זהות<input required></label><button class="btn primary" type="submit">בצע תשלום</button></form><aside class="content-card"><h2>לתשלום</h2><div class="price xl dynamic-total">468 ₪</div><p class="fineprint">פרטי בעל כרטיס האשראי אינם חייבים להיות זהים לפרטי המזמין.</p></aside></div></section>
+
+<section class="screen" id="success"><div class="success-box"><div class="success-icon">✓</div><span class="kicker">ההזמנה הושלמה</span><h1>תודה על הרכישה</h1><p>מספר הזמנה: <strong>457812</strong></p><p>הכרטיסים נשלחו אליכם בדוא״ל וב־SMS.</p><div class="success-actions"><button class="btn primary" data-route="tickets">הצגת הכרטיסים שלי</button><button class="btn secondary" data-route="home">חזרה לעמוד הבית</button></div></div></section>
+
+<section class="screen" id="tickets"><section class="page-hero"><div class="container"><nav class="breadcrumbs" aria-label="פירורי לחם"><a href="#home" data-route="home">דף הבית</a><span class="breadcrumb-sep" aria-hidden="true">/</span><span aria-current="page">הכרטיסים שלי</span></nav><h1>המופעים הקרובים</h1></div></section><div class="container ticket-grid" id="standaloneTickets"></div></section>
+
+<section class="screen" id="contact"><section class="page-hero"><div class="container"><nav class="breadcrumbs" aria-label="פירורי לחם"><a href="#home" data-route="home">דף הבית</a><span class="breadcrumb-sep" aria-hidden="true">/</span><span aria-current="page">צרו קשר</span></nav><h1>צרו קשר</h1><p>נשמח לעזור בכל שאלה לגבי הזמנות, כרטיסים או מופעים.</p></div></section><div class="container contact-layout"><form class="content-card form-grid" id="contactForm"><label>שם פרטי<input required name="firstName" autocomplete="given-name" placeholder="ישראל"></label><label>שם משפחה<input required name="lastName" autocomplete="family-name" placeholder="ישראלי"></label><label>טלפון<input required name="phone" type="tel" autocomplete="tel" placeholder="050-0000000"></label><label>דוא״ל<input required name="email" type="email" autocomplete="email" placeholder="israel@example.com"></label><label class="full">נושא<select name="subject" required><option value="">בחרו נושא</option><option>שאלה על הזמנה</option><option>בעיה בכרטיס</option><option>בקשה להחזר</option><option>שאלה כללית</option></select></label><label class="full">הודעה<textarea required name="message" rows="5" placeholder="כתבו כאן את ההודעה שלכם"></textarea></label><label class="full checkbox"><input type="checkbox" required name="terms"><span>אני מאשר/ת את <a href="#">תנאי השימוש</a> וקראתי את <a href="#">מדיניות הפרטיות</a></span></label><button class="btn primary wide full" type="submit">שליחת פנייה</button></form><aside class="content-card contact-aside"><h2>דרכי התקשרות</h2><p><strong>טלפון:</strong> 03-1234567</p><p><strong>דוא״ל:</strong> support@tickets.co.il</p><p><strong>שעות מענה:</strong> א׳–ה׳ 09:00–18:00</p><p class="fineprint">נחזור אליכם תוך יום עסקים אחד.</p></aside></div></section>
+
+<section class="screen" id="account"><section class="page-hero"><div class="container"><nav class="breadcrumbs" aria-label="פירורי לחם"><a href="#home" data-route="home">דף הבית</a><span class="breadcrumb-sep" aria-hidden="true">/</span><span aria-current="page">אזור אישי</span></nav><h1>שלום, ישראל</h1></div></section><div class="container account-layout"><nav class="account-nav"><button class="active" data-account-tab="tickets">הכרטיסים שלי</button><button data-account-tab="favorites">המועדפים שלי</button><button data-account-tab="orders">הזמנות קודמות</button><button data-account-tab="profile">פרטים אישיים</button></nav><section class="content-card"><div id="ticketsPanel" class="account-panel"><h2>הכרטיסים שלי</h2><div class="ticket-grid compact-grid" id="accountTickets"></div></div><div id="favoritesPanel" class="account-panel hidden"><h2>המועדפים שלי</h2><div class="event-grid" id="favoritesGrid"></div><p id="favoritesEmpty">עדיין לא הוספת מופעים למועדפים.</p></div><div id="ordersPanel" class="account-panel hidden"><h2>הזמנות קודמות</h2><div class="orders-list"><article class="order-card"><div><strong>הזמנה #457812</strong><span>עידן רייכל · 2 כרטיסים</span><small>12.08.2026 · הושלמה</small></div><div><strong>468 ₪</strong><button class="btn secondary" data-route="tickets">הצגת כרטיסים</button></div></article><article class="order-card"><div><strong>הזמנה #456204</strong><span>אדיר מילר · 2 כרטיסים</span><small>18.06.2026 · הושלמה</small></div><div><strong>318 ₪</strong><button class="btn secondary" id="orderDetails">פרטי הזמנה</button></div></article></div></div><div id="profilePanel" class="account-panel hidden"><h2>פרטים אישיים</h2><form class="form-grid" id="profileForm"><label>שם מלא<input value="ישראל ישראלי"></label><label>טלפון<input value="050-1234567"></label><label>דוא״ל<input type="email" value="israel@example.com"></label><label>עיר<input value="תל אביב"></label><label class="full">כתובת<input value="רחוב הדוגמה 12"></label><label class="full checkbox"><input type="checkbox" checked> קבלת עדכונים והטבות</label><button class="btn primary" type="submit">שמירת שינויים</button></form></div></section></div></section>
+</main>
+<div class="toast" id="toast"></div>
+<div class="waitlist-modal" id="waitlistModal" hidden>
+  <div class="waitlist-dialog" role="dialog" aria-modal="true" aria-labelledby="waitlistTitle">
+    <button type="button" class="waitlist-close" id="waitlistClose" aria-label="סגירה">×</button>
+    <h2 id="waitlistTitle">הצטרפות לרשימת המתנה</h2>
+    <div class="waitlist-event">
+      <span class="cart-thumb waitlist-thumb" aria-hidden="true"></span>
+      <div class="waitlist-event-text">
+        <strong id="waitlistShowName">עידן רייכל</strong>
+        <span id="waitlistShowDate"></span>
+      </div>
+    </div>
+    <p>הכרטיסים למועד הזה אזלו. השאירו פרטים ונעדכן אתכם אם יתפנו כרטיסים.</p>
+    <form id="waitlistForm" class="waitlist-form">
+      <label>שם מלא<input required name="name" placeholder="ישראל ישראלי"></label>
+      <label>דוא״ל<input required type="email" name="email" placeholder="israel@example.com"></label>
+      <label>טלפון<input required name="phone" placeholder="050-0000000"></label>
+      <p class="waitlist-disclaimer">* ההצטרפות אינה מבטיחה זמינות כרטיסים או שמירת מקום.</p>
+      <button class="btn primary wide" type="submit">הצטרפות לרשימת המתנה</button>
+    </form>
+  </div>
+</div>
+<div class="queue-overlay" id="queueOverlay" hidden>
+  <div class="queue-box">
+    <span class="kicker">עומס במערכת</span>
+    <h2>אתם בתור לרכישה</h2>
+    <p>בשל ביקוש גבוה ממתינים למקום פנוי במערכת הרכישה.</p>
+    <div class="queue-position"><span>מיקומך בתור</span><strong id="queuePlace">128</strong></div>
+    <div class="queue-bar"><i id="queueBarFill"></i></div>
+    <p class="fineprint" id="queueHint">נא לא לסגור את החלון. המעבר לרכישה יתבצע אוטומטית.</p>
+  </div>
+</div>
+<footer class="footer"><div class="container footer-grid"><div class="footer-brand"><div class="logo">TICKETS</div><p>הופעות, תרבות וחוויות — במקום אחד.</p><div class="footer-social" aria-label="רשתות חברתיות"><a class="footer-social-link" href="#" aria-label="Facebook"><img src="assets/icons/facebook.svg" alt="" width="22" height="22"></a><a class="footer-social-link" href="#" aria-label="Instagram"><img src="assets/icons/instagram.svg" alt="" width="22" height="22"></a><a class="footer-social-link" href="#" aria-label="TikTok"><img src="assets/icons/tiktok.svg" alt="" width="22" height="22"></a></div></div><div><h3>ניווט מהיר</h3><a href="index.html">דף הבית</a><a href="index2.html">דף הבית 2</a><a href="index3.html">דף הבית 3</a><a href="#events" data-route="events">כל המופעים</a><a href="#account" data-route="account">האזור האישי</a></div><div><h3>מידע ושירות</h3><a href="#">שאלות נפוצות</a><a href="#contact" data-route="contact">צור קשר</a><a href="#">נגישות</a></div><div><h3>משפטי</h3><a href="#">תקנון האתר</a><a href="#">מדיניות פרטיות</a><a href="#">תנאי שימוש</a></div></div><div class="container footer-bottom"><span>© 2026 Tickets. כל הזכויות שמורות.</span><span>פרוטוטייפ UX — V6</span></div></footer>
+<script src="js/app.js"></script>
+<script src="js/seats-hall.js"></script>
+<script src="js/home2-hero.js"></script>
+<script src="js/demo-mode.js"></script>
+</body></html>

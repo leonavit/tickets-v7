@@ -1,0 +1,216 @@
+/* Home 2 — slider hero composition (index2.html only) */
+
+.hero.hero-v2{
+  position:relative;
+  background:#1a1a18;
+  color:#fff;
+  min-height:min(82vh,760px);
+  display:flex;
+  flex-direction:column;
+  overflow:visible;
+  z-index:4;
+  padding:0;
+}
+
+.hero-v2-slides{
+  position:absolute;
+  inset:0;
+  z-index:0;
+  overflow:hidden;
+}
+
+.hero-v2-slide{
+  position:absolute;
+  inset:0;
+  opacity:0;
+  visibility:hidden;
+  transition:opacity .7s ease,visibility .7s;
+  pointer-events:none;
+}
+
+.hero-v2-slide.is-active{
+  opacity:1;
+  visibility:visible;
+  pointer-events:auto;
+  z-index:1;
+}
+
+.hero-v2-bg{
+  position:absolute;
+  inset:0;
+  background-size:cover;
+  background-position:center;
+  background-repeat:no-repeat;
+  transform:scale(1.04);
+  transition:transform 6.5s ease-out;
+  filter:grayscale(100%) contrast(1.05);
+  -webkit-filter:grayscale(100%) contrast(1.05);
+  opacity:.35;
+}
+
+.hero-v2-slide.is-active .hero-v2-bg{
+  transform:scale(1);
+}
+
+.hero-v2-overlay{
+  position:absolute;
+  inset:0;
+  background:linear-gradient(90deg,rgba(0,0,0,.38) 0%,rgba(0,0,0,.55) 45%,rgba(0,0,0,.7) 100%);
+}
+
+/* Upper zone: slide copy — right + vertically centered */
+.hero-v2-content{
+  position:relative;
+  z-index:2;
+  flex:1 1 auto;
+  width:min(1200px,calc(100% - 36px));
+  margin:0 auto;
+  padding:72px 0 120px;
+  display:flex;
+  align-items:center;
+  justify-content:flex-start;
+  box-sizing:border-box;
+}
+
+.hero-v2-panel{
+  width:100%;
+  max-width:500px;
+  text-align:right;
+}
+
+.hero-v2-copy{
+  position:relative;
+}
+
+.hero-v2-text h1{
+  margin:0 0 18px;
+  font-size:clamp(36px,4.8vw,56px);
+  line-height:1.08;
+  font-weight:800;
+  color:#fff;
+  text-shadow:0 2px 18px rgba(0,0,0,.35);
+}
+
+.hero-v2-text p{
+  margin:0 0 28px;
+  font-size:18px;
+  line-height:1.5;
+  color:#e8e8e4;
+  max-width:42ch;
+}
+
+.hero-v2-cta{
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  min-height:46px;
+  padding:0 24px;
+}
+
+.hero-v2-text[hidden]{
+  display:none!important;
+}
+
+/* Lower zone: search bar */
+.hero-v2-search-wrap{
+  position:relative;
+  z-index:6;
+  width:100%;
+  margin-top:auto;
+  padding:0 0 16px;
+  transform:translateY(-30px);
+  overflow:visible;
+}
+
+.hero-v2-search{
+  width:min(1200px,calc(100% - 36px));
+  margin:0 auto;
+}
+
+.hero.hero-v2 .search-bar{
+  margin-top:0;
+}
+
+/* Progress bar — bottom of hero image, no navigation */
+.hero-v2-progress{
+  position:absolute;
+  left:0;
+  right:0;
+  bottom:0;
+  z-index:4;
+  height:3px;
+  background:rgba(255,255,255,.28);
+  overflow:hidden;
+  pointer-events:none;
+}
+
+.hero-v2-progress-bar{
+  height:100%;
+  width:100%;
+  background:#fff;
+  transform:scaleX(0);
+  transform-origin:right;
+  will-change:transform;
+}
+
+.hero-v2-progress-bar.is-running{
+  animation:heroV2Progress var(--hero-v2-interval,5.5s) linear forwards;
+}
+
+.hero-v2-progress-bar.is-paused{
+  animation-play-state:paused;
+}
+
+@keyframes heroV2Progress{
+  from{transform:scaleX(0)}
+  to{transform:scaleX(1)}
+}
+
+/* Tablet */
+@media(max-width:960px){
+  .hero.hero-v2{min-height:min(70vh,680px)}
+  .hero-v2-content{padding:56px 0 96px}
+  .hero-v2-text h1{font-size:clamp(32px,5vw,44px)}
+  .hero-v2-text p{font-size:16px;margin-bottom:24px}
+  .hero-v2-overlay{
+    background:linear-gradient(180deg,rgba(0,0,0,.42) 0%,rgba(0,0,0,.62) 50%,rgba(0,0,0,.78) 100%);
+  }
+}
+
+/* Mobile */
+@media(max-width:640px){
+  .hero.hero-v2{min-height:0}
+  .hero-v2-content{
+    width:min(100%,calc(100% - 24px));
+    padding:48px 0 72px;
+    justify-content:center;
+  }
+  .hero-v2-panel{
+    max-width:none;
+    text-align:center;
+  }
+  .hero-v2-text p{
+    margin-left:auto;
+    margin-right:auto;
+    font-size:15px;
+    margin-bottom:22px;
+  }
+  .hero-v2-text h1{font-size:32px;margin-bottom:14px}
+  .hero-v2-search{width:min(100%,calc(100% - 24px))}
+  .hero-v2-search-wrap{padding-bottom:16px}
+}
+
+@media(prefers-reduced-motion:reduce){
+  .hero-v2-slide,
+  .hero-v2-bg{
+    transition:none!important;
+  }
+  .hero-v2-slide.is-active .hero-v2-bg{
+    transform:none;
+  }
+  .hero-v2-progress-bar,
+  .hero-v2-progress-bar.is-running{
+    animation:none!important;
+    transform:scaleX(1);
+  }
+}
