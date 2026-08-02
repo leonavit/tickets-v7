@@ -79,7 +79,7 @@
   </nav>
   <div class="header-actions">
     <div class="header-account-wrap">
-      <button class="header-button header-account-btn" type="button" aria-expanded="false" aria-haspopup="true">
+      <button class="header-button header-account-btn" type="button" data-route="account" aria-expanded="false" aria-haspopup="true">
         <img src="assets/icons/user.svg" alt="">
         <span class="header-account-text"><strong>אזור אישי</strong><small>שלום, ישראל</small></span>
         <span class="header-account-caret" aria-hidden="true"></span>
@@ -98,7 +98,26 @@
       <div class="cart-preview" id="cartPreview"><div class="cart-preview-list" id="cartPreviewList"></div><button class="btn primary wide" data-route="cart">מעבר לסל</button></div>
     </div>
   </div>
+  <button class="nav-toggle" type="button" aria-expanded="false" aria-controls="mobileNav" aria-label="תפריט ניווט">
+    <span class="nav-toggle-bar" aria-hidden="true"></span>
+    <span class="nav-toggle-bar" aria-hidden="true"></span>
+    <span class="nav-toggle-bar" aria-hidden="true"></span>
+  </button>
 </div></div><div class="header-search-row"><div class="container"><form class="search-bar" id="homeSearch"><div class="search-field"><img src="assets/icons/location.svg" alt=""><div><label>מיקום</label><select><option>כל הארץ</option><option>מרכז</option><option>צפון</option><option>דרום</option></select></div></div><div class="search-field date-search-field"><img src="assets/icons/calendar.svg" alt=""><div class="date-range-wrap"><label>תאריך</label><button type="button" class="date-range-display" id="dateRangeDisplay" aria-expanded="false" aria-haspopup="true">בכל תאריך</button><div class="date-range-panel" id="dateRangePanel" hidden><button type="button" class="date-preset" data-preset="any">בכל תאריך</button><button type="button" class="date-preset" data-preset="today">היום</button><button type="button" class="date-preset" data-preset="weekend">סוף השבוע</button><button type="button" class="date-preset" data-preset="month">החודש</button><div class="date-range-custom"><label class="date-from-field is-empty"><input type="date" id="dateFrom" aria-label="מתאריך"><span class="date-field-placeholder">מתאריך</span></label><label class="date-to-field is-empty"><input type="date" id="dateTo" aria-label="עד תאריך"><span class="date-field-placeholder">עד תאריך</span></label></div></div></div></div><div class="search-field"><img src="assets/icons/grid.svg" alt=""><div><label>קטגוריה</label><select><option>כל הקטגוריות</option><option>מוזיקה</option><option>סטנדאפ</option><option>ילדים</option></select></div></div><div class="search-field free-search-field"><div><label>חיפוש חופשי</label><input placeholder="מופע, אמן או מקום"></div></div><button class="btn primary">חיפוש</button></form></div></div></header>
+<nav class="mobile-nav" id="mobileNav" aria-label="תפריט ראשי" aria-hidden="true">
+  <div class="mobile-nav-inner">
+    <a href="#events" data-route="events">כל המופעים</a>
+    <p class="mobile-nav-label">קטגוריות</p>
+    <a href="#events" data-route="events">מוזיקה</a>
+    <a href="#events" data-route="events">סטנדאפ</a>
+    <a href="#events" data-route="events">תרבות</a>
+    <a href="#events" data-route="events">ילדים</a>
+    <a href="#events" data-route="events">ספורט</a>
+    <a href="#events" data-route="events">מופעים קרובים</a>
+    <a href="#events" data-route="events">מופעים פופולריים</a>
+    <a href="#contact" data-route="contact">צרו קשר</a>
+  </div>
+</nav>
 <main>
 <section class="screen active" id="home">
   <section class="hero hero-v2 hero-v3" aria-roledescription="carousel" aria-label="מופעים מומלצים">
@@ -179,15 +198,19 @@
 </div>
 <div class="hall-viewport" id="hallViewport">
 <div class="hall-canvas" id="hallCanvas">
-<div class="hall-stages-top">
-<div class="hall-stage side" aria-hidden="true">במה צד</div>
-<div class="hall-stage main">במה</div>
-<div class="hall-stage side" aria-hidden="true">במה צד</div>
-</div>
-<div class="hall-blocks-row top">
+<div class="hall-top-section">
+<div class="hall-column">
+<div class="hall-stage side">במה ימין</div>
 <div class="hall-block wedge-left" id="block5" data-price="269"></div>
+</div>
+<div class="hall-column hall-column-main">
+<div class="hall-stage main">במה מרכזית</div>
 <div class="hall-block orchestra" id="blockOrchestra" data-price="319"></div>
+</div>
+<div class="hall-column">
+<div class="hall-stage side">במה שמאל</div>
 <div class="hall-block wedge-right" id="block1" data-price="269"></div>
+</div>
 </div>
 <div class="hall-accessible-zone" id="accessibleZone" data-price="269">
 <div class="hall-stage accessible-label"><span aria-hidden="true">♿</span> במה נגישה <span aria-hidden="true">♿</span></div>
@@ -258,7 +281,7 @@
     <p>בשל ביקוש גבוה ממתינים למקום פנוי במערכת הרכישה.</p>
     <div class="queue-position"><span>מיקומך בתור</span><strong id="queuePlace">128</strong></div>
     <div class="queue-bar"><i id="queueBarFill"></i></div>
-    <p class="fineprint" id="queueHint">נא לא לסגור את החלון. המעבר לרכישה יתבצע אוטומטית.</p>
+    <p class="fineprint" id="queueHint">נא לא לסגור את החלון. המעבר לרכישה יתבצע אוטומטית. לחיצה על אזור ריק תעביר מיד.</p>
   </div>
 </div>
 <footer class="footer"><div class="container footer-grid"><div class="footer-brand"><div class="logo">TICKETS</div><p>הופעות, תרבות וחוויות — במקום אחד.</p><div class="footer-social" aria-label="רשתות חברתיות"><a class="footer-social-link" href="#" aria-label="Facebook"><img src="assets/icons/facebook.svg" alt="" width="22" height="22"></a><a class="footer-social-link" href="#" aria-label="Instagram"><img src="assets/icons/instagram.svg" alt="" width="22" height="22"></a><a class="footer-social-link" href="#" aria-label="TikTok"><img src="assets/icons/tiktok.svg" alt="" width="22" height="22"></a></div></div><div><h3>ניווט מהיר</h3><a href="index.html">דף הבית</a><a href="index2.html">דף הבית 2</a><a href="index3.html">דף הבית 3</a><a href="#events" data-route="events">כל המופעים</a><a href="#account" data-route="account">האזור האישי</a></div><div><h3>מידע ושירות</h3><a href="#">שאלות נפוצות</a><a href="#contact" data-route="contact">צור קשר</a><a href="#">נגישות</a></div><div><h3>משפטי</h3><a href="#">תקנון האתר</a><a href="#">מדיניות פרטיות</a><a href="#">תנאי שימוש</a></div></div><div class="container footer-bottom"><span>© 2026 Tickets. כל הזכויות שמורות.</span><span>פרוטוטייפ UX — V6</span></div></footer>

@@ -6,6 +6,7 @@
   flex-direction:column;
   align-items:stretch;
   overflow:visible;
+  border-bottom:0;
 }
 
 .site-header-v3 .header-top-row{
@@ -21,8 +22,8 @@
 }
 
 .site-header-v3 .header-search-row{
-  background:#f3f3f0;
-  border-bottom:1px solid var(--line);
+  background:#111;
+  border-bottom:0;
   padding:10px 0;
   overflow:visible;
   position:relative;

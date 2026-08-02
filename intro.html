@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="referrer" content="strict-origin-when-cross-origin">
+<title>תצוגת אב־טיפוס — Tickets</title>
+<link rel="stylesheet" href="css/intro.css">
+</head>
+<body>
+<main class="intro" id="intro">
+  <article class="intro-card" aria-labelledby="intro-title">
+    <header class="intro-header">
+      <p class="intro-kicker">Tickets · V6</p>
+      <h1 id="intro-title">תצוגת אב־טיפוס</h1>
+      <p class="intro-lead">ברוכים הבאים לאב־הטיפוס האינטראקטיבי הראשון.</p>
+      <p class="intro-copy">אב־טיפוס זה נועד לאמת את חוויית המשתמש, הניווט, מבנה המסכים והפונקציונליות — לפני המעבר לשלב העיצוב הוויזואלי.</p>
+    </header>
+
+    <section class="intro-focus" aria-labelledby="focus-title">
+      <h2 id="focus-title">מוקד הסקירה להיום</h2>
+      <ul class="intro-checklist">
+        <li><span class="intro-check" aria-hidden="true">✓</span><span>זרימת משתמש</span></li>
+        <li><span class="intro-check" aria-hidden="true">✓</span><span>מבנה מסכים</span></li>
+        <li><span class="intro-check" aria-hidden="true">✓</span><span>רכיבים ופונקציונליות</span></li>
+        <li><span class="intro-check" aria-hidden="true">✓</span><span>זיהוי רכיבים חסרים</span></li>
+        <li><span class="intro-check" aria-hidden="true">✓</span><span>שאלות ומשוב</span></li>
+      </ul>
+    </section>
+
+    <aside class="intro-notice" role="note" aria-labelledby="notice-title">
+      <h2 id="notice-title">חשוב לדעת</h2>
+      <p>זהו אב־טיפוס פונקציונלי מוקדם.</p>
+      <p>עיצוב ויזואלי, מיתוג, צבעים, תמונות, אייקונים, טיפוגרפיה, ריווחים, אנימציות ומיקרו־אינטראקציות — הופשטו או הושמטו במכוון.</p>
+      <p>מטרת הסקירה היא לאמת את חוויית המוצר ולזהות שיפורים לפני תחילת עיצוב ה־UI.</p>
+    </aside>
+
+    <div class="intro-actions">
+      <a class="intro-btn" href="index.html">התחלת האב־טיפוס <span aria-hidden="true">←</span></a>
+    </div>
+  </article>
+</main>
+<script>
+(function () {
+  var root = document.getElementById("intro");
+  if (!root) return;
+  requestAnimationFrame(function () {
+    root.classList.add("is-ready");
+  });
+})();
+</script>
+</body>
+</html>

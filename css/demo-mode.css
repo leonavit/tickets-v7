@@ -1,19 +1,77 @@
 /* Demo mode — only active when body.demo-mode-on */
 
-.demo-mode-toggle{
+.demo-mode-panel{
   position:fixed;
-  right:20px;
-  left:auto;
+  right:0;
   bottom:88px;
-  z-index:95;
+  z-index:230;
+  display:flex;
+  align-items:stretch;
+  transition:transform .28s cubic-bezier(.22,.9,.3,1);
+  direction:rtl;
+}
+
+.demo-mode-panel-inner{
   display:flex;
   align-items:center;
-  gap:10px;
-  padding:10px 14px;
+  gap:6px;
+  margin-right:20px;
+  padding:8px 10px 8px 8px;
   border:1px solid #ddd;
   border-radius:14px;
   background:#fff;
   box-shadow:0 8px 24px rgba(0,0,0,.12);
+}
+
+.demo-mode-panel.is-collapsed{
+  transform:translateX(calc(100% - 14px));
+}
+
+.demo-mode-panel.is-collapsed .demo-mode-panel-inner{
+  margin-right:0;
+  border-radius:14px 0 0 14px;
+  padding-right:6px;
+  cursor:pointer;
+}
+
+.demo-mode-panel.is-collapsed .demo-mode-toggle,
+.demo-mode-panel.is-collapsed .demo-mode-dock-close{
+  pointer-events:none;
+}
+
+.demo-mode-dock-close{
+  width:26px;
+  height:26px;
+  border:0;
+  border-radius:8px;
+  background:transparent;
+  color:#666;
+  font:inherit;
+  font-size:18px;
+  line-height:1;
+  padding:0;
+  cursor:pointer;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  flex:0 0 auto;
+}
+
+.demo-mode-dock-close:hover,
+.demo-mode-dock-close:focus-visible{
+  background:#f0f0ec;
+  color:#111;
+  outline:none;
+}
+
+.demo-mode-toggle{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  padding:2px 4px;
+  border:0;
+  border-radius:10px;
+  background:transparent;
   font:inherit;
   font-size:13px;
   font-weight:700;
@@ -62,17 +120,17 @@
   position:fixed;
   top:0;
   left:0;
-  z-index:97;
+  z-index:232;
   max-width:min(220px,70vw);
   padding:6px 10px;
-  border-radius:8px;
-  background:#2B6CB0;
-  color:#fff;
+  border-radius:4px;
+  background:#FFE566;
+  color:#111;
   font-size:12px;
   font-weight:700;
   line-height:1.3;
   pointer-events:none;
-  box-shadow:0 4px 14px rgba(0,0,0,.18);
+  box-shadow:none;
   opacity:0;
   visibility:hidden;
   transition:opacity .15s ease,visibility .15s ease;
@@ -89,7 +147,7 @@
 
 .demo-mode-menu{
   position:fixed;
-  z-index:98;
+  z-index:233;
   min-width:168px;
   padding:6px;
   border:1px solid #ddd;
@@ -153,12 +211,12 @@
 
 /* Active mode styles — zero effect unless .demo-mode-on */
 body.demo-mode-on,
-body.demo-mode-on *:not(.demo-mode-toggle):not(.demo-mode-toggle *):not(.demo-mode-cursor):not(.demo-mode-cursor *):not(.demo-mode-menu):not(.demo-mode-menu *){
+body.demo-mode-on *:not(.demo-mode-panel):not(.demo-mode-panel *):not(.demo-mode-cursor):not(.demo-mode-cursor *):not(.demo-mode-menu):not(.demo-mode-menu *){
   cursor:none !important;
 }
 
-body.demo-mode-on .demo-mode-toggle,
-body.demo-mode-on .demo-mode-toggle *,
+body.demo-mode-on .demo-mode-panel,
+body.demo-mode-on .demo-mode-panel *,
 body.demo-mode-on .demo-mode-menu,
 body.demo-mode-on .demo-mode-menu *{
   cursor:pointer !important;
@@ -171,7 +229,7 @@ body.demo-mode-on .demo-mode-menu *{
   width:32px;
   height:40px;
   margin:0;
-  z-index:96;
+  z-index:231;
   pointer-events:none;
   opacity:0;
   transform:translate(-9999px,-9999px);
@@ -203,12 +261,18 @@ body.demo-mode-on [data-demo-region].is-demo-hot{
 }
 
 @media(max-width:600px){
-  .demo-mode-toggle{
-    right:12px;
-    left:auto;
+  .demo-mode-panel{
     bottom:72px;
-    padding:8px 12px;
+  }
+  .demo-mode-panel-inner{
+    margin-right:12px;
+    padding:6px 8px;
+  }
+  .demo-mode-toggle{
     font-size:12px;
+  }
+  .demo-mode-panel.is-collapsed{
+    transform:translateX(calc(100% - 12px));
   }
 }
 
@@ -216,5 +280,6 @@ body.demo-mode-on [data-demo-region].is-demo-hot{
   body.demo-mode-on [data-demo-region].is-demo-hot{animation:none}
   .demo-mode-toggle-thumb,
   .demo-mode-label-float,
-  .demo-mode-menu{transition:none}
+  .demo-mode-menu,
+  .demo-mode-panel{transition:none}
 }

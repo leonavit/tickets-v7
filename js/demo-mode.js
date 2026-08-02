@@ -4,6 +4,7 @@
  */
 (function initDemoMode() {
   const STORAGE_KEY = "ticketsDemoMode";
+  const DOCK_KEY = "ticketsDemoModeDock";
   const PAGES = [
     { href: "index.html", label: "דף הבית 1" },
     { href: "index2.html", label: "דף הבית 2" },
@@ -27,8 +28,11 @@
   ];
 
   let enabled = false;
+  let dockCollapsed = false;
   let hotEl = null;
   let toggleBtn = null;
+  let panelEl = null;
+  let closeBtn = null;
   let labelEl = null;
   let cursorEl = null;
   let menuEl = null;
@@ -39,6 +43,32 @@
   const LABEL_OFFSET_X = 18;
   const LABEL_OFFSET_Y = 22;
   const VIEW_MARGIN = 12;
+
+  function readDock() {
+    try {
+      return localStorage.getItem(DOCK_KEY) === "1";
+    } catch {
+      return false;
+    }
+  }
+
+  function writeDock(collapsed) {
+    try {
+      localStorage.setItem(DOCK_KEY, collapsed ? "1" : "0");
+    } catch {
+      /* ignore */
+    }
+  }
+
+  function setDockCollapsed(collapsed) {
+    dockCollapsed = !!collapsed;
+    if (!panelEl) return;
+    panelEl.classList.toggle("is-collapsed", dockCollapsed);
+    panelEl.setAttribute("aria-expanded", dockCollapsed ? "false" : "true");
+    if (closeBtn) closeBtn.hidden = dockCollapsed;
+    if (toggleBtn) toggleBtn.tabIndex = dockCollapsed ? -1 : 0;
+    writeDock(dockCollapsed);
+  }
 
   function readStored() {
     try {
@@ -66,7 +96,7 @@
   function markRegions() {
     REGIONS.forEach(({ selector, label }) => {
       document.querySelectorAll(selector).forEach((el) => {
-        if (el.closest(".demo-mode-toggle") || el.closest(".demo-mode-menu")) return;
+        if (el.closest(".demo-mode-panel") || el.closest(".demo-mode-menu")) return;
         if (selector === "#homeSearch") {
           if (el.closest(".hero-v2-search-wrap") || el.closest(".header-search-row")) return;
         }
@@ -192,7 +222,7 @@
       setHot(null);
       return;
     }
-    if (target.closest(".demo-mode-toggle") || target.closest(".demo-mode-menu")) {
+    if (target.closest(".demo-mode-panel") || target.closest(".demo-mode-menu")) {
       setHot(null);
       return;
     }
@@ -249,6 +279,13 @@
   }
 
   function buildUI() {
+    panelEl = document.createElement("div");
+    panelEl.className = "demo-mode-panel";
+    panelEl.setAttribute("aria-expanded", "true");
+
+    const inner = document.createElement("div");
+    inner.className = "demo-mode-panel-inner";
+
     toggleBtn = document.createElement("button");
     toggleBtn.type = "button";
     toggleBtn.className = "demo-mode-toggle";
@@ -258,8 +295,29 @@
     toggleBtn.innerHTML =
       '<span class="demo-mode-toggle-track" aria-hidden="true"><span class="demo-mode-toggle-thumb"></span></span>' +
       "<span>מצב הדגמה</span>";
-    toggleBtn.addEventListener("click", () => setEnabled(!enabled));
-    document.body.appendChild(toggleBtn);
+    toggleBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      if (dockCollapsed) return;
+      setEnabled(!enabled);
+    });
+
+    closeBtn = document.createElement("button");
+    closeBtn.type = "button";
+    closeBtn.className = "demo-mode-dock-close";
+    closeBtn.setAttribute("aria-label", "צמצום פאנל מצב הדגמה");
+    closeBtn.textContent = "×";
+    closeBtn.addEventListener("click", (e) => {
+      e.stopPropagation();
+      setDockCollapsed(true);
+    });
+
+    inner.appendChild(toggleBtn);
+    inner.appendChild(closeBtn);
+    panelEl.appendChild(inner);
+    panelEl.addEventListener("click", () => {
+      if (dockCollapsed) setDockCollapsed(false);
+    });
+    document.body.appendChild(panelEl);
 
     labelEl = document.createElement("div");
     labelEl.className = "demo-mode-label-float";
@@ -307,6 +365,17 @@
     mo.observe(homeSections, { childList: true, subtree: true });
   }
 
+  function demoChromeEls() {
+    return [panelEl, labelEl, cursorEl, menuEl].filter(Boolean);
+  }
+
+  function syncDemoChromeHost() {
+    const host = document.fullscreenElement || document.body;
+    demoChromeEls().forEach((el) => {
+      if (el.parentElement !== host) host.appendChild(el);
+    });
+  }
+
   function boot() {
     buildUI();
     markRegions();
@@ -316,7 +385,9 @@
     document.addEventListener("contextmenu", onContextMenu);
     document.addEventListener("click", onDocumentClick);
     document.addEventListener("keydown", onKeyDown);
+    document.addEventListener("fullscreenchange", syncDemoChromeHost);
     setEnabled(readStored());
+    setDockCollapsed(readDock());
   }
 
   if (document.readyState === "loading") {

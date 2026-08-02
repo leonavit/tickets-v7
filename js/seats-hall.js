@@ -219,7 +219,7 @@
     const shell = document.getElementById("seatsShell");
     if (!shell) return;
     try {
-      if (!document.fullscreenElement) {
+      if (!isFs()) {
         if (shell.requestFullscreen) await shell.requestFullscreen();
         else shell.classList.add("is-fullscreen");
       } else if (document.fullscreenElement === shell) {
@@ -228,7 +228,7 @@
         shell.classList.remove("is-fullscreen");
       }
     } catch (_) {
-      shell.classList.toggle("is-fullscreen");
+      shell.classList.add("is-fullscreen");
     }
     syncFullscreenUi();
   }
