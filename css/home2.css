@@ -1,4 +1,4 @@
-/* Home 2 — slider hero composition (index2.html only) */
+/* Home hero — slider composition */
 
 .hero.hero-v2{
   position:relative;
@@ -10,6 +10,20 @@
   overflow:visible;
   z-index:4;
   padding:0;
+  cursor:grab;
+  touch-action:pan-y;
+  user-select:none;
+}
+
+.hero.hero-v2.is-dragging{
+  cursor:grabbing;
+}
+
+.hero.hero-v2 .hero-v2-cta,
+.hero.hero-v2 button,
+.hero.hero-v2 a{
+  cursor:pointer;
+  user-select:auto;
 }
 
 .hero-v2-slides{
@@ -43,9 +57,6 @@
   background-repeat:no-repeat;
   transform:scale(1.04);
   transition:transform 6.5s ease-out;
-  filter:grayscale(100%) contrast(1.05);
-  -webkit-filter:grayscale(100%) contrast(1.05);
-  opacity:.35;
 }
 
 .hero-v2-slide.is-active .hero-v2-bg{
@@ -63,7 +74,7 @@
   position:relative;
   z-index:2;
   flex:1 1 auto;
-  width:min(1200px,calc(100% - 36px));
+  width:min(1400px,calc(100% - 36px));
   margin:0 auto;
   padding:72px 0 120px;
   display:flex;
@@ -123,7 +134,7 @@
 }
 
 .hero-v2-search{
-  width:min(1200px,calc(100% - 36px));
+  width:min(1400px,calc(100% - 36px));
   margin:0 auto;
 }
 

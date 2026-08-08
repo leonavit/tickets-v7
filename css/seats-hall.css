@@ -1,6 +1,6 @@
 /* Seats hall — large venue map */
 .seats-page{padding:34px 0 70px;position:relative}
-.seats-page .container.seats-shell{width:min(1200px,calc(100% - 36px));margin:auto;position:relative}
+.seats-page .container.seats-shell{width:min(1400px,calc(100% - 36px));margin:auto;position:relative}
 .seats-map-card.seats-map-full{width:100%;padding:22px 22px 28px}
 .seats-map-toolbar{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;margin-bottom:14px}
 .seats-zoom{display:inline-flex;gap:8px;align-items:center}
@@ -13,7 +13,7 @@
   border-radius:999px;padding:6px 12px;font:inherit;font-size:13px;font-weight:700;color:#444;cursor:pointer;
   min-height:34px;box-sizing:border-box;line-height:1
 }
-.price-legend button.price-chip.is-active,.accessible-legend-btn.is-active{background:#111;color:#fff;border-color:#111}
+.price-legend button.price-chip.is-active,.accessible-legend-btn.is-active{background:var(--brand-gradient);color:#fff;border-color:var(--brand-dark)}
 .price-legend button.price-chip.is-active .dot{box-shadow:0 0 0 1px #fff}
 .accessible-legend-btn{align-self:flex-end;margin:0}
 .accessible-toggle{display:none!important}
@@ -125,7 +125,7 @@
   background:#fff;color:#111;font-size:16px;line-height:1;padding:0;
   display:inline-flex;align-items:center;justify-content:center;cursor:pointer;flex:0 0 auto
 }
-.selected-seat-remove:hover,.selected-seat-remove:focus-visible{background:#111;color:#fff;border-color:#111;outline:none}
+.selected-seat-remove:hover,.selected-seat-remove:focus-visible{background:var(--brand-gradient);color:#fff;border-color:var(--brand-dark);outline:none}
 .selected-seat-main{display:flex;align-items:flex-start;justify-content:space-between;gap:10px;flex:1;min-width:0}
 .seats-shell:fullscreen{
   width:100%!important;max-width:none!important;margin:0!important;padding:16px;
@@ -143,7 +143,7 @@
 .seats-shell.is-fullscreen .hall-viewport{max-height:calc(100vh - 160px)}
 .seats-shell:fullscreen .seats-summary,
 .seats-shell.is-fullscreen .seats-summary{position:fixed!important;top:130px;left:24px;right:auto;bottom:auto;width:min(320px,calc(100vw - 40px));z-index:210}
-#seatsFullscreen.is-active{background:#111;color:#fff;border-color:#111}
+#seatsFullscreen.is-active{background:var(--brand-gradient);color:#fff;border-color:var(--brand-dark)}
 
 .seats-summary-head{display:flex;align-items:center;justify-content:space-between;gap:10px;margin:0 0 10px}
 .seats-summary-head h2{margin:0;font-size:22px}
@@ -152,14 +152,14 @@
   background:#fff;color:#111;font-size:22px;line-height:1;padding:0;cursor:pointer;
   display:inline-flex;align-items:center;justify-content:center;flex:0 0 auto
 }
-.seats-summary-hide:hover,.seats-summary-hide:focus-visible{background:#111;color:#fff;border-color:#111;outline:none}
+.seats-summary-hide:hover,.seats-summary-hide:focus-visible{background:var(--brand-gradient);color:#fff;border-color:var(--brand-dark);outline:none}
 .seats-summary.is-open.is-collapsed{
   transform:translateX(calc(-100% - 28px))!important;opacity:0;pointer-events:none;visibility:hidden
 }
 .seats-summary-peek{
   position:fixed;top:130px;left:0;bottom:auto;z-index:211;
   border:1px solid var(--line,#ddd);border-left:0;border-radius:0 12px 12px 0;
-  background:#111;color:#fff;font:inherit;font-weight:800;font-size:13px;
+  background:var(--brand-gradient);color:#fff;font:inherit;font-weight:800;font-size:13px;
   padding:14px 10px;cursor:pointer;writing-mode:vertical-rl;transform:none;
   box-shadow:0 8px 24px rgba(0,0,0,.16);letter-spacing:.04em;
   height:auto;min-height:0;width:auto

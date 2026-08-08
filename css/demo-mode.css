@@ -145,80 +145,14 @@
   visibility:visible;
 }
 
-.demo-mode-menu{
-  position:fixed;
-  z-index:233;
-  min-width:168px;
-  padding:6px;
-  border:1px solid #ddd;
-  border-radius:12px;
-  background:#fff;
-  box-shadow:0 10px 28px rgba(0,0,0,.16);
-  direction:rtl;
-  opacity:0;
-  visibility:hidden;
-  pointer-events:none;
-  transform:translateY(4px);
-  transition:opacity .15s ease,visibility .15s ease,transform .15s ease;
-}
-
-.demo-mode-menu.is-open{
-  opacity:1;
-  visibility:visible;
-  pointer-events:auto;
-  transform:translateY(0);
-}
-
-.demo-mode-menu-title{
-  margin:0;
-  padding:8px 10px 6px;
-  font-size:11px;
-  font-weight:700;
-  color:#777;
-  letter-spacing:.02em;
-}
-
-.demo-mode-menu button{
-  display:block;
-  width:100%;
-  border:0;
-  background:transparent;
-  border-radius:8px;
-  padding:10px 12px;
-  font:inherit;
-  font-size:13px;
-  font-weight:700;
-  color:#222;
-  text-align:right;
-  cursor:pointer;
-}
-
-.demo-mode-menu button:hover,
-.demo-mode-menu button:focus-visible{
-  background:#f0f4f8;
-  outline:none;
-}
-
-.demo-mode-menu button.is-current{
-  background:#e8f1fb;
-  color:#2B6CB0;
-}
-
-.demo-mode-menu button.is-current::after{
-  content:" ✓";
-  font-weight:800;
-}
-
 /* Active mode styles — zero effect unless .demo-mode-on */
 body.demo-mode-on,
-body.demo-mode-on *:not(.demo-mode-panel):not(.demo-mode-panel *):not(.demo-mode-cursor):not(.demo-mode-cursor *):not(.demo-mode-menu):not(.demo-mode-menu *){
+body.demo-mode-on *:not(.demo-mode-panel):not(.demo-mode-panel *):not(.demo-mode-cursor):not(.demo-mode-cursor *){
   cursor:none !important;
 }
 
 body.demo-mode-on .demo-mode-panel,
-body.demo-mode-on .demo-mode-panel *,
-body.demo-mode-on .demo-mode-menu,
-body.demo-mode-on .demo-mode-menu *{
+body.demo-mode-on .demo-mode-panel *{
   cursor:pointer !important;
 }
 
@@ -280,6 +214,5 @@ body.demo-mode-on [data-demo-region].is-demo-hot{
   body.demo-mode-on [data-demo-region].is-demo-hot{animation:none}
   .demo-mode-toggle-thumb,
   .demo-mode-label-float,
-  .demo-mode-menu,
   .demo-mode-panel{transition:none}
 }

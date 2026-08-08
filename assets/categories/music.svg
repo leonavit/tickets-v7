@@ -1,0 +1,18 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 260" fill="none">
+  <defs>
+    <linearGradient id="mBg" x1="0" y1="0" x2="200" y2="260" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#111124"/><stop offset="1" stop-color="#e72173"/>
+    </linearGradient>
+    <linearGradient id="mDisc" x1="40" y1="50" x2="170" y2="190" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#2a1848"/><stop offset="1" stop-color="#7a1f5a"/>
+    </linearGradient>
+  </defs>
+  <rect width="200" height="260" rx="0" fill="url(#mBg)"/>
+  <circle cx="100" cy="118" r="72" fill="url(#mDisc)"/>
+  <circle cx="100" cy="118" r="58" stroke="#e72173" stroke-opacity=".35" stroke-width="2"/>
+  <circle cx="100" cy="118" r="42" stroke="#fff" stroke-opacity=".12" stroke-width="2"/>
+  <circle cx="100" cy="118" r="18" fill="#e72173"/>
+  <circle cx="100" cy="118" r="7" fill="#111124"/>
+  <path d="M138 62v78c0 8-7 14-16 14s-16-6-16-14 7-14 16-14c3 0 6 .7 8 1.8V78l38-10v62c0 8-7 14-16 14s-16-6-16-14 7-14 16-14c3 0 6 .7 8 1.8V62l-22 6z" fill="#fff"/>
+  <path d="M48 198c18-18 38-18 56 0 18 18 38 18 56 0" stroke="#fff" stroke-opacity=".35" stroke-width="3" stroke-linecap="round"/>
+</svg>

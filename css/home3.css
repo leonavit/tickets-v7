@@ -1,4 +1,4 @@
-/* Home 3 — search below logo/nav; slider text vertically centered (index3.html) */
+/* Home layout — search below logo/nav; slider text vertically centered */
 
 /* —— Header: logo/nav row, then search —— */
 .site-header-v3{
@@ -22,7 +22,7 @@
 }
 
 .site-header-v3 .header-search-row{
-  background:#111;
+  background:#1d104a;
   border-bottom:0;
   padding:10px 0;
   overflow:visible;

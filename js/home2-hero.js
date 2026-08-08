@@ -12,8 +12,10 @@
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   let index = 0;
   let paused = false;
-  let touchStartX = 0;
-  let touchDeltaX = 0;
+  let dragging = false;
+  let dragStartX = 0;
+  let dragDeltaX = 0;
+  let didDrag = false;
   let fallbackTimer = null;
 
   function clearFallback() {
@@ -88,43 +90,63 @@
   }
 
   root.addEventListener("mouseenter", pause);
-  root.addEventListener("mouseleave", resume);
+  root.addEventListener("mouseleave", () => {
+    if (!dragging) resume();
+  });
   root.addEventListener("focusin", pause);
   root.addEventListener("focusout", (e) => {
-    if (!root.contains(e.relatedTarget)) resume();
+    if (!root.contains(e.relatedTarget) && !dragging) resume();
   });
 
-  root.addEventListener(
-    "touchstart",
-    (e) => {
-      if (!e.changedTouches[0]) return;
-      touchStartX = e.changedTouches[0].clientX;
-      touchDeltaX = 0;
-      pause();
-    },
-    { passive: true }
-  );
+  function endDrag() {
+    if (!dragging) return;
+    dragging = false;
+    root.classList.remove("is-dragging");
+
+    if (Math.abs(dragDeltaX) > 40) {
+      if (dragDeltaX < 0) goTo(index + 1);
+      else goTo(index - 1);
+    }
+
+    dragDeltaX = 0;
+
+    const stillHovered = root.matches(":hover");
+    const stillFocused = root.contains(document.activeElement);
+    if (!stillHovered && !stillFocused) resume();
+  }
+
+  root.addEventListener("pointerdown", (e) => {
+    if (e.button !== 0) return;
+    if (e.target.closest("button, a, input, select, textarea, label")) return;
+    dragging = true;
+    didDrag = false;
+    dragStartX = e.clientX;
+    dragDeltaX = 0;
+    root.classList.add("is-dragging");
+    pause();
+    try {
+      root.setPointerCapture(e.pointerId);
+    } catch (_) {}
+  });
+
+  root.addEventListener("pointermove", (e) => {
+    if (!dragging) return;
+    dragDeltaX = e.clientX - dragStartX;
+    if (Math.abs(dragDeltaX) > 8) didDrag = true;
+  });
+
+  root.addEventListener("pointerup", endDrag);
+  root.addEventListener("pointercancel", endDrag);
 
   root.addEventListener(
-    "touchmove",
+    "click",
     (e) => {
-      if (!e.changedTouches[0]) return;
-      touchDeltaX = e.changedTouches[0].clientX - touchStartX;
+      if (!didDrag) return;
+      e.preventDefault();
+      e.stopPropagation();
+      didDrag = false;
     },
-    { passive: true }
-  );
-
-  root.addEventListener(
-    "touchend",
-    () => {
-      if (Math.abs(touchDeltaX) > 40) {
-        if (touchDeltaX < 0) goTo(index + 1);
-        else goTo(index - 1);
-      }
-      touchDeltaX = 0;
-      resume();
-    },
-    { passive: true }
+    true
   );
 
   document.addEventListener("visibilitychange", () => {
