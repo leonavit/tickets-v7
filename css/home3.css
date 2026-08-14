@@ -30,7 +30,8 @@
 
 .site-header-v3 .header-search-row{
   --header-search-h:78px;
-  min-height:var(--header-search-h,78px);
+  /* height follows content — never lock to measured open height */
+  min-height:0;
   background:var(--search-bg);
   border-bottom:0;
   padding:10px 0;
@@ -200,8 +201,12 @@ body:has(#home.active) .hero.hero-v3 .hero-v2-content{
   flex-shrink:0;
 }
 .header-search-row.is-closed{
-  padding-top:8px;
-  padding-bottom:8px;
+  min-height:0;
+  padding-top:6px;
+  padding-bottom:6px;
+}
+.header-search-row.is-closed .header-search-reopen-wrap{
+  padding:4px 4px 6px;
 }
 @media(prefers-reduced-motion:reduce){
   .header-search-panel,

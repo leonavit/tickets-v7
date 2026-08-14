@@ -28,11 +28,13 @@
     } catch {
       /* ignore */
     }
+    document.documentElement.classList.add("site-auth-ok");
     document.body.classList.remove("site-locked");
     if (errorEl) errorEl.hidden = true;
   }
 
   function lock() {
+    document.documentElement.classList.remove("site-auth-ok");
     document.body.classList.add("site-locked");
   }
 

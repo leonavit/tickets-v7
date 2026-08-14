@@ -606,15 +606,12 @@ body.hide-demo-mode .demo-mode-cursor{
   display:none !important;
 }
 
-@media(max-width:600px){
-  .theme-options-tab{
-    bottom:140px;
-    width:44px;
-    height:44px;
-    padding:10px;
-  }
-  .theme-options-panel{
-    width:min(100vw,100%);
+/* Always hide site settings (theme options) on mobile */
+@media(max-width:960px){
+  .theme-options-tab,
+  .theme-options-panel,
+  .theme-options-backdrop{
+    display:none !important;
   }
 }
 

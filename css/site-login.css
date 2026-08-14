@@ -12,17 +12,27 @@
   direction:rtl;
 }
 
-body:not(.site-locked) .site-login-gate{
-  display:none;
+body:not(.site-locked) .site-login-gate,
+html.site-auth-ok .site-login-gate{
+  display:none !important;
 }
 
 body.site-locked{
   overflow:hidden;
 }
 
+html.site-auth-ok body.site-locked{
+  overflow:auto;
+}
+
 body.site-locked > :not(.site-login-gate){
   visibility:hidden;
   pointer-events:none;
+}
+
+html.site-auth-ok body.site-locked > :not(.site-login-gate){
+  visibility:visible;
+  pointer-events:auto;
 }
 
 .site-login-card{

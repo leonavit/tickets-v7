@@ -38,6 +38,13 @@
       if (dateDisplay) dateDisplay.setAttribute("aria-expanded", "false");
     }
     syncScrollBg();
+    // Remeasure after layout settles so closed row isn't locked to open height
+    window.requestAnimationFrame(() => {
+      const h = Math.round(row.getBoundingClientRect().height);
+      if (!h) return;
+      document.documentElement.style.setProperty("--header-search-h", h + "px");
+      row.style.setProperty("--header-search-h", h + "px");
+    });
     if (!focus) return;
     if (next) {
       const focusTarget =
@@ -63,7 +70,9 @@
   window.addEventListener("scroll", syncScrollBg, { passive: true });
   window.addEventListener("hashchange", syncScrollBg);
 
-  setOpen(true);
+  const mobileMq = window.matchMedia("(max-width:960px)");
+  // Mobile: search closed by default; desktop: open
+  setOpen(!mobileMq.matches);
   syncScrollBg();
 })();
 

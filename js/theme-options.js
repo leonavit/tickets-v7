@@ -111,8 +111,8 @@
   };
 
   const DEFAULTS = {
-    ...PALETTE_DARK,
-    paletteId: "dark",
+    ...PALETTE_LIGHT,
+    paletteId: "light",
     hideDemoMode: false,
     cardLayout: "popular",
     textAnimation: "staggered-letters",
@@ -224,7 +224,7 @@
 
   function applyTheme() {
     const root = document.documentElement;
-    const palette = PALETTES[state.paletteId] || PALETTE_DARK;
+    const palette = PALETTES[state.paletteId] || PALETTE_LIGHT;
     root.style.setProperty("--brand-dark", state.brandDark);
     root.style.setProperty("--brand-pink", state.brandPink);
     root.style.setProperty("--brand-border", state.brandBorder || palette.brandBorder);
@@ -710,7 +710,7 @@
   }
 
   function activePaletteColors() {
-    return PALETTES[state.paletteId] || PALETTE_DARK;
+    return PALETTES[state.paletteId] || PALETTE_LIGHT;
   }
 
   function colorDefault(key) {
@@ -746,7 +746,7 @@
     const subtitle = panelEl.querySelector("#themePaletteToggle .theme-options-block-subtitle");
     if (subtitle) {
       subtitle.textContent =
-        (PALETTE_META[state.paletteId] || PALETTE_META.dark).subtitle;
+        (PALETTE_META[state.paletteId] || PALETTE_META.light).subtitle;
     }
   }
 
@@ -936,7 +936,7 @@
     const paletteToggle = makeToggleSection("פלטה", {
       open: false,
       id: "themePalette",
-      subtitle: (PALETTE_META[state.paletteId] || PALETTE_META.dark).subtitle,
+      subtitle: (PALETTE_META[state.paletteId] || PALETTE_META.light).subtitle,
       nested: true,
       palettePreview: true,
     });
@@ -1201,6 +1201,16 @@
     syncShowDatesQtyControls();
     syncLogoControls();
     syncPaletteControls();
+    const mobileMq = window.matchMedia("(max-width:960px)");
+    function syncMobileThemeChrome() {
+      if (mobileMq.matches && open) setOpen(false);
+    }
+    if (typeof mobileMq.addEventListener === "function") {
+      mobileMq.addEventListener("change", syncMobileThemeChrome);
+    } else if (typeof mobileMq.addListener === "function") {
+      mobileMq.addListener(syncMobileThemeChrome);
+    }
+    syncMobileThemeChrome();
     // ensure home cards match stored layout after first paint
     document.dispatchEvent(
       new CustomEvent("tickets:cardLayout", {
