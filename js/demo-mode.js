@@ -17,7 +17,8 @@
     { selector: ".page-hero", label: "כותרת עמוד" },
     { selector: "#event .event-layout", label: "פרטי מופע ורכישה" },
     { selector: "#event .event-hero", label: "כותרת מופע" },
-    { selector: "#seats .seats-map-full", label: "בחירת מושבים" },
+    { selector: "#stagePickStep", label: "בחירת אזור באולם" },
+    { selector: "#seatPickStep", label: "בחירת מושבים באזור" },
     { selector: ".footer", label: "תחתית האתר" },
   ];
 
@@ -81,7 +82,7 @@
   function markRegions() {
     REGIONS.forEach(({ selector, label }) => {
       document.querySelectorAll(selector).forEach((el) => {
-        if (el.closest(".demo-mode-panel")) return;
+        if (el.closest(".demo-mode-panel, .theme-options-panel, .theme-options-tab")) return;
         if (selector === "#homeSearch") {
           if (el.closest(".header-search-row")) return;
         }
@@ -150,7 +151,13 @@
   }
 
   function onPointerMove(e) {
-    if (!enabled) return;
+    if (!enabled || isMobileDemoHidden()) {
+      if (isMobileDemoHidden()) {
+        clearHot();
+        if (cursorEl) cursorEl.classList.remove("is-visible");
+      }
+      return;
+    }
     pointerX = e.clientX;
     pointerY = e.clientY;
     if (cursorEl) {
@@ -162,7 +169,7 @@
       setHot(null);
       return;
     }
-    if (target.closest(".demo-mode-panel")) {
+    if (target.closest(".demo-mode-panel, .theme-options-tab, .theme-options-panel, .theme-options-backdrop")) {
       setHot(null);
       return;
     }
@@ -175,18 +182,39 @@
     clearHot();
   }
 
+  const mobileMq = window.matchMedia("(max-width:960px)");
+
+  function isMobileDemoHidden() {
+    return mobileMq.matches || document.body.classList.contains("hide-demo-mode");
+  }
+
   function setEnabled(on) {
+    if (isMobileDemoHidden()) on = false;
     enabled = !!on;
     document.body.classList.toggle("demo-mode-on", enabled);
     if (toggleBtn) {
       toggleBtn.setAttribute("aria-checked", enabled ? "true" : "false");
     }
-    writeStored(enabled);
+    if (!mobileMq.matches) writeStored(enabled);
     if (!enabled) {
       clearHot();
       if (cursorEl) cursorEl.classList.remove("is-visible");
     } else {
       markRegions();
+    }
+  }
+
+  function syncMobileDemo() {
+    if (mobileMq.matches) {
+      setEnabled(false);
+      if (panelEl) panelEl.setAttribute("hidden", "");
+      if (labelEl) labelEl.classList.remove("is-visible");
+      if (cursorEl) cursorEl.classList.remove("is-visible");
+      return;
+    }
+    if (panelEl) panelEl.removeAttribute("hidden");
+    if (!document.body.classList.contains("hide-demo-mode")) {
+      setEnabled(readStored());
     }
   }
 
@@ -273,8 +301,14 @@
     document.addEventListener("pointermove", onPointerMove, { passive: true });
     document.addEventListener("pointerleave", onPointerLeave);
     document.addEventListener("fullscreenchange", syncDemoChromeHost);
-    setEnabled(readStored());
+    if (typeof mobileMq.addEventListener === "function") {
+      mobileMq.addEventListener("change", syncMobileDemo);
+    } else if (typeof mobileMq.addListener === "function") {
+      mobileMq.addListener(syncMobileDemo);
+    }
+    setEnabled(mobileMq.matches ? false : readStored());
     setDockCollapsed(readDock());
+    syncMobileDemo();
   }
 
   if (document.readyState === "loading") {

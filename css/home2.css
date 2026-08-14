@@ -66,7 +66,7 @@
 .hero-v2-overlay{
   position:absolute;
   inset:0;
-  background:linear-gradient(90deg,rgba(0,0,0,.38) 0%,rgba(0,0,0,.55) 45%,rgba(0,0,0,.7) 100%);
+  background:rgba(0,0,0,.5);
 }
 
 /* Upper zone: slide copy — right + vertically centered */
@@ -142,34 +142,142 @@
   margin-top:0;
 }
 
-/* Progress bar — bottom of hero image, no navigation */
+/* Progress bar — hidden; timing lives on active bullet ring */
 .hero-v2-progress{
   position:absolute;
   left:0;
   right:0;
   bottom:0;
   z-index:4;
-  height:3px;
-  background:rgba(255,255,255,.28);
+  height:0;
   overflow:hidden;
   pointer-events:none;
+  opacity:0;
 }
 
 .hero-v2-progress-bar{
-  height:100%;
+  display:none;
+}
+
+/* Vertical slide dots — right side */
+.hero-v2-dots{
+  position:absolute;
+  top:50%;
+  right:22px;
+  z-index:5;
+  transform:translateY(-50%);
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:14px;
+  padding:0;
+  margin:0;
+  border:0;
+  background:transparent;
+}
+
+.hero-v2-dot{
+  position:relative;
+  width:18px;
+  height:18px;
+  padding:0;
+  border:0;
+  border-radius:50%;
+  background:transparent;
+  box-shadow:none;
+  cursor:pointer;
+  appearance:none;
+  -webkit-appearance:none;
+  color:inherit;
+}
+
+.hero-v2-dot-ring{
+  position:absolute;
+  inset:0;
   width:100%;
+  height:100%;
+  display:block;
+  overflow:visible;
+  transform:rotate(-90deg);
+}
+
+.hero-v2-dot-track,
+.hero-v2-dot-progress{
+  fill:none;
+  stroke-width:2;
+}
+
+.hero-v2-dot-track{
+  stroke:rgba(255,255,255,.4);
+}
+
+.hero-v2-dot-progress{
+  stroke:var(--brand-dark,#e72173);
+  stroke-linecap:round;
+  stroke-dasharray:87.96;
+  stroke-dashoffset:87.96;
+}
+
+.hero-v2-dot:not(.is-active) .hero-v2-dot-progress{
+  stroke-dashoffset:87.96;
+  animation:none;
+}
+
+.hero-v2-dot:not(.is-active) .hero-v2-dot-track{
+  stroke:transparent;
+}
+
+.hero-v2-dot:not(.is-active){
+  background:rgba(255,255,255,.45);
+}
+
+.hero-v2-dot::after{
+  content:"";
+  position:absolute;
+  inset:50%;
+  width:6px;
+  height:6px;
+  margin:-3px;
+  border-radius:50%;
   background:#fff;
-  transform:scaleX(0);
-  transform-origin:right;
-  will-change:transform;
+  opacity:0;
+  transform:scale(.6);
+  transition:opacity .2s ease,transform .2s ease;
+  pointer-events:none;
+  z-index:1;
 }
 
-.hero-v2-progress-bar.is-running{
-  animation:heroV2Progress var(--hero-v2-interval,5.5s) linear forwards;
+.hero-v2-dot.is-active{
+  background:transparent;
 }
 
-.hero-v2-progress-bar.is-paused{
+.hero-v2-dot.is-active::after{
+  opacity:1;
+  transform:scale(1);
+}
+
+.hero-v2-dot.is-active .hero-v2-dot-progress.is-running{
+  animation:heroV2DotProgress var(--hero-v2-interval,5.5s) linear forwards;
+}
+
+.hero-v2-dot.is-active .hero-v2-dot-progress.is-paused{
   animation-play-state:paused;
+}
+
+.hero-v2-dot:hover:not(.is-active),
+.hero-v2-dot:focus-visible:not(.is-active){
+  background:rgba(255,255,255,.7);
+  outline:none;
+}
+
+.hero-v2-dot:focus-visible{
+  outline:2px solid #fff;
+  outline-offset:3px;
+}
+
+@keyframes heroV2DotProgress{
+  from{stroke-dashoffset:87.96}
+  to{stroke-dashoffset:0}
 }
 
 @keyframes heroV2Progress{
@@ -184,8 +292,9 @@
   .hero-v2-text h1{font-size:clamp(32px,5vw,44px)}
   .hero-v2-text p{font-size:16px;margin-bottom:24px}
   .hero-v2-overlay{
-    background:linear-gradient(180deg,rgba(0,0,0,.42) 0%,rgba(0,0,0,.62) 50%,rgba(0,0,0,.78) 100%);
+    background:rgba(0,0,0,.5);
   }
+  .hero-v2-dots{right:14px;gap:12px}
 }
 
 /* Mobile */
@@ -209,6 +318,9 @@
   .hero-v2-text h1{font-size:32px;margin-bottom:14px}
   .hero-v2-search{width:min(100%,calc(100% - 24px))}
   .hero-v2-search-wrap{padding-bottom:16px}
+  .hero-v2-dots{right:10px;gap:11px}
+  .hero-v2-dot{width:16px;height:16px}
+  .hero-v2-dot::after{width:5px;height:5px;margin:-2.5px}
 }
 
 @media(prefers-reduced-motion:reduce){
@@ -219,9 +331,9 @@
   .hero-v2-slide.is-active .hero-v2-bg{
     transform:none;
   }
-  .hero-v2-progress-bar,
-  .hero-v2-progress-bar.is-running{
+  .hero-v2-dot-progress,
+  .hero-v2-dot-progress.is-running{
     animation:none!important;
-    transform:scaleX(1);
+    stroke-dashoffset:0;
   }
 }

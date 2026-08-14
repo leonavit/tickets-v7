@@ -1,15 +1,71 @@
 (function () {
-  const PRICES = [169, 219, 269, 319];
   let zoom = 1;
-  let activePrice = null;
   let accessibleFilter = false;
+  let activeStage = null;
+
+  const STAGE_DEFS = {
+    pit: {
+      label: "פיט",
+      price: 185,
+      rows: [12, 12, 14, 14, 14, 16, 16],
+      takenMod: 11,
+    },
+    "hall-front": {
+      label: "אולם",
+      price: 185,
+      rows: [16, 16, 18, 18, 20, 20, 20, 22, 22],
+      takenMod: 13,
+    },
+    "hall-mid": {
+      label: "אולם",
+      price: 185,
+      rows: [18, 18, 20, 20, 20, 22, 22, 22, 22],
+      takenMod: 12,
+    },
+    "balcony-center": {
+      label: "יציע מרכז",
+      price: 115,
+      rows: [14, 16, 16, 18, 18, 18],
+      takenMod: 14,
+    },
+    "box-right": {
+      label: "תא ימין",
+      price: 145,
+      rows: [6, 6, 6, 6],
+      takenMod: 9,
+    },
+    "gallery-right": {
+      label: "גלריה ימין",
+      price: 145,
+      rows: [8, 8, 10, 10, 10],
+      takenMod: 10,
+    },
+    "balcony-right": {
+      label: "יציע ימין",
+      price: 85,
+      rows: [10, 10, 12, 12, 12, 12],
+      takenMod: 15,
+    },
+    "box-left": { label: "תא שמאל", price: 145, rows: [6, 6, 6], takenMod: 8 },
+    "gallery-left": {
+      label: "גלריה שמאל",
+      price: 145,
+      rows: [8, 8, 10, 10],
+      takenMod: 10,
+    },
+    "balcony-left": {
+      label: "יציע שמאל",
+      price: 115,
+      rows: [10, 10, 12, 12],
+      takenMod: 12,
+    },
+  };
 
   function formatBlockName(block) {
     const b = String(block || "");
-    if (!b) return "גוש";
-    if (b === "אורקסטרה" || b === "נגיש") return b;
+    if (!b) return "אזור";
     if (b.startsWith("גוש")) return b;
-    return `גוש ${b}`;
+    return b;
   }
 
   function seatButton({ id, row, col, block, price, accessible, taken }) {
@@ -30,36 +86,50 @@
     b.dataset.tooltip = `${blockName}\nשורה ${row}\nמושב ${col}\n${price} ₪`;
     b.setAttribute(
       "aria-label",
-      `${blockName}, שורה ${row}, מושב ${col}, ${price} שקלים${accessible ? ", מושב נגיש" : ""}`
+      `${blockName}, שורה ${row}, מושב ${col}, ${price} שקלים${
+        accessible ? ", מושב נגיש" : ""
+      }`
     );
+    b.textContent = String(col);
     return b;
   }
 
-  function fillBlock(container, { block, price, rows, accessibleRows, takenMod }) {
+  function fillActiveBlock(def) {
+    const container = document.getElementById("activeSeatBlock");
+    if (!container || !def) return;
     container.innerHTML = "";
+    container.dataset.price = String(def.price);
+    container.dataset.block = def.label;
+
     const label = document.createElement("span");
     label.className = "hall-block-label";
-    label.textContent = formatBlockName(block);
+    label.textContent = def.label;
     container.appendChild(label);
+
     const wrap = document.createElement("div");
     wrap.className = "hall-seat-rows";
     let n = 0;
-    rows.forEach((cols, rIdx) => {
+    (def.rows || []).forEach((cols, rIdx) => {
       const rowEl = document.createElement("div");
       rowEl.className = "hall-seat-row";
       const rowNum = rIdx + 1;
+      const accessibleRow = rowNum === (def.rows.length | 0);
+      const rowLabel = document.createElement("span");
+      rowLabel.className = "hall-row-label";
+      rowLabel.textContent = String(rowNum);
+      rowLabel.setAttribute("aria-hidden", "true");
+      rowEl.appendChild(rowLabel);
       for (let c = 1; c <= cols; c++) {
         n += 1;
-        const accessible = accessibleRows && accessibleRows.includes(rowNum);
-        const taken = n % (takenMod || 13) === 0 || n % 19 === 0;
+        const taken = n % (def.takenMod || 13) === 0 || n % 19 === 0;
         rowEl.appendChild(
           seatButton({
-            id: `${block}-${rowNum}-${c}`,
+            id: `${def.label}-${rowNum}-${c}`,
             row: rowNum,
             col: c,
-            block,
-            price,
-            accessible: !!accessible,
+            block: def.label,
+            price: def.price,
+            accessible: accessibleRow && c <= 2,
             taken,
           })
         );
@@ -67,61 +137,65 @@
       wrap.appendChild(rowEl);
     });
     container.appendChild(wrap);
-    container.dataset.price = String(price);
-    container.dataset.block = block;
   }
 
-  function fillAccessibleZone(zone) {
-    const rowsWrap = zone.querySelector(".hall-seat-rows") || document.createElement("div");
-    rowsWrap.className = "hall-seat-rows";
-    rowsWrap.innerHTML = "";
-    const rowEl = document.createElement("div");
-    rowEl.className = "hall-seat-row";
-    for (let i = 1; i <= 10; i++) {
-      rowEl.appendChild(
-        seatButton({
-          id: `נגיש-${i}`,
-          row: 1,
-          col: i,
-          block: "נגיש",
-          price: 269,
-          accessible: true,
-          taken: i === 4 || i === 9,
-        })
-      );
+  function setSeatsStep(step) {
+    const shell = document.getElementById("seatsShell");
+    const stageStep = document.getElementById("stagePickStep");
+    const seatStep = document.getElementById("seatPickStep");
+    const crumb = document.querySelector(
+      '#seats .breadcrumbs [aria-current="page"]'
+    );
+    if (!shell || !stageStep || !seatStep) return;
+    const isStage = step === "stage";
+    shell.dataset.seatsStep = isStage ? "stage" : "seats";
+    stageStep.hidden = !isStage;
+    seatStep.hidden = isStage;
+    if (crumb) {
+      crumb.textContent = isStage ? "בחירת אזור" : "בחירת מושבים";
     }
-    rowsWrap.appendChild(rowEl);
-    if (!rowsWrap.parentNode) zone.appendChild(rowsWrap);
-    zone.dataset.price = "269";
+    if (isStage) {
+      // clear selections when going back
+      document
+        .querySelectorAll("#hallCanvas .seat.selected")
+        .forEach((s) => s.classList.remove("selected"));
+      if (typeof window.updateSeatSummary === "function") {
+        window.updateSeatSummary();
+      }
+    }
+  }
+
+  function openStage(stageId) {
+    const def = STAGE_DEFS[stageId];
+    if (!def) return;
+    activeStage = stageId;
+    fillActiveBlock(def);
+    const badge = document.getElementById("seatMapStageBadge");
+    const label = document.getElementById("activeStageLabel");
+    if (badge) badge.textContent = def.label;
+    if (label) label.textContent = def.label;
+    accessibleFilter = false;
+    applyFilters();
+    setZoom(1);
+    setSeatsStep("seats");
   }
 
   function applyFilters() {
     const canvas = document.getElementById("hallCanvas");
     if (!canvas) return;
-    const filtering = activePrice != null || accessibleFilter;
-    canvas.classList.toggle("is-filtering", filtering && !accessibleFilter);
     canvas.classList.toggle("filter-accessible", accessibleFilter);
-
-    canvas.querySelectorAll(".hall-block, .hall-accessible-zone").forEach((el) => {
-      const matchPrice = activePrice != null && String(el.dataset.price) === String(activePrice);
-      const isAcc = el.classList.contains("hall-accessible-zone");
-      el.classList.toggle(
-        "is-spotlight",
-        (activePrice != null && matchPrice) || (accessibleFilter && isAcc)
+    canvas.querySelectorAll(".seat").forEach((seat) => {
+      seat.classList.toggle(
+        "accessible-match",
+        accessibleFilter && seat.classList.contains("accessible")
       );
     });
-
-    canvas.querySelectorAll(".seat").forEach((seat) => {
-      const priceMatch = activePrice != null && seat.dataset.price === String(activePrice);
-      seat.classList.toggle("is-price-match", priceMatch);
-      seat.classList.toggle("accessible-match", accessibleFilter && seat.classList.contains("accessible"));
-    });
-
-    document.querySelectorAll(".price-chip").forEach((btn) => {
-      btn.classList.toggle("is-active", activePrice != null && btn.dataset.price === String(activePrice));
-    });
-    document.getElementById("accessibleFilterBtn")?.classList.toggle("is-active", accessibleFilter);
-    document.getElementById("accessibleFilterBtn")?.setAttribute("aria-pressed", accessibleFilter ? "true" : "false");
+    document
+      .getElementById("accessibleFilterBtn")
+      ?.classList.toggle("is-active", accessibleFilter);
+    document
+      .getElementById("accessibleFilterBtn")
+      ?.setAttribute("aria-pressed", accessibleFilter ? "true" : "false");
   }
 
   function setZoom(next) {
@@ -132,75 +206,12 @@
     if (label) label.textContent = Math.round(zoom * 100) + "%";
   }
 
-  window.initSeats = function initSeats() {
-    const canvas = document.getElementById("hallCanvas");
-    if (!canvas || canvas.dataset.ready === "1") return;
-    canvas.dataset.ready = "1";
-
-    fillBlock(document.getElementById("block5"), {
-      block: "גוש 5",
-      price: 269,
-      rows: [8, 9, 10, 11, 12, 12, 13, 13, 14, 14],
-      takenMod: 14,
-    });
-    fillBlock(document.getElementById("blockOrchestra"), {
-      block: "אורקסטרה",
-      price: 319,
-      rows: [16, 16, 18, 18, 20, 20, 20, 22, 22, 22, 22, 22],
-      takenMod: 11,
-    });
-    fillBlock(document.getElementById("block1"), {
-      block: "גוש 1",
-      price: 269,
-      rows: [8, 9, 10, 11, 12, 12, 13, 13, 14, 14],
-      takenMod: 15,
-    });
-    fillBlock(document.getElementById("block4"), {
-      block: "גוש 4",
-      price: 219,
-      rows: [10, 11, 12, 13, 14, 14, 15, 15, 16],
-      takenMod: 12,
-    });
-    fillBlock(document.getElementById("block3"), {
-      block: "גוש 3",
-      price: 169,
-      rows: [14, 15, 16, 17, 18, 18, 18, 18, 18, 18],
-      takenMod: 16,
-    });
-    fillBlock(document.getElementById("block2"), {
-      block: "גוש 2",
-      price: 219,
-      rows: [10, 11, 12, 13, 14, 14, 15, 15, 16],
-      takenMod: 13,
-    });
-    fillAccessibleZone(document.getElementById("accessibleZone"));
-
-    document.getElementById("seatsZoomIn")?.addEventListener("click", () => setZoom(zoom + 0.15));
-    document.getElementById("seatsZoomOut")?.addEventListener("click", () => setZoom(zoom - 0.15));
-    document.getElementById("seatsZoomReset")?.addEventListener("click", () => setZoom(1));
-    document.getElementById("seatsFullscreen")?.addEventListener("click", toggleFullscreen);
-
-    document.querySelectorAll(".price-chip").forEach((btn) => {
-      btn.addEventListener("click", () => {
-        const p = Number(btn.dataset.price);
-        accessibleFilter = false;
-        activePrice = activePrice === p ? null : p;
-        applyFilters();
-      });
-    });
-    document.getElementById("accessibleFilterBtn")?.addEventListener("click", () => {
-      activePrice = null;
-      accessibleFilter = !accessibleFilter;
-      applyFilters();
-    });
-
-    document.addEventListener("fullscreenchange", syncFullscreenUi);
-    setZoom(1);
-  };
-
   function isFs() {
     const shell = document.getElementById("seatsShell");
-    return document.fullscreenElement === shell || shell?.classList.contains("is-fullscreen");
+    return (
+      document.fullscreenElement === shell ||
+      shell?.classList.contains("is-fullscreen")
+    );
   }
 
   function syncFullscreenUi() {
@@ -233,12 +244,64 @@
     syncFullscreenUi();
   }
 
+  window.initSeats = function initSeats() {
+    const shell = document.getElementById("seatsShell");
+    if (!shell || shell.dataset.bound === "1") {
+      setSeatsStep("stage");
+      return;
+    }
+    shell.dataset.bound = "1";
+
+    document.getElementById("stageSchematic")?.addEventListener("click", (e) => {
+      const zone = e.target.closest(".stage-zone[data-stage-id]");
+      if (!zone || zone.disabled || zone.dataset.available === "0") return;
+      openStage(zone.dataset.stageId);
+    });
+
+    document.getElementById("backToStages")?.addEventListener("click", () => {
+      activeStage = null;
+      setSeatsStep("stage");
+    });
+
+    document
+      .getElementById("seatsZoomIn")
+      ?.addEventListener("click", () => setZoom(zoom + 0.15));
+    document
+      .getElementById("seatsZoomOut")
+      ?.addEventListener("click", () => setZoom(zoom - 0.15));
+    document
+      .getElementById("seatsZoomReset")
+      ?.addEventListener("click", () => setZoom(1));
+    document
+      .getElementById("seatsFullscreen")
+      ?.addEventListener("click", toggleFullscreen);
+
+    document
+      .getElementById("accessibleFilterBtn")
+      ?.addEventListener("click", () => {
+        accessibleFilter = !accessibleFilter;
+        applyFilters();
+      });
+
+    document.addEventListener("fullscreenchange", syncFullscreenUi);
+    setSeatsStep("stage");
+    setZoom(1);
+  };
+
+  window.resetSeatsFlow = function resetSeatsFlow() {
+    activeStage = null;
+    setSeatsStep("stage");
+  };
+
   window.updateSeatSummary = function updateSeatSummary() {
-    const sel = [...document.querySelectorAll(".seat.selected")];
+    const sel = [...document.querySelectorAll("#hallCanvas .seat.selected")];
     const summary = document.getElementById("seatsSummary");
     const peek = document.getElementById("seatsSummaryPeek");
+    const shell = document.getElementById("seatsShell");
+    const onSeatStep = shell?.dataset.seatsStep === "seats";
+
     if (summary) {
-      summary.classList.toggle("is-open", sel.length > 0);
+      summary.classList.toggle("is-open", onSeatStep && sel.length > 0);
       if (!sel.length) {
         summary.classList.remove("is-collapsed");
         if (peek) peek.hidden = true;
@@ -258,15 +321,21 @@
         box.hidden = false;
         box.innerHTML = sel
           .map((el) => {
-            const price = Number(el.dataset.price || 229);
-            const blockName = formatBlockName(el.dataset.block || "A");
+            const price = Number(el.dataset.price || 185);
+            const blockName = formatBlockName(el.dataset.block || "אזור");
             const seatId = el.dataset.seat;
             return `<div class="selected-seat-row" data-selected-seat="${seatId}">
               <div class="selected-seat-main">
-                <div class="selected-seat-lines"><span>${blockName}</span><span>שורה ${el.dataset.row || "-"}</span><strong>מושב ${el.dataset.col || el.dataset.seat}</strong></div>
-                <strong class="selected-seat-price">${price} ₪</strong>
+                <div class="selected-seat-lines">${blockName}&nbsp;·&nbsp;שורה ${
+              el.dataset.row || "-"
+            }&nbsp;·&nbsp;מושב&nbsp;${
+              el.dataset.col || el.dataset.seat
+            }</div>
+                <strong class="selected-seat-price">${price}&nbsp;₪</strong>
               </div>
-              <button type="button" class="selected-seat-remove" data-remove-seat="${seatId}" aria-label="הסרת מושב ${el.dataset.col || seatId}">×</button>
+              <button type="button" class="selected-seat-remove" data-remove-seat="${seatId}" aria-label="הסרת מושב ${
+              el.dataset.col || seatId
+            }"><svg viewBox="0 0 24 24" width="16" height="16" aria-hidden="true" focusable="false"><path fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" d="M4 7h16M9 7V4h6v3M7 7l1 13h8l1-13M10 11v5M14 11v5"/></svg></button>
             </div>`;
           })
           .join("");
@@ -280,8 +349,8 @@
       }
       if (showName) showName.hidden = true;
     }
-    const sum = sel.reduce((s, el) => s + Number(el.dataset.price || 229), 0);
-    if (total) total.textContent = sum + " ₪";
+    const sum = sel.reduce((s, el) => s + Number(el.dataset.price || 185), 0);
+    if (total) total.textContent = sum + "\u00a0₪";
     if (btn) btn.disabled = !sel.length;
   };
 
@@ -311,7 +380,6 @@
     e.stopPropagation();
     expandSummary();
   });
-  // Delegation fallback (fullscreen / dynamic)
   document.addEventListener("click", (e) => {
     if (e.target.closest("#seatsSummaryHide")) {
       e.preventDefault();
@@ -327,23 +395,15 @@
 
 document.addEventListener("click", (e) => {
   const removeBtn = e.target.closest("[data-remove-seat]");
-  if (removeBtn) {
-    e.preventDefault();
-    e.stopPropagation();
-    const id = removeBtn.dataset.removeSeat;
-    const seat = [...document.querySelectorAll("#hallCanvas .seat.selected")].find(
-      (s) => s.dataset.seat === id
-    );
-    if (seat) seat.classList.remove("selected");
-    if (typeof window.updateSeatSummary === "function") window.updateSeatSummary();
-    return;
-  }
-
-  const seat = e.target.closest("#hallCanvas .seat");
-  if (!seat || seat.disabled || seat.classList.contains("taken")) return;
-  requestAnimationFrame(() => {
-    if (typeof window.updateSeatSummary === "function") window.updateSeatSummary();
-  });
+  if (!removeBtn) return;
+  e.preventDefault();
+  e.stopPropagation();
+  const id = removeBtn.dataset.removeSeat;
+  const seat = [
+    ...document.querySelectorAll("#hallCanvas .seat.selected"),
+  ].find((s) => s.dataset.seat === id);
+  if (seat) seat.classList.remove("selected");
+  if (typeof window.updateSeatSummary === "function") window.updateSeatSummary();
 });
 
 if (document.readyState === "loading") {

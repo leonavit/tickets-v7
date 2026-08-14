@@ -4,7 +4,7 @@
 
   const slides = [...root.querySelectorAll(".hero-v2-slide")];
   const texts = [...root.querySelectorAll(".hero-v2-text")];
-  const bar = root.querySelector(".hero-v2-progress-bar");
+  const dots = [...root.querySelectorAll(".hero-v2-dot")];
   if (!slides.length) return;
 
   const INTERVAL = 5500;
@@ -17,6 +17,7 @@
   let dragDeltaX = 0;
   let didDrag = false;
   let fallbackTimer = null;
+  let activeProgress = null;
 
   function clearFallback() {
     if (fallbackTimer) {
@@ -25,19 +26,30 @@
     }
   }
 
+  function getProgressEl(dot) {
+    return dot ? dot.querySelector(".hero-v2-dot-progress") : null;
+  }
+
   function restartProgress() {
     clearFallback();
-    if (!bar) return;
+    dots.forEach((dot) => {
+      const ring = getProgressEl(dot);
+      if (!ring) return;
+      ring.classList.remove("is-running", "is-paused");
+      ring.style.strokeDashoffset = "";
+    });
+
+    activeProgress = getProgressEl(dots[index]);
+    if (!activeProgress) return;
+
     if (reduceMotion) {
-      bar.classList.remove("is-running", "is-paused");
-      bar.style.transform = "scaleX(1)";
+      activeProgress.style.strokeDashoffset = "0";
       return;
     }
-    bar.style.transform = "";
-    bar.classList.remove("is-running", "is-paused");
-    void bar.offsetWidth;
-    bar.classList.add("is-running");
-    if (paused) bar.classList.add("is-paused");
+
+    void activeProgress.getBoundingClientRect();
+    activeProgress.classList.add("is-running");
+    if (paused) activeProgress.classList.add("is-paused");
   }
 
   function goTo(next) {
@@ -57,7 +69,17 @@
       else el.setAttribute("hidden", "");
     });
 
+    dots.forEach((dot, i) => {
+      const on = i === index;
+      dot.classList.toggle("is-active", on);
+      dot.setAttribute("aria-selected", on ? "true" : "false");
+    });
+
     restartProgress();
+
+    document.dispatchEvent(
+      new CustomEvent("tickets:heroSlide", { detail: { index } })
+    );
 
     if (reduceMotion) {
       clearFallback();
@@ -69,25 +91,29 @@
 
   function pause() {
     paused = true;
-    if (bar) bar.classList.add("is-paused");
+    if (activeProgress) activeProgress.classList.add("is-paused");
     clearFallback();
   }
 
   function resume() {
     paused = false;
-    if (bar) bar.classList.remove("is-paused");
+    if (activeProgress) activeProgress.classList.remove("is-paused");
     if (reduceMotion) {
       clearFallback();
       fallbackTimer = window.setTimeout(() => goTo(index + 1), INTERVAL);
     }
   }
 
-  if (bar) {
-    bar.addEventListener("animationend", () => {
+  dots.forEach((dot) => {
+    const ring = getProgressEl(dot);
+    if (!ring) return;
+    ring.addEventListener("animationend", (e) => {
+      if (e.target !== ring) return;
+      if (!dot.classList.contains("is-active")) return;
       if (paused || reduceMotion) return;
       goTo(index + 1);
     });
-  }
+  });
 
   root.addEventListener("mouseenter", pause);
   root.addEventListener("mouseleave", () => {
@@ -153,6 +179,41 @@
     if (document.hidden) pause();
     else resume();
   });
+
+  dots.forEach((dot) => {
+    dot.addEventListener("click", (e) => {
+      e.stopPropagation();
+      const next = Number(dot.dataset.slideTo);
+      if (!Number.isFinite(next)) return;
+      goTo(next);
+    });
+  });
+
+  /* Sync hero overlap with the header search row height */
+  const searchRow = document.querySelector(".site-header-v3 .header-search-row");
+  function syncSearchOverlap() {
+    if (!searchRow) return;
+    const h = Math.round(searchRow.getBoundingClientRect().height);
+    if (!h) return;
+    const root = document.documentElement;
+    const current = parseInt(
+      getComputedStyle(root).getPropertyValue("--header-search-h"),
+      10
+    );
+    if (current === h) return;
+    const lockHome =
+      document.getElementById("home")?.classList.contains("active") &&
+      window.scrollY <= 2;
+    root.style.setProperty("--header-search-h", h + "px");
+    searchRow.style.setProperty("--header-search-h", h + "px");
+    if (lockHome) window.lockHomeScrollTop?.();
+  }
+  syncSearchOverlap();
+  if (typeof ResizeObserver !== "undefined" && searchRow) {
+    new ResizeObserver(syncSearchOverlap).observe(searchRow);
+  } else {
+    window.addEventListener("resize", syncSearchOverlap);
+  }
 
   goTo(0);
 })();
