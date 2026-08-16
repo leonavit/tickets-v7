@@ -2,36 +2,74 @@
 <html lang="he" dir="rtl">
 <head>
 <meta charset="utf-8">
-<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
 <meta name="referrer" content="strict-origin-when-cross-origin">
+<meta name="robots" content="noindex, nofollow">
 <title>Tickets — V6</title>
 <script>
 (function () {
   try {
-    if (sessionStorage.getItem("ticketsSiteAuthV1") === "1") {
+    var authed = sessionStorage.getItem("ticketsSiteAuthV1") === "1";
+    var loginDisabled = true; // default: no gate
+    try {
+      var themeRaw = localStorage.getItem("ticketsThemeOptions");
+      if (themeRaw) {
+        var themeParsed = JSON.parse(themeRaw);
+        if (themeParsed && Object.prototype.hasOwnProperty.call(themeParsed, "disableSiteLogin")) {
+          loginDisabled = !!themeParsed.disableSiteLogin;
+        }
+      }
+    } catch (e2) { /* ignore */ }
+    if (authed || loginDisabled) {
       document.documentElement.classList.add("site-auth-ok");
     }
   } catch (e) { /* ignore */ }
+  /* Boot light unless user explicitly saved dark palette */
+  var palette = "light";
+  try {
+    var raw = localStorage.getItem("ticketsThemeOptions");
+    if (raw) {
+      var parsed = JSON.parse(raw);
+      if (parsed && parsed.paletteId === "dark") palette = "dark";
+    }
+  } catch (e) { /* ignore */ }
+  document.documentElement.dataset.palette = palette;
+  document.documentElement.classList.add(palette === "dark" ? "theme-boot-dark" : "theme-boot-light");
 })();
 </script>
+<style>
+  /* Prevent dark FOUC: light boot vars until theme-options runs */
+  html.theme-boot-light{
+    --bg:#f5f5f2;--page-fg:#1d104a;--muted:#6e6e68;--line:#deded8;--dash:#777777;
+    --search-bg:#1d104a;--header-bg:#ffffff;--header-fg:#1d104a;
+    --carousel-bg-a:#e2e0e8;--carousel-bg-b:#ffffff;--categories-bg:#e2e0e8;
+    --footer-bg:#1d104a;--carousel-heading-a:#1d104a;--carousel-btn-a:#1d104a;
+    --carousel-heading-b:#1d104a;--carousel-btn-b:#1d104a;--chrome-bg:#1d104a;--soft:#eeeeea;
+  }
+</style>
 <link rel="stylesheet" href="css/styles.css">
 <link rel="stylesheet" href="css/seats-hall.css">
 <link rel="stylesheet" href="css/home2.css">
 <link rel="stylesheet" href="css/home3.css">
-<link rel="stylesheet" href="css/demo-mode.css">
 <link rel="stylesheet" href="css/theme-options.css">
 <link rel="stylesheet" href="css/site-login.css">
 </head>
-<body class="site-locked">
+<body class="site-locked theme-palette-light">
 <script>
-if (document.documentElement.classList.contains("site-auth-ok")) {
-  document.body.classList.remove("site-locked");
-}
+(function () {
+  if (document.documentElement.classList.contains("site-auth-ok")) {
+    document.body.classList.remove("site-locked");
+  }
+  if (document.documentElement.dataset.palette === "dark") {
+    document.body.classList.remove("theme-palette-light");
+    document.body.classList.add("theme-palette-dark");
+  }
+})();
 </script>
 <div class="site-login-gate" id="siteLoginGate" role="dialog" aria-modal="true" aria-labelledby="siteLoginTitle">
   <form class="site-login-card" id="siteLoginForm" autocomplete="on">
     <div class="site-login-brand">
-      <img src="assets/images/LOGO TICKETS.png" alt="Ticket-S" onerror="this.src='assets/images/logowhite.png'">
+      <img src="assets/images/logo-dark.png" alt="Ticket-S" onerror="this.src='assets/images/logowhite.png'">
     </div>
     <h1 id="siteLoginTitle">התחברות</h1>
     <p class="site-login-sub">הזינו פרטי גישה להמשך</p>
@@ -48,7 +86,7 @@ if (document.documentElement.classList.contains("site-auth-ok")) {
   </form>
 </div>
 <header class="site-header site-header-v3"><div class="header-top-row"><div class="container header-inner">
-  <a class="logo" href="index.html"><img id="headerLogo" src="assets/images/logowhite.png" alt="Ticket-S"></a>
+  <a class="logo" href="#home" data-route="home"><img id="headerLogo" src="assets/images/logo-dark.png" alt="Ticket-S"></a>
   <nav class="main-nav">
     <a href="#events" data-route="events">כל המופעים</a>
     <div class="nav-item has-mega">
@@ -135,13 +173,16 @@ if (document.documentElement.classList.contains("site-auth-ok")) {
     <a href="#contact" data-route="contact">צרו קשר</a>
   </nav>
   <div class="header-actions">
+    <button class="header-button header-icon-btn header-search-toggle" id="headerSearchToggle" type="button" aria-expanded="false" aria-controls="homeSearch" aria-label="חיפוש">
+      <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true"><circle cx="11" cy="11" r="7" fill="none" stroke="currentColor" stroke-width="2"/><path d="m20 20-4-4" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+    </button>
     <div class="header-account-wrap">
-      <button class="header-button header-account-btn" type="button" data-route="account" aria-expanded="false" aria-haspopup="true">
+      <button class="header-button header-account-btn" type="button" aria-expanded="false" aria-haspopup="true" aria-controls="accountMenu" id="headerAccountToggle">
         <img src="assets/icons/user.svg" alt="">
         <span class="header-account-text"><strong>אזור אישי</strong><small>שלום, ישראל</small></span>
         <span class="header-account-caret" aria-hidden="true"></span>
       </button>
-      <div class="account-menu" role="menu">
+      <div class="account-menu" id="accountMenu" role="menu">
         <button type="button" role="menuitem" data-route="account/tickets"><img src="assets/icons/ticket.svg" alt=""><span>הכרטיסים שלי</span></button>
         <button type="button" role="menuitem" data-route="account/orders"><img src="assets/icons/clipboard.svg" alt=""><span>הזמנות קודמות</span></button>
         <button type="button" role="menuitem" data-route="account/profile"><img src="assets/icons/user.svg" alt=""><span>פרטים אישיים</span></button>
@@ -150,7 +191,7 @@ if (document.documentElement.classList.contains("site-auth-ok")) {
       </div>
     </div>
     <button class="header-button header-icon-btn" id="favoritesHeaderBtn" data-route="account/favorites"><img src="assets/icons/heart.svg" alt=""><span class="header-count" id="favoritesHeaderCount">0</span></button>
-    <div class="header-cart-wrap">
+    <div class="header-cart-wrap is-empty">
       <button class="header-button header-icon-btn" data-route="cart"><img src="assets/icons/cart.svg" alt=""><span class="header-count hidden" id="cartHeaderCount">0</span></button>
       <div class="cart-preview" id="cartPreview"><div class="cart-preview-list" id="cartPreviewList"></div><button class="btn primary wide" data-route="cart">מעבר לסל</button></div>
     </div>
@@ -194,22 +235,59 @@ if (document.documentElement.classList.contains("site-auth-ok")) {
     row.classList.add("is-open");
     row.classList.remove("is-closed");
   }
-  var h = Math.round(row.getBoundingClientRect().height);
-  if (!h) return;
-  document.documentElement.style.setProperty("--header-search-h", h + "px");
-  row.style.setProperty("--header-search-h", h + "px");
+  document.documentElement.style.setProperty("--header-search-h", "0px");
+  row.style.setProperty("--header-search-h", "0px");
   window.scrollTo(0, 0);
 })();
 </script>
 <nav class="mobile-nav" id="mobileNav" aria-label="תפריט ראשי" aria-hidden="true">
+  <div class="mobile-nav-brand">
+    <img src="assets/images/logowhite.png" alt="Ticket-S">
+  </div>
   <div class="mobile-nav-inner">
     <a href="#events" data-route="events">כל המופעים</a>
-    <p class="mobile-nav-label">קטגוריות</p>
-    <a href="#events" data-route="events">מוזיקה</a>
-    <a href="#events" data-route="events">סטנדאפ</a>
-    <a href="#events" data-route="events">תרבות</a>
-    <a href="#events" data-route="events">ילדים</a>
-    <a href="#events" data-route="events">ספורט</a>
+    <div class="mobile-nav-accordion">
+      <button type="button" class="mobile-nav-acc-toggle" aria-expanded="false">
+        <span>קטגוריות</span>
+        <span class="mobile-nav-acc-arrow" aria-hidden="true"></span>
+      </button>
+      <div class="mobile-nav-acc-panel" hidden>
+        <div class="mobile-nav-acc-group">
+          <a href="#events" data-route="events" data-category="music">מוזיקה</a>
+          <a class="mobile-nav-sub" href="#events" data-route="events" data-category="music">קונצרטים</a>
+          <a class="mobile-nav-sub" href="#events" data-route="events" data-category="music">פסטיבלים</a>
+          <a class="mobile-nav-sub" href="#events" data-route="events" data-category="music">מוזיקה חיה</a>
+          <a class="mobile-nav-sub" href="#events" data-route="events" data-category="music">ג׳אז ובלואז</a>
+        </div>
+        <div class="mobile-nav-acc-group">
+          <a href="#events" data-route="events" data-category="standup">סטנדאפ</a>
+          <a class="mobile-nav-sub" href="#events" data-route="events" data-category="standup">ערבי סטנדאפ</a>
+          <a class="mobile-nav-sub" href="#events" data-route="events" data-category="standup">ספיישלים</a>
+          <a class="mobile-nav-sub" href="#events" data-route="events" data-category="standup">אופן מייק</a>
+          <a class="mobile-nav-sub" href="#events" data-route="events" data-category="standup">קומדיה</a>
+        </div>
+        <div class="mobile-nav-acc-group">
+          <a href="#events" data-route="events" data-category="culture">תרבות</a>
+          <a class="mobile-nav-sub" href="#events" data-route="events" data-category="culture">תיאטרון</a>
+          <a class="mobile-nav-sub" href="#events" data-route="events" data-category="culture">מחול</a>
+          <a class="mobile-nav-sub" href="#events" data-route="events" data-category="culture">מופעי אמנות</a>
+          <a class="mobile-nav-sub" href="#events" data-route="events" data-category="culture">פסטיבלי תרבות</a>
+        </div>
+        <div class="mobile-nav-acc-group">
+          <a href="#events" data-route="events" data-category="kids">ילדים</a>
+          <a class="mobile-nav-sub" href="#events" data-route="events" data-category="kids">הצגות ילדים</a>
+          <a class="mobile-nav-sub" href="#events" data-route="events" data-category="kids">מופעי משפחה</a>
+          <a class="mobile-nav-sub" href="#events" data-route="events" data-category="kids">קרקס</a>
+          <a class="mobile-nav-sub" href="#events" data-route="events" data-category="kids">מופעי בובות</a>
+        </div>
+        <div class="mobile-nav-acc-group">
+          <a href="#events" data-route="events" data-category="sports">ספורט</a>
+          <a class="mobile-nav-sub" href="#events" data-route="events" data-category="sports">כדורגל</a>
+          <a class="mobile-nav-sub" href="#events" data-route="events" data-category="sports">כדורסל</a>
+          <a class="mobile-nav-sub" href="#events" data-route="events" data-category="sports">אירועי ספורט</a>
+        </div>
+      </div>
+    </div>
     <a href="#events" data-route="events">מופעים קרובים</a>
     <a href="#events" data-route="events">מופעים פופולריים</a>
     <a href="#contact" data-route="contact">צרו קשר</a>
@@ -238,17 +316,17 @@ if (document.documentElement.classList.contains("site-auth-ok")) {
           <div class="hero-v2-text is-active" data-slide-index="0">
             <h1>עידן רייכל</h1>
             <p>מופע חדש ומרגש עם הלהיטים האהובים באמפי שוני.</p>
-            <button type="button" class="btn light-btn hero-v2-cta" data-open-event="1">לרכישת כרטיסים</button>
+            <button type="button" class="btn primary hero-v2-cta" data-open-event="1">לרכישת כרטיסים</button>
           </div>
           <div class="hero-v2-text" data-slide-index="1" hidden>
             <h1>אדיר מילר</h1>
             <p>ערב סטנדאפ חדש בהיכל התרבות תל אביב.</p>
-            <button type="button" class="btn light-btn hero-v2-cta" data-open-event="2">לרכישת כרטיסים</button>
+            <button type="button" class="btn primary hero-v2-cta" data-open-event="2">לרכישת כרטיסים</button>
           </div>
           <div class="hero-v2-text" data-slide-index="2" hidden>
             <h1>פסטיבל קיץ</h1>
             <p>שלושה ימי מוזיקה, תרבות ואמנות — רכישה מוקדמת.</p>
-            <button type="button" class="btn light-btn hero-v2-cta" data-open-event="3">לרכישת כרטיסים</button>
+            <button type="button" class="btn primary hero-v2-cta" data-open-event="3">לרכישת כרטיסים</button>
           </div>
         </div>
       </div>
@@ -472,22 +550,22 @@ if (document.documentElement.classList.contains("site-auth-ok")) {
 </div>
 <footer class="footer"><button type="button" class="footer-back-top" id="footerBackTop" aria-label="חזרה לראש העמוד"><lord-icon src="https://cdn.lordicon.com/xldbursn.json" trigger="hover" state="hover-slide" colors="primary:#ffffff" style="width:32px;height:32px" aria-hidden="true"></lord-icon></button><div class="container footer-grid"><div class="footer-brand"><div class="logo"><img id="footerLogo" src="assets/images/logowhite.png" alt="Ticket-S"></div><p>הופעות, תרבות וחוויות — במקום אחד.</p><div class="footer-social" aria-label="רשתות חברתיות"><a class="footer-social-link" href="#" aria-label="Facebook"><img src="assets/icons/facebook.svg" alt="" width="22" height="22"></a><a class="footer-social-link" href="#" aria-label="Instagram"><img src="assets/icons/instagram.svg" alt="" width="22" height="22"></a><a class="footer-social-link" href="#" aria-label="TikTok"><img src="assets/icons/tiktok.svg" alt="" width="22" height="22"></a><button type="button" class="footer-whatsapp-btn" id="whatsappJoin"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="#fff" d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.435 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg><span>לקבוצת הווטסאפ</span></button></div></div><div class="footer-col"><h3>ניווט מהיר</h3><div class="footer-links"><a href="index.html">דף הבית</a><a href="#events" data-route="events">כל המופעים</a><a href="#account" data-route="account">האזור האישי</a></div></div><div class="footer-col"><h3>מידע ושירות</h3><div class="footer-links"><a href="#">שאלות נפוצות</a><a href="#contact" data-route="contact">צור קשר</a><a href="#">נגישות</a></div></div><div class="footer-col"><h3>משפטי</h3><div class="footer-links"><a href="#">תקנון האתר</a><a href="#">מדיניות פרטיות</a><a href="#">תנאי שימוש</a></div></div></div><div class="container footer-bottom"><span>© 2026 Tickets. כל הזכויות שמורות.</span></div></footer>
 <script src="https://cdn.lordicon.com/lordicon.js"></script>
-<script src="js/site-login.js"></script>
+<script src="js/site-login.js?v=20260816b"></script>
 <script src="js/app.js"></script>
 <script src="js/seats-hall.js"></script>
 <script src="js/home2-hero.js"></script>
-
-<script src="js/demo-mode.js"></script>
 <script src="js/vendor/gsap.min.js"></script>
 <script src="js/header-search-toggle.js"></script>
+<script src="js/search-dropdowns.js"></script>
 <script src="js/vendor/ScrollTrigger.min.js"></script>
 <script src="js/text-animations.js"></script>
-<script src="js/theme-options.js"></script>
+<script src="js/theme-options.js?v=20260816d"></script>
 <script src="js/vendor/lottie.min.js"></script>
 <script src="assets/lottie/music-notes.js"></script>
 <script src="assets/lottie/standup-mic.js"></script>
 <script src="assets/lottie/culture-mic.js"></script>
 <script src="assets/lottie/sports-ball.js"></script>
 <script src="assets/lottie/kids-cannon.js"></script>
+<script src="js/category-carousel.js"></script>
 <script src="js/category-lottie.js"></script>
 </body></html>

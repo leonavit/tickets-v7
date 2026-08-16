@@ -90,10 +90,11 @@
       };
 
       const card = el.closest(".category-card");
+      const isClone = !!(card && card.classList.contains("is-clone"));
       if (card) {
         card.addEventListener("pointerenter", play);
         card.addEventListener("focusin", play);
-        if (card.closest(".categories-section")) {
+        if (card.closest(".categories-section") && !isClone) {
           homePlayers.push({ el, play, card });
         }
       }
@@ -104,10 +105,15 @@
         megaCard.addEventListener("focusin", play);
         // mega icons are off-screen until open — skip IO autoplay
         el.dataset.lottiePlayed = "1";
-      } else if (io) {
+      } else if (io && !isClone) {
         io.observe(el);
-      } else {
+      } else if (!isClone) {
         requestAnimationFrame(play);
+      } else {
+        try {
+          anim.goToAndStop(0, true);
+        } catch (_) {}
+        el.dataset.lottiePlayed = "1";
       }
     });
 
@@ -125,8 +131,9 @@
       megaItem.addEventListener("focusin", playMegaIcons);
     }
 
-    // Home category cubes: every 5s play a random icon (hover-like), shuffled order
-    if (!reduceMotion && homePlayers.length) {
+    // Home category cubes: every 5s play a random icon — desktop only
+    const desktopCats = window.matchMedia("(min-width:961px)");
+    if (!reduceMotion && homePlayers.length && desktopCats.matches) {
       const section = document.querySelector(".categories-section");
       let queue = shuffle(homePlayers);
       let cursor = 0;

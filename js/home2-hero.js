@@ -192,21 +192,10 @@
   /* Sync hero overlap with the header search row height */
   const searchRow = document.querySelector(".site-header-v3 .header-search-row");
   function syncSearchOverlap() {
-    if (!searchRow) return;
-    const h = Math.round(searchRow.getBoundingClientRect().height);
-    if (!h) return;
+    // Search overlays the page — keep hero metrics stable
     const root = document.documentElement;
-    const current = parseInt(
-      getComputedStyle(root).getPropertyValue("--header-search-h"),
-      10
-    );
-    if (current === h) return;
-    const lockHome =
-      document.getElementById("home")?.classList.contains("active") &&
-      window.scrollY <= 2;
-    root.style.setProperty("--header-search-h", h + "px");
-    searchRow.style.setProperty("--header-search-h", h + "px");
-    if (lockHome) window.lockHomeScrollTop?.();
+    root.style.setProperty("--header-search-h", "0px");
+    if (searchRow) searchRow.style.setProperty("--header-search-h", "0px");
   }
   syncSearchOverlap();
   if (typeof ResizeObserver !== "undefined" && searchRow) {

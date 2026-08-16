@@ -1,5 +1,5 @@
 /**
- * Theme Options — builder-style side panel (stage 1: colors + hide demo mode).
+ * Theme Options — builder-style side panel (colors, layout, site gate, etc.).
  */
 (function initThemeOptions() {
   const STORAGE_KEY = "ticketsThemeOptions";
@@ -80,7 +80,7 @@
     line: "#3d3560",
     dash: "#b0aec0",
     ink: "#1d104a",
-    searchBg: "#ffffff",
+    searchBg: "#1d104a",
     headerBg: "#1d104a",
     headerFg: "#ffffff",
     carouselBgA: "#1d104a",
@@ -104,32 +104,32 @@
     light: PALETTE_LIGHT,
     dark: PALETTE_DARK,
   };
-  const PALETTE_IDS = ["dark", "light"];
+  const PALETTE_IDS = ["light", "dark"];
   const PALETTE_META = {
-    dark: { title: "פלטה כהה", subtitle: "סגול-ורוד-כהה" },
     light: { title: "פלטה בהירה", subtitle: "סגול-ורוד-בהיר" },
+    dark: { title: "פלטה כהה", subtitle: "סגול-ורוד-כהה" },
   };
 
   const DEFAULTS = {
     ...PALETTE_LIGHT,
     paletteId: "light",
-    hideDemoMode: false,
     cardLayout: "popular",
     textAnimation: "staggered-letters",
-    showDatesQty: "default",
+    showDatesQty: "medium",
     popularBokeh: false,
+    disableSiteLogin: true,
   };
 
   const CARD_LAYOUTS = ["popular", "all-flip", "all-simple", "popular-special", "popular-special-flip"];
   const SHOW_DATES_QTY = ["default", "medium", "calendar"];
   const LOGO_VARIANTS = ["dark", "light"];
   const LOGO_SRC = {
-    dark: "assets/images/LOGO TICKETS.png",
+    dark: "assets/images/logo-dark.png",
     light: "assets/images/logowhite.png",
   };
   const LOGO_LABELS = {
-    dark: "כהה (האדר)",
-    light: "בהיר (פוטר)",
+    dark: "כהה (רקע בהיר)",
+    light: "בהיר (רקע כהה)",
   };
 
   const TEXT_ANIMATIONS = [
@@ -149,7 +149,6 @@
   let panelEl = null;
   let sharedPaletteListEl = null;
   let backdropEl = null;
-  let demoCheckbox = null;
 
   function readStored() {
     try {
@@ -157,11 +156,6 @@
       if (!raw) return { ...DEFAULTS };
       const parsed = JSON.parse(raw);
       const next = { ...DEFAULTS, ...parsed };
-      // migrate old key from previous stage wording
-      if (parsed.hideFontStatus != null && parsed.hideDemoMode == null) {
-        next.hideDemoMode = !!parsed.hideFontStatus;
-      }
-      delete next.hideFontStatus;
       if (!CARD_LAYOUTS.includes(next.cardLayout)) {
         next.cardLayout = DEFAULTS.cardLayout;
       }
@@ -182,6 +176,9 @@
         next.paletteId = parsed.paletteId == null ? "light" : DEFAULTS.paletteId;
       }
       next.popularBokeh = !!next.popularBokeh;
+      next.disableSiteLogin = !!next.disableSiteLogin;
+      delete next.hideDemoMode;
+      delete next.hideFontStatus;
       if (parsed.carouselBg && !parsed.carouselBgA) {
         next.carouselBgA = parsed.carouselBg;
       }
@@ -213,7 +210,7 @@
 
   function writeStored() {
     try {
-      const { hideFontStatus, ...payload } = state;
+      const { hideDemoMode, hideFontStatus, ...payload } = state;
       localStorage.setItem(STORAGE_KEY, JSON.stringify(payload));
     } catch {
       /* ignore */
@@ -264,8 +261,6 @@
       state.carouselHeadingB || palette.carouselHeadingB
     );
     root.style.setProperty("--carousel-btn-b", state.carouselBtnB || palette.carouselBtnB);
-    document.body.classList.toggle("hide-demo-mode", !!state.hideDemoMode);
-    document.body.classList.remove("hide-font-status");
     document.body.classList.toggle("theme-palette-dark", state.paletteId === "dark");
     document.body.classList.toggle("theme-palette-light", state.paletteId === "light");
     const layout = CARD_LAYOUTS.includes(state.cardLayout)
@@ -290,16 +285,15 @@
     state.showDatesQty = showDatesQty;
     document.body.dataset.showDatesQty = showDatesQty;
     document.body.classList.toggle("popular-bokeh-on", !!state.popularBokeh);
+    document.body.classList.toggle("site-login-disabled", !!state.disableSiteLogin);
     applyLogos();
-    if (state.hideDemoMode) {
-      document.body.classList.remove("demo-mode-on");
-      const demoToggle = document.querySelector(".demo-mode-toggle");
-      if (demoToggle) demoToggle.setAttribute("aria-checked", "false");
-      try {
-        localStorage.setItem("ticketsDemoMode", "0");
-      } catch {
-        /* ignore */
-      }
+    document.dispatchEvent(
+      new CustomEvent("tickets:siteLoginSetting", {
+        detail: { disableSiteLogin: !!state.disableSiteLogin },
+      })
+    );
+    if (typeof window.applySiteLoginGate === "function") {
+      window.applySiteLoginGate();
     }
     if (lastEmittedPaletteId !== state.paletteId) {
       lastEmittedPaletteId = state.paletteId;
@@ -751,11 +745,7 @@
   }
 
   function resetColors() {
-    applyPaletteColors(activePaletteColors());
-    syncColorControls();
-    syncLogoControls();
-    applyTheme();
-    writeStored();
+    setPalette("light", { persist: true });
   }
 
   function colorRow(label, key, { nested = false } = {}) {
@@ -983,21 +973,21 @@
     paletteToggle.panel.appendChild(list);
     colorsToggle.panel.appendChild(paletteToggle.section);
 
-    const demoBlock = document.createElement("section");
-    demoBlock.className = "theme-options-block";
-    const check = document.createElement("label");
-    check.className = "theme-options-check";
-    check.innerHTML =
+    const loginBlock = document.createElement("section");
+    loginBlock.className = "theme-options-block";
+    const loginCheck = document.createElement("label");
+    loginCheck.className = "theme-options-check";
+    loginCheck.innerHTML =
       '<input type="checkbox">' +
-      "<span>הסתר מצב הדגמה<small>כשמסומן — כפתור מצב ההדגמה (סמן מוגדל והדגשת אזורים) מוסתר מהאתר</small></span>";
-    demoCheckbox = check.querySelector("input");
-    demoCheckbox.checked = !!state.hideDemoMode;
-    demoCheckbox.addEventListener("change", () => {
-      state.hideDemoMode = demoCheckbox.checked;
+      "<span>כבה בקשת התחברות<small>כשמסומן — שער ההתחברות לא מוצג והאתר נפתח ישירות</small></span>";
+    const loginCheckbox = loginCheck.querySelector("input");
+    loginCheckbox.checked = !!state.disableSiteLogin;
+    loginCheckbox.addEventListener("change", () => {
+      state.disableSiteLogin = loginCheckbox.checked;
       applyTheme();
       writeStored();
     });
-    demoBlock.appendChild(check);
+    loginBlock.appendChild(loginCheck);
 
     body.appendChild(colorsToggle.section);
 
@@ -1179,7 +1169,7 @@
     extrasToggle.panel.appendChild(bokehCheck);
     body.appendChild(extrasToggle.section);
 
-    body.appendChild(demoBlock);
+    body.appendChild(loginBlock);
     panelEl.appendChild(header);
     panelEl.appendChild(body);
 

@@ -60,7 +60,7 @@
   top:0;
   right:0;
   z-index:242;
-  width:min(360px,100vw);
+  width:min(360px,100%);
   height:100vh;
   height:100dvh;
   display:flex;
@@ -600,11 +600,7 @@
   margin-top:0;
 }
 
-body.hide-demo-mode .demo-mode-panel,
-body.hide-demo-mode .demo-mode-label-float,
-body.hide-demo-mode .demo-mode-cursor{
-  display:none !important;
-}
+
 
 /* Always hide site settings (theme options) on mobile */
 @media(max-width:960px){

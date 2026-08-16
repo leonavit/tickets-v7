@@ -276,6 +276,21 @@
       .getElementById("seatsFullscreen")
       ?.addEventListener("click", toggleFullscreen);
 
+    // Mouse wheel / trackpad over the seat map → zoom in/out
+    document.getElementById("hallViewport")?.addEventListener(
+      "wheel",
+      (e) => {
+        const shellEl = document.getElementById("seatsShell");
+        if (!shellEl || shellEl.dataset.seatsStep !== "seats") return;
+        e.preventDefault();
+        const raw =
+          e.deltaMode === 1 ? e.deltaY * 16 : e.deltaMode === 2 ? e.deltaY * 400 : e.deltaY;
+        const step = Math.max(-0.2, Math.min(0.2, -raw * 0.0015));
+        setZoom(zoom + step);
+      },
+      { passive: false }
+    );
+
     document
       .getElementById("accessibleFilterBtn")
       ?.addEventListener("click", () => {

@@ -1,6 +1,6 @@
 /* Home layout — search below logo/nav; slider text vertically centered */
 :root{
-  --header-search-h:78px;
+  --header-search-h:0px;
 }
 
 /* —— Header: logo/nav row, then search —— */
@@ -12,12 +12,13 @@
   border-bottom:0;
   background:transparent;
   backdrop-filter:none;
+  position:relative;
 }
 
 .site-header-v3 .header-top-row{
   position:relative;
-  /* Above open search row (60) so account/cart menus aren't covered */
-  z-index:70;
+  /* Above search overlay so mega menu / account sit on top */
+  z-index:90;
   width:100%;
   background:var(--header-bg,#ffffff);
   color:var(--header-fg,var(--ink,#1d104a));
@@ -29,45 +30,50 @@
 }
 
 .site-header-v3 .header-search-row{
-  --header-search-h:78px;
-  /* height follows content — never lock to measured open height */
+  --header-search-h:0px;
+  /* Overlay: never push page content / hero */
+  position:absolute;
+  left:0;
+  right:0;
+  top:100%;
+  z-index:65;
   min-height:0;
-  background:var(--search-bg);
+  height:0;
+  background:transparent;
   border-bottom:0;
-  padding:10px 0;
+  padding:0;
   overflow:visible;
-  position:relative;
-  z-index:1;
   width:100%;
-}
-
-html:has(#home.active){
-  scroll-behavior:auto;
-}
-
-body:has(#home.active){
-  overflow-anchor:none;
 }
 
 /* Homepage: no search-row wash; hero slides up underneath */
 body:has(#home.active) .site-header-v3 .header-search-row{
   background:transparent;
-  transition:background .25s ease;
+  transition:none;
 }
 
-/* Open search + scrolled ≥100px: site purple at 50% */
-body:has(#home.active) .site-header-v3 .header-search-row.is-open.is-scrolled{
-  background:rgba(29,16,74,.5);
+/* Open search + scrolled ≥100px: slightly stronger wash on the panel */
+body:has(#home.active) .site-header-v3 .header-search-row.is-open.is-scrolled .header-search-panel{
+  background:color-mix(in srgb,var(--search-bg,#1d104a) 45%,transparent);
 }
 
 body:has(#home.active) .hero.hero-v3{
-  margin-top:calc(-1 * var(--header-search-h,78px));
-  min-height:calc(min(82vh,760px) + var(--header-search-h,78px));
+  margin-top:0;
+  min-height:min(82vh,760px);
 }
 
 body:has(#home.active) .hero.hero-v3 .hero-v2-content{
-  padding-top:var(--header-search-h,78px);
+  padding-top:0;
   box-sizing:border-box;
+}
+
+html:has(#home.active){
+  scroll-behavior:auto;
+  overflow-x:hidden;
+}
+body:has(#home.active){
+  overflow-anchor:none;
+  overflow-x:hidden;
 }
 
 .site-header-v3 .header-search-row .container{
@@ -80,30 +86,55 @@ body:has(#home.active) .hero.hero-v3 .hero-v2-content{
   box-shadow:0 8px 20px rgba(17,17,24,.1);
 }
 
-/* Search collapse / reopen */
+/* Search collapse / reopen — gentle ease-out (no bounce) */
 .header-search-panel{
   display:grid;
-  grid-template-rows:1fr;
-  transition:grid-template-rows .4s cubic-bezier(.22,.61,.36,1);
-}
-.header-search-row.is-closed .header-search-panel{
   grid-template-rows:0fr;
+  background:rgba(29,16,74,.55);
+  background:color-mix(in srgb,var(--search-bg,#1d104a) 55%,transparent);
+  -webkit-backdrop-filter:blur(16px);
+  backdrop-filter:blur(16px);
+  padding:0;
+  box-shadow:0 14px 32px rgba(0,0,0,.18);
+  opacity:0;
+  visibility:hidden;
+  pointer-events:none;
+  overflow:hidden;
+  transition:
+    grid-template-rows .55s cubic-bezier(.22,1,.36,1),
+    opacity .45s cubic-bezier(.22,1,.36,1),
+    visibility .45s linear,
+    padding .5s cubic-bezier(.22,1,.36,1);
+}
+.header-search-row.is-open .header-search-panel{
+  grid-template-rows:1fr;
+  opacity:1;
+  visibility:visible;
+  pointer-events:auto;
+  padding:10px 0;
+  overflow:visible; /* date picker dropdown */
 }
 .header-search-panel-inner{
   overflow:hidden;
   min-height:0;
+  transform:translateY(-10px);
+  opacity:.55;
+  transition:
+    transform .55s cubic-bezier(.22,1,.36,1),
+    opacity .45s cubic-bezier(.22,1,.36,1);
 }
 .header-search-row.is-open .header-search-panel-inner{
   overflow:visible;
-}
-.header-search-row.is-open .header-search-panel{
-  overflow:visible;
+  transform:none; /* none — avoid fixed-position containing block */
+  opacity:1;
 }
 .header-search-row.is-closed .header-search-panel-inner{
   overflow:hidden;
+  transform:translateY(-10px);
+  opacity:.55;
 }
 .site-header-v3 .header-search-row.is-open{
-  z-index:60;
+  z-index:65; /* stay below mega / header chrome */
 }
 .site-header-v3 .header-search-row .search-bar{
   position:relative;
@@ -118,13 +149,10 @@ body:has(#home.active) .hero.hero-v3 .hero-v2-content{
   gap:10px;
   align-items:center;
   padding-bottom:2px;
-  transform:translateY(0);
+  transform:none;
   opacity:1;
-  transition:transform .4s cubic-bezier(.22,.61,.36,1),opacity .28s ease;
 }
 .header-search-row.is-closed .header-search-inner{
-  transform:translateY(-110%);
-  opacity:0;
   pointer-events:none;
 }
 .search-panel-close{
@@ -210,30 +238,54 @@ body:has(#home.active) .hero.hero-v3 .hero-v2-content{
 }
 @media(prefers-reduced-motion:reduce){
   .header-search-panel,
+  .header-search-panel-inner,
   .header-search-inner,
   .header-search-reopen,
   .search-reopen-btn{
-    transition-duration:.01ms;
+    transition-duration:.01ms !important;
+  }
+  .header-search-panel-inner,
+  .header-search-row.is-open .header-search-panel-inner,
+  .header-search-row.is-closed .header-search-panel-inner{
+    transform:none !important;
+    opacity:1 !important;
   }
 }
 
-/* Mega menu: full-bleed under logo row, connected to caret */
+/* Mega menu: full-bleed under logo row, above search */
 .site-header-v3 .mega-menu{
   top:calc(100% - 1px);
   left:0;
   right:0;
   width:100%;
   max-width:none;
-  z-index:80;
+  z-index:100;
 }
 
 .site-header-v3 .nav-trigger::after{
-  z-index:81;
+  z-index:101;
 }
 
 .site-header-v3:has(.has-mega:hover) .header-top-row,
 .site-header-v3:has(.has-mega:focus-within) .header-top-row{
   border-bottom-color:#1D104A;
+  z-index:95;
+}
+
+/* Desktop: true fixed header from the start (sticky fails with overflow-x on body) */
+@media(min-width:961px){
+  .site-header.site-header-v3{
+    position:fixed !important;
+    top:0;
+    left:0;
+    right:0;
+    width:100%;
+    z-index:200;
+  }
+  body{
+    --site-header-fixed-h:74px;
+    padding-top:var(--site-header-fixed-h);
+  }
 }
 
 /* —— Hero: copy vertically centered, aligned right —— */
@@ -251,12 +303,12 @@ body:has(#home.active) .hero.hero-v3 .hero-v2-content{
 }
 
 @media(max-width:640px){
-  .site-header-v3 .header-search-row{padding:8px 0}
+  .site-header-v3 .header-search-row{padding:0}
   .hero.hero-v3 .hero-v2-content{
     justify-content:center;
   }
   body:has(#home.active) .hero.hero-v3{
-    min-height:calc(min(70vh,680px) + var(--header-search-h,78px));
+    min-height:min(70vh,680px);
   }
   .header-search-inner{
     grid-template-columns:1fr;
