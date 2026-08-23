@@ -22,6 +22,7 @@
     "carouselBgB",
     "carouselHeadingB",
     "carouselBtnB",
+    "bg",
   ];
 
   const COLOR_LABELS = {
@@ -42,78 +43,43 @@
     carouselBgB: "רקע קרוסלות B",
     carouselHeadingB: "כותרת קרוסלות B",
     carouselBtnB: "כפתור קרוסלות B",
+    bg: "רקע אתר (body)",
   };
 
-  /** Light palette — previous site default (darks/lights as before). */
-  const PALETTE_LIGHT = {
-    brandDark: "#e72173",
-    brandPink: "#a91854",
-    brandBorder: "#c31c61",
-    line: "#deded8",
-    dash: "#777777",
-    ink: "#1d104a",
-    searchBg: "#1d104a",
-    headerBg: "#ffffff",
-    headerFg: "#1d104a",
-    carouselBgA: "#e2e0e8",
-    carouselBgB: "#ffffff",
-    categoriesBg: "#e2e0e8",
-    footerBg: "#1d104a",
-    carouselHeadingA: "#1d104a",
-    carouselBtnA: "#1d104a",
-    carouselHeadingB: "#1d104a",
-    carouselBtnB: "#1d104a",
-    bg: "#f5f5f2",
-    soft: "#eeeeea",
-    muted: "#6e6e68",
-    pageFg: "#1d104a",
-    chromeBg: "#1d104a",
-    headerLogo: "dark",
-    footerLogo: "light",
-  };
-
-  /** Dark palette — invert light↔dark surfaces from the light palette. */
+  /** Site palette — dark only. */
   const PALETTE_DARK = {
-    brandDark: "#e72173",
-    brandPink: "#a91854",
-    brandBorder: "#c31c61",
+    brandDark: "#f00358",
+    brandPink: "#f00358",
+    brandBorder: "#f00358",
     line: "#3d3560",
     dash: "#b0aec0",
-    ink: "#1d104a",
-    searchBg: "#1d104a",
-    headerBg: "#1d104a",
+    ink: "#03051A",
+    searchBg: "#03051A",
+    headerBg: "#03051A",
     headerFg: "#ffffff",
-    carouselBgA: "#1d104a",
-    carouselBgB: "#15102e",
-    categoriesBg: "#1d104a",
-    footerBg: "#1d104a",
+    carouselBgA: "#03051A",
+    carouselBgB: "#03051A",
+    categoriesBg: "#03051A",
+    footerBg: "#03051A",
     carouselHeadingA: "#ffffff",
-    carouselBtnA: "#e72173",
+    carouselBtnA: "#f00358",
     carouselHeadingB: "#ffffff",
-    carouselBtnB: "#e72173",
-    bg: "#120c28",
+    carouselBtnB: "#f00358",
+    bg: "#03051A",
     soft: "#1d1640",
     muted: "#a8a4b8",
     pageFg: "#f5f2ff",
-    chromeBg: "#1d104a",
-    headerLogo: "light",
-    footerLogo: "light",
+    chromeBg: "#03051A",
+    logoId: "cutout",
   };
 
-  const PALETTES = {
-    light: PALETTE_LIGHT,
-    dark: PALETTE_DARK,
-  };
-  const PALETTE_IDS = ["light", "dark"];
-  const PALETTE_META = {
-    light: { title: "פלטה בהירה", subtitle: "סגול-ורוד-בהיר" },
-    dark: { title: "פלטה כהה", subtitle: "סגול-ורוד-כהה" },
-  };
+  const PALETTE_SUBTITLE = "סגול-ורוד-כהה";
 
   const DEFAULTS = {
-    ...PALETTE_LIGHT,
-    paletteId: "light",
-    cardLayout: "popular",
+    ...PALETTE_DARK,
+    paletteId: "dark",
+    logoId: "cutout",
+    cardLayout: "popular-special",
     textAnimation: "staggered-letters",
     showDatesQty: "medium",
     popularBokeh: false,
@@ -122,14 +88,18 @@
 
   const CARD_LAYOUTS = ["popular", "all-flip", "all-simple", "popular-special", "popular-special-flip"];
   const SHOW_DATES_QTY = ["default", "medium", "calendar"];
-  const LOGO_VARIANTS = ["dark", "light"];
+  const LOGO_VARIANTS = ["light", "pink", "gradient", "cutout"];
   const LOGO_SRC = {
-    dark: "assets/images/logo-dark.png",
     light: "assets/images/logowhite.png",
+    pink: "assets/images/logo-pink.png",
+    gradient: "assets/images/logo-gradient.png",
+    cutout: "assets/images/logo-cutout.png",
   };
-  const LOGO_LABELS = {
-    dark: "כהה (רקע בהיר)",
-    light: "בהיר (רקע כהה)",
+  const LOGO_META = {
+    light: { title: "בהיר על כהה", subtitle: "טקסט לבן" },
+    pink: { title: "ורוד עם טקסט בהיר", subtitle: "כרטיס ורוד" },
+    gradient: { title: "גרדיאנט", subtitle: "כרטיס ורוד-סגול" },
+    cutout: { title: "ורוד עם חיתוך", subtitle: "ברירת מחדל · מיקרופון שקוף" },
   };
 
   const TEXT_ANIMATIONS = [
@@ -165,15 +135,35 @@
       if (!SHOW_DATES_QTY.includes(next.showDatesQty)) {
         next.showDatesQty = DEFAULTS.showDatesQty;
       }
-      if (!LOGO_VARIANTS.includes(next.headerLogo)) {
-        next.headerLogo = DEFAULTS.headerLogo;
+      if (!LOGO_VARIANTS.includes(next.logoId)) {
+        const legacy =
+          (LOGO_VARIANTS.includes(parsed.headerLogo) && parsed.headerLogo) ||
+          (LOGO_VARIANTS.includes(parsed.footerLogo) && parsed.footerLogo) ||
+          DEFAULTS.logoId;
+        next.logoId = legacy;
       }
-      if (!LOGO_VARIANTS.includes(next.footerLogo)) {
-        next.footerLogo = DEFAULTS.footerLogo;
+      delete next.headerLogo;
+      delete next.footerLogo;
+      if (parsed.paletteId !== "dark") {
+        Object.assign(next, PALETTE_DARK);
       }
-      if (!PALETTE_IDS.includes(next.paletteId)) {
-        // Legacy saves (before paletteId) keep the light look they already had.
-        next.paletteId = parsed.paletteId == null ? "light" : DEFAULTS.paletteId;
+      next.paletteId = "dark";
+      /* Solid brand fill #f00358 — replace legacy gradient pinks */
+      const legacyBrand = new Set(["#e72173", "#a91854", "#c31c61", "#c8145d"]);
+      if (legacyBrand.has(String(next.brandDark || "").toLowerCase())) {
+        next.brandDark = PALETTE_DARK.brandDark;
+      }
+      if (legacyBrand.has(String(next.brandPink || "").toLowerCase())) {
+        next.brandPink = PALETTE_DARK.brandPink;
+      }
+      if (legacyBrand.has(String(next.brandBorder || "").toLowerCase())) {
+        next.brandBorder = PALETTE_DARK.brandBorder;
+      }
+      if (legacyBrand.has(String(next.carouselBtnA || "").toLowerCase())) {
+        next.carouselBtnA = PALETTE_DARK.carouselBtnA;
+      }
+      if (legacyBrand.has(String(next.carouselBtnB || "").toLowerCase())) {
+        next.carouselBtnB = PALETTE_DARK.carouselBtnB;
       }
       next.popularBokeh = !!next.popularBokeh;
       next.disableSiteLogin = !!next.disableSiteLogin;
@@ -221,14 +211,12 @@
 
   function applyTheme() {
     const root = document.documentElement;
-    const palette = PALETTES[state.paletteId] || PALETTE_LIGHT;
+    const palette = PALETTE_DARK;
     root.style.setProperty("--brand-dark", state.brandDark);
     root.style.setProperty("--brand-pink", state.brandPink);
     root.style.setProperty("--brand-border", state.brandBorder || palette.brandBorder);
-    root.style.setProperty(
-      "--brand-gradient",
-      `linear-gradient(135deg, ${state.brandDark} 0%, ${state.brandPink} 100%)`
-    );
+    /* Solid brand fill (no gradient) for primary buttons sitewide */
+    root.style.setProperty("--brand-gradient", state.brandDark || palette.brandDark);
     root.style.setProperty("--line", state.line);
     root.style.setProperty("--dash", state.dash);
     root.style.setProperty("--ink", state.ink);
@@ -245,11 +233,11 @@
     root.style.setProperty("--carousel-bg-b", state.carouselBgB || palette.carouselBgB);
     root.style.setProperty(
       "--categories-bg",
-      state.categoriesBg || palette.categoriesBg || "#1d104a"
+      state.categoriesBg || palette.categoriesBg || "#03051A"
     );
     root.style.setProperty(
       "--footer-bg",
-      state.footerBg || palette.footerBg || palette.chromeBg || "#1d104a"
+      state.footerBg || palette.footerBg || palette.chromeBg || "#03051A"
     );
     root.style.setProperty(
       "--carousel-heading-a",
@@ -261,8 +249,8 @@
       state.carouselHeadingB || palette.carouselHeadingB
     );
     root.style.setProperty("--carousel-btn-b", state.carouselBtnB || palette.carouselBtnB);
-    document.body.classList.toggle("theme-palette-dark", state.paletteId === "dark");
-    document.body.classList.toggle("theme-palette-light", state.paletteId === "light");
+    document.body.classList.add("theme-palette-dark");
+    document.body.classList.remove("theme-palette-light");
     const layout = CARD_LAYOUTS.includes(state.cardLayout)
       ? state.cardLayout
       : DEFAULTS.cardLayout;
@@ -367,29 +355,21 @@
   }
 
   function logoSrc(variant) {
-    return LOGO_SRC[LOGO_VARIANTS.includes(variant) ? variant : "dark"];
+    return LOGO_SRC[LOGO_VARIANTS.includes(variant) ? variant : DEFAULTS.logoId];
   }
 
   function applyLogos() {
-    const header = LOGO_VARIANTS.includes(state.headerLogo)
-      ? state.headerLogo
-      : DEFAULTS.headerLogo;
-    const footer = LOGO_VARIANTS.includes(state.footerLogo)
-      ? state.footerLogo
-      : DEFAULTS.footerLogo;
-    state.headerLogo = header;
-    state.footerLogo = footer;
-    const headerImg = document.getElementById("headerLogo");
-    const footerImg = document.getElementById("footerLogo");
-    if (headerImg) headerImg.src = logoSrc(header);
-    if (footerImg) footerImg.src = logoSrc(footer);
+    const id = LOGO_VARIANTS.includes(state.logoId) ? state.logoId : DEFAULTS.logoId;
+    state.logoId = id;
+    const src = logoSrc(id);
+    document.querySelectorAll("[data-site-logo]").forEach((img) => {
+      img.src = src;
+    });
   }
 
-  function setLogo(slot, value, { persist = true } = {}) {
+  function setLogo(value, { persist = true } = {}) {
     if (!LOGO_VARIANTS.includes(value)) return;
-    if (slot !== "header" && slot !== "footer") return;
-    if (slot === "header") state.headerLogo = value;
-    else state.footerLogo = value;
+    state.logoId = value;
     applyTheme();
     syncLogoControls();
     if (persist) writeStored();
@@ -397,39 +377,9 @@
 
   function syncLogoControls() {
     if (!panelEl) return;
-    const headerSelect = panelEl.querySelector("#themeHeaderLogo");
-    const footerSelect = panelEl.querySelector("#themeFooterLogo");
-    if (headerSelect) headerSelect.value = state.headerLogo;
-    if (footerSelect) footerSelect.value = state.footerLogo;
-  }
-
-  function makeLogoSelect(id, labelText, slot) {
-    const wrap = document.createElement("div");
-    wrap.className = "theme-options-logo-row";
-
-    const label = document.createElement("label");
-    label.className = "theme-options-select-label";
-    label.htmlFor = id;
-    label.textContent = labelText;
-
-    const select = document.createElement("select");
-    select.id = id;
-    select.className = "theme-options-select";
-    select.setAttribute("aria-label", labelText);
-    LOGO_VARIANTS.forEach((key) => {
-      const opt = document.createElement("option");
-      opt.value = key;
-      opt.textContent = LOGO_LABELS[key];
-      if (key === state[slot === "header" ? "headerLogo" : "footerLogo"]) {
-        opt.selected = true;
-      }
-      select.appendChild(opt);
+    panelEl.querySelectorAll('input[name="themeLogoId"]').forEach((input) => {
+      input.checked = input.value === state.logoId;
     });
-    select.addEventListener("change", () => setLogo(slot, select.value));
-
-    wrap.appendChild(label);
-    wrap.appendChild(select);
-    return wrap;
   }
 
   function textAnimationLabel(key) {
@@ -704,7 +654,7 @@
   }
 
   function activePaletteColors() {
-    return PALETTES[state.paletteId] || PALETTE_LIGHT;
+    return PALETTE_DARK;
   }
 
   function colorDefault(key) {
@@ -716,36 +666,28 @@
     COLOR_KEYS.forEach((key) => {
       if (palette[key] != null) state[key] = palette[key];
     });
-    ["bg", "soft", "muted", "pageFg", "chromeBg", "headerLogo", "footerLogo"].forEach((key) => {
+    ["bg", "soft", "muted", "pageFg", "chromeBg"].forEach((key) => {
       if (palette[key] != null) state[key] = palette[key];
     });
-  }
-
-  function setPalette(id, { persist = true } = {}) {
-    if (!PALETTE_IDS.includes(id)) return;
-    state.paletteId = id;
-    applyPaletteColors(PALETTES[id]);
-    applyTheme();
-    syncColorControls();
-    syncLogoControls();
-    syncPaletteControls();
-    if (persist) writeStored();
+    if (palette.logoId != null && LOGO_VARIANTS.includes(palette.logoId)) {
+      state.logoId = palette.logoId;
+    }
   }
 
   function syncPaletteControls() {
     if (!panelEl) return;
-    panelEl.querySelectorAll('input[name="themePaletteId"]').forEach((input) => {
-      input.checked = input.value === state.paletteId;
-    });
     const subtitle = panelEl.querySelector("#themePaletteToggle .theme-options-block-subtitle");
-    if (subtitle) {
-      subtitle.textContent =
-        (PALETTE_META[state.paletteId] || PALETTE_META.light).subtitle;
-    }
+    if (subtitle) subtitle.textContent = PALETTE_SUBTITLE;
   }
 
   function resetColors() {
-    setPalette("light", { persist: true });
+    state.paletteId = "dark";
+    applyPaletteColors(PALETTE_DARK);
+    applyTheme();
+    syncColorControls();
+    syncLogoControls();
+    syncPaletteControls();
+    writeStored();
   }
 
   function colorRow(label, key, { nested = false } = {}) {
@@ -896,37 +838,10 @@
       id: "themeColors",
     });
 
-    const palettePickHint = document.createElement("p");
-    palettePickHint.className = "theme-options-hint";
-    palettePickHint.textContent = "בחירת פלטה";
-    colorsToggle.panel.appendChild(palettePickHint);
-
-    const palettePickList = document.createElement("div");
-    palettePickList.className = "theme-options-radio-list theme-options-palette-pick";
-    palettePickList.setAttribute("role", "group");
-    palettePickList.setAttribute("aria-label", "בחירת פלטה");
-
-    PALETTE_IDS.forEach((id) => {
-      const meta = PALETTE_META[id];
-      const label = document.createElement("label");
-      label.className = "theme-options-check";
-      label.innerHTML =
-        `<input type="checkbox" name="themePaletteId" value="${id}">` +
-        `<span><strong>${meta.title}</strong><small>${meta.subtitle}</small></span>`;
-      const input = label.querySelector("input");
-      input.checked = state.paletteId === id;
-      input.addEventListener("change", () => {
-        if (input.checked) setPalette(id);
-        else if (state.paletteId === id) input.checked = true;
-      });
-      palettePickList.appendChild(label);
-    });
-    colorsToggle.panel.appendChild(palettePickList);
-
     const paletteToggle = makeToggleSection("פלטה", {
       open: false,
       id: "themePalette",
-      subtitle: (PALETTE_META[state.paletteId] || PALETTE_META.light).subtitle,
+      subtitle: PALETTE_SUBTITLE,
       nested: true,
       palettePreview: true,
     });
@@ -956,6 +871,7 @@
     list.appendChild(colorRow("קווים מקווקוים", "dash"));
     list.appendChild(colorRow("קווי סקשנים", "line"));
     list.appendChild(colorRow("צבע גופן", "ink"));
+    list.appendChild(colorRow("רקע אתר (body)", "bg"));
     list.appendChild(colorRow("רקע מנוע חיפוש", "searchBg"));
     list.appendChild(colorRow("רקע מה תרצו לראות היום", "categoriesBg"));
     list.appendChild(colorRow("רקע פוטר", "footerBg"));
@@ -1086,15 +1002,29 @@
     });
     const logosHint = document.createElement("p");
     logosHint.className = "theme-options-hint";
-    logosHint.textContent =
-      "בחירה בין הלוגו הכהה (ברירת מחדל בהאדר) ללוגו הבהיר (ברירת מחדל בפוטר).";
+    logosHint.textContent = "בחרו גרסת לוגו אחת לאתר (האדר, תפריט מובייל ופוטר).";
     logosToggle.panel.appendChild(logosHint);
-    logosToggle.panel.appendChild(
-      makeLogoSelect("themeHeaderLogo", "לוגו עליון (האדר)", "header")
-    );
-    logosToggle.panel.appendChild(
-      makeLogoSelect("themeFooterLogo", "לוגו תחתון (פוטר)", "footer")
-    );
+
+    const logosList = document.createElement("div");
+    logosList.className = "theme-options-radio-list theme-options-logo-pick";
+    logosList.setAttribute("role", "group");
+    logosList.setAttribute("aria-label", "בחירת לוגו");
+    LOGO_VARIANTS.forEach((id) => {
+      const meta = LOGO_META[id];
+      const label = document.createElement("label");
+      label.className = "theme-options-check";
+      label.innerHTML =
+        `<input type="checkbox" name="themeLogoId" value="${id}">` +
+        `<span><strong>${meta.title}</strong><small>${meta.subtitle}</small></span>`;
+      const input = label.querySelector("input");
+      input.checked = state.logoId === id;
+      input.addEventListener("change", () => {
+        if (input.checked) setLogo(id);
+        else if (state.logoId === id) input.checked = true;
+      });
+      logosList.appendChild(label);
+    });
+    logosToggle.panel.appendChild(logosList);
     body.appendChild(logosToggle.section);
 
     const extrasToggle = makeToggleSection("אפשרויות נוספות", {
@@ -1191,7 +1121,7 @@
     syncShowDatesQtyControls();
     syncLogoControls();
     syncPaletteControls();
-    const mobileMq = window.matchMedia("(max-width:960px)");
+    const mobileMq = window.matchMedia("(max-width:1179px)");
     function syncMobileThemeChrome() {
       if (mobileMq.matches && open) setOpen(false);
     }

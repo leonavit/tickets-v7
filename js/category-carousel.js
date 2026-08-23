@@ -1,6 +1,8 @@
 /**
  * Mobile categories carousel («מה תרצו לראות»):
- * infinite loop, middle item centered on load, side peeks.
+ * infinite loop, middle item centered on load, side peeks,
+ * auto-slide every 5s (pauses on user interaction / reduced motion).
+ * Clones get fresh empty Lottie hosts; icons rebound via refreshCategoryLotties.
  */
 (function initCategoryCarousel() {
   const row = document.querySelector(".categories-section .category-row");
@@ -8,12 +10,16 @@
 
   const mq = window.matchMedia("(max-width:960px)");
   const START_INDEX = 2; // middle of 5: תרבות
+  const AUTO_MS = 5000;
   let count = 0;
   let built = false;
   let jumping = false;
   let jumpTimer = 0;
   let scrollEndTimer = 0;
+  let autoTimer = 0;
+  let resumeTimer = 0;
   let logicalIndex = START_INDEX;
+  let lastPlayedLogical = -1;
 
   function cards() {
     return [...row.querySelectorAll(".category-card")];
@@ -31,20 +37,31 @@
 
   function scrollToCenter(card, behavior) {
     if (!card) return;
-    const delta = centerDelta(card);
-    if (Math.abs(delta) < 0.5) return;
     const instant = !behavior || behavior === "auto" || behavior === "instant";
+    const apply = () => {
+      const delta = centerDelta(card);
+      if (Math.abs(delta) < 0.75) return false;
+      // Physical delta works with scrollLeft in both LTR and RTL engines
+      row.scrollLeft += delta;
+      return true;
+    };
+
     if (instant) {
       setSnap(false);
-      row.scrollBy({ left: delta, behavior: "instant" in Element.prototype ? "instant" : "auto" });
-      // Second pass — layout/subpixel after first jump
-      const fix = centerDelta(card);
-      if (Math.abs(fix) >= 0.5) {
-        row.scrollBy({ left: fix, behavior: "auto" });
-      }
-      setSnap(true);
+      apply();
+      // Second + third pass for iOS subpixel / RTL scrollLeft quirks
+      requestAnimationFrame(() => {
+        apply();
+        requestAnimationFrame(() => {
+          apply();
+          setSnap(true);
+        });
+      });
     } else {
-      row.scrollBy({ left: delta, behavior: "smooth" });
+      const delta = centerDelta(card);
+      if (Math.abs(delta) >= 0.75) {
+        row.scrollTo({ left: row.scrollLeft + delta, behavior: "smooth" });
+      }
     }
   }
 
@@ -83,15 +100,27 @@
         card.removeAttribute("aria-current");
       }
     });
+
+    const centerCard = list[center];
+    if (
+      centerCard &&
+      !jumping &&
+      logicalIndex !== lastPlayedLogical &&
+      typeof window.playCategoryCardLottie === "function"
+    ) {
+      lastPlayedLogical = logicalIndex;
+      window.playCategoryCardLottie(centerCard);
+    }
   }
 
-  function beginJump() {
+  function beginJump(ms) {
     jumping = true;
     window.clearTimeout(jumpTimer);
     jumpTimer = window.setTimeout(() => {
       jumping = false;
       markCenter();
-    }, 180);
+      normalizeLoop();
+    }, typeof ms === "number" ? ms : 280);
   }
 
   /** Only remap when resting on cloned edge strips — never during middle set. */
@@ -105,7 +134,7 @@
       markCenter(idx);
       return;
     }
-    beginJump();
+    beginJump(200);
     scrollToCenter(cards()[target], "auto");
     markCenter(target);
   }
@@ -114,7 +143,73 @@
     if (jumping) return;
     markCenter();
     window.clearTimeout(scrollEndTimer);
-    scrollEndTimer = window.setTimeout(normalizeLoop, 140);
+    scrollEndTimer = window.setTimeout(normalizeLoop, 160);
+  }
+
+  function canAutoplay() {
+    if (!mq.matches || !built || !count) return false;
+    if (document.hidden) return false;
+    if (!document.querySelector("#home.active")) return false;
+    if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return false;
+    return true;
+  }
+
+  function stopAuto() {
+    window.clearInterval(autoTimer);
+    autoTimer = 0;
+  }
+
+  /**
+   * Always step +1 along the infinite strip (forward only).
+   * When we enter the after-clone zone, normalizeLoop snaps back to the middle set.
+   */
+  function advanceAuto() {
+    if (!canAutoplay() || jumping) return;
+    const list = cards();
+    if (!list.length) return;
+
+    let idx = nearestIndex() + 1;
+    // Keep a buffer of after-clones; if we somehow pass the end, wrap into middle
+    if (idx >= list.length) idx = count;
+
+    beginJump(700);
+    scrollToCenter(list[idx], "smooth");
+    markCenter(idx);
+  }
+
+  function startAuto() {
+    stopAuto();
+    window.clearTimeout(resumeTimer);
+    if (!canAutoplay()) return;
+    autoTimer = window.setInterval(advanceAuto, AUTO_MS);
+  }
+
+  /** Pause while the user interacts, then resume after a short delay. */
+  function pauseAutoTemporarily() {
+    stopAuto();
+    window.clearTimeout(resumeTimer);
+    resumeTimer = window.setTimeout(startAuto, AUTO_MS);
+  }
+
+  function prepareClone(card) {
+    const clone = card.cloneNode(true);
+    clone.classList.add("is-clone");
+    clone.setAttribute("aria-hidden", "true");
+    clone.tabIndex = -1;
+    clone.classList.remove("is-center");
+    clone.removeAttribute("aria-current");
+    // Fresh Lottie hosts — never copy live SVG / bound state
+    clone.querySelectorAll("[data-category-lottie-key]").forEach((el) => {
+      el.innerHTML = "";
+      delete el.dataset.lottieBound;
+      delete el.dataset.lottiePlayed;
+      try {
+        delete el._categoryLottie;
+      } catch (_) {
+        el._categoryLottie = null;
+      }
+    });
+    return clone;
   }
 
   function buildClones() {
@@ -126,21 +221,16 @@
     const before = document.createDocumentFragment();
     const after = document.createDocumentFragment();
     originals.forEach((card) => {
-      const a = card.cloneNode(true);
-      a.classList.add("is-clone");
-      a.setAttribute("aria-hidden", "true");
-      a.tabIndex = -1;
-      before.appendChild(a);
-
-      const b = card.cloneNode(true);
-      b.classList.add("is-clone");
-      b.setAttribute("aria-hidden", "true");
-      b.tabIndex = -1;
-      after.appendChild(b);
+      before.appendChild(prepareClone(card));
+      after.appendChild(prepareClone(card));
     });
     row.insertBefore(before, row.firstChild);
     row.appendChild(after);
     built = true;
+
+    if (typeof window.refreshCategoryLotties === "function") {
+      window.refreshCategoryLotties();
+    }
   }
 
   function goToLogical(index, behavior) {
@@ -162,8 +252,13 @@
       if (!built) {
         buildClones();
         requestAnimationFrame(() => {
-          requestAnimationFrame(() => goToLogical(START_INDEX, "auto"));
+          requestAnimationFrame(() => {
+            goToLogical(START_INDEX, "auto");
+            startAuto();
+          });
         });
+      } else {
+        startAuto();
       }
       return;
     }
@@ -171,16 +266,28 @@
     row.classList.add("is-category-carousel");
     row.dataset.categoryCarouselBound = "1";
     row.addEventListener("scroll", onScroll, { passive: true });
+    row.addEventListener("pointerdown", pauseAutoTemporarily, { passive: true });
+    row.addEventListener("touchstart", pauseAutoTemporarily, { passive: true });
+    row.addEventListener("wheel", pauseAutoTemporarily, { passive: true });
     requestAnimationFrame(() => {
-      requestAnimationFrame(() => goToLogical(START_INDEX, "auto"));
+      requestAnimationFrame(() => {
+        goToLogical(START_INDEX, "auto");
+        startAuto();
+      });
     });
   }
 
   function disable() {
     row.removeEventListener("scroll", onScroll);
+    row.removeEventListener("pointerdown", pauseAutoTemporarily);
+    row.removeEventListener("touchstart", pauseAutoTemporarily);
+    row.removeEventListener("wheel", pauseAutoTemporarily);
     window.clearTimeout(scrollEndTimer);
     window.clearTimeout(jumpTimer);
+    window.clearTimeout(resumeTimer);
+    stopAuto();
     jumping = false;
+    lastPlayedLogical = -1;
     row.classList.remove("is-category-carousel");
     delete row.dataset.categoryCarouselBound;
     setSnap(true);
@@ -210,12 +317,31 @@
         return;
       }
       if (!built) enable();
-      else recenterCurrent(); // keep current item — do NOT reset to start
+      else {
+        recenterCurrent();
+        startAuto();
+      }
     }, 120);
   });
 
   window.addEventListener("load", () => {
-    if (mq.matches && built) recenterCurrent();
+    if (mq.matches && built) {
+      recenterCurrent();
+      if (typeof window.refreshCategoryLotties === "function") {
+        window.refreshCategoryLotties();
+      }
+      startAuto();
+    }
+  });
+
+  document.addEventListener("visibilitychange", () => {
+    if (document.hidden) stopAuto();
+    else startAuto();
+  });
+
+  window.addEventListener("hashchange", () => {
+    if (canAutoplay()) startAuto();
+    else stopAuto();
   });
 
   sync();

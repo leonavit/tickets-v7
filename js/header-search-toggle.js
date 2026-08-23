@@ -16,7 +16,7 @@
   const datePanel = document.getElementById("dateRangePanel");
   const dateDisplay = document.getElementById("dateRangeDisplay");
   const SCROLL_BG_AT = 100;
-  const mobileMq = window.matchMedia("(max-width:960px)");
+  const mobileMq = window.matchMedia("(max-width:1179px)");
 
   function isHomeActive() {
     return !!document.getElementById("home")?.classList.contains("active");
@@ -97,8 +97,8 @@
   window.addEventListener("scroll", syncScrollBg, { passive: true });
   window.addEventListener("hashchange", syncScrollBg);
 
-  // Mobile: search closed by default; desktop: open
-  setOpen(!mobileMq.matches);
+  // Always closed on load/refresh; user opens via search icon only.
+  setOpen(false);
   syncScrollBg();
 })();
 
@@ -148,7 +148,7 @@
   const btn = document.getElementById("searchSubmitBtn");
   if (!btn) return;
 
-  const desktop = window.matchMedia("(min-width: 961px)");
+  const desktop = window.matchMedia("(min-width: 1180px)");
   const reduce = window.matchMedia("(prefers-reduced-motion: reduce)");
 
   function waitForGsap(cb) {
@@ -213,7 +213,9 @@
 (function initMobileNavLogoAnim() {
   const panel = document.getElementById("mobileNav");
   const brand = panel?.querySelector(".mobile-nav-brand");
-  if (!panel || !brand) return;
+  const logo = brand?.querySelector("img");
+  const line = brand?.querySelector(".mobile-nav-brand-line");
+  if (!panel || !brand || !logo) return;
 
   const reduce = window.matchMedia("(prefers-reduced-motion: reduce)");
 
@@ -234,35 +236,60 @@
     }, 50);
   }
 
+  function showStatic() {
+    logo.style.opacity = "1";
+    logo.style.transform = "none";
+    if (line) {
+      line.style.opacity = "1";
+      line.style.transform = "none";
+    }
+  }
+
   function playIn() {
     if (reduce.matches || !window.gsap) {
-      brand.style.opacity = "1";
-      brand.style.transform = "none";
+      showStatic();
       return;
     }
-    window.gsap.killTweensOf(brand);
-    window.gsap.fromTo(
-      brand,
+    const targets = line ? [logo, line] : [logo];
+    window.gsap.killTweensOf(targets);
+    const tl = window.gsap.timeline({ overwrite: true });
+    tl.fromTo(
+      logo,
       { y: 48, opacity: 0 },
       {
         y: 0,
         opacity: 1,
         duration: 0.55,
         ease: "power3.out",
-        overwrite: true,
       }
     );
+    if (line) {
+      tl.fromTo(
+        line,
+        { scaleX: 0, opacity: 0 },
+        {
+          scaleX: 1,
+          opacity: 1,
+          duration: 0.42,
+          ease: "power2.out",
+        },
+        ">"
+      );
+    }
   }
 
   function resetOut() {
     if (!window.gsap) return;
-    window.gsap.killTweensOf(brand);
-    window.gsap.set(brand, { y: 48, opacity: 0 });
+    const targets = line ? [logo, line] : [logo];
+    window.gsap.killTweensOf(targets);
+    window.gsap.set(logo, { y: 48, opacity: 0 });
+    if (line) window.gsap.set(line, { scaleX: 0, opacity: 0 });
   }
 
   waitForGsap(() => {
     if (window.gsap && !reduce.matches) {
-      window.gsap.set(brand, { y: 48, opacity: 0 });
+      window.gsap.set(logo, { y: 48, opacity: 0 });
+      if (line) window.gsap.set(line, { scaleX: 0, opacity: 0 });
     }
 
     const mo = new MutationObserver(() => {

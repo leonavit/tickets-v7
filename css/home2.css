@@ -117,9 +117,9 @@
   min-height:46px;
   padding:0 24px;
   font-weight:600;
-  background:var(--brand-gradient);
+  background:var(--brand-gradient,#f00358);
   color:#fff;
-  border-color:var(--brand-border,#c31c61);
+  border-color:var(--brand-border,#f00358);
 }
 .hero-v2-cta:hover,
 .hero-v2-cta:focus-visible{
@@ -296,7 +296,7 @@
 
 /* Tablet */
 @media(max-width:960px){
-  .hero.hero-v2{min-height:min(70vh,680px)}
+  .hero.hero-v2{min-height:min(45.5vh,442px)} /* 70vh/680 −35% */
   .hero-v2-content{padding:56px 0 96px}
   .hero-v2-text h1{font-size:clamp(35.2px,5.5vw,48.4px)} /* +10% */
   .hero-v2-text p{font-size:16px;margin-bottom:24px}

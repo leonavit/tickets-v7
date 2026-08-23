@@ -68,6 +68,55 @@
     return b;
   }
 
+  function activeEventData() {
+    try {
+      if (typeof getEventById === "function" && typeof activeEventId !== "undefined") {
+        return getEventById(activeEventId) || null;
+      }
+    } catch (_) {}
+    return null;
+  }
+
+  function syncSeatsSummaryHero() {
+    const summary = document.getElementById("seatsSummary");
+    if (!summary) return;
+    let hero = summary.querySelector(".seats-summary-hero");
+    if (!hero) {
+      hero = document.createElement("div");
+      hero.className = "seats-summary-hero";
+      hero.innerHTML =
+        '<div class="seats-summary-hero-media"><img id="seatsSummaryPoster" alt="" loading="lazy"></div>';
+      const head = summary.querySelector(".seats-summary-head");
+      if (head) summary.insertBefore(hero, head);
+      else summary.prepend(hero);
+      const existingName = document.getElementById("seatsShowName");
+      if (existingName) {
+        hero.appendChild(existingName);
+      } else {
+        const fallback = document.createElement("strong");
+        fallback.className = "seats-show-name";
+        fallback.id = "seatsShowName";
+        hero.appendChild(fallback);
+      }
+    }
+    const ev = activeEventData();
+    const title = ev && ev.title ? ev.title : "המופע";
+    const showName = document.getElementById("seatsShowName");
+    const poster = document.getElementById("seatsSummaryPoster");
+    if (showName) {
+      showName.textContent = title;
+      showName.hidden = false;
+    }
+    if (poster) {
+      const src =
+        ev && typeof eventImage === "function"
+          ? eventImage(ev)
+          : "assets/events/1.jpg";
+      poster.src = src;
+      poster.alt = title;
+    }
+  }
+
   function seatButton({ id, row, col, block, price, accessible, taken }) {
     const b = document.createElement("button");
     b.type = "button";
@@ -201,9 +250,108 @@
   function setZoom(next) {
     zoom = Math.min(1.8, Math.max(0.55, next));
     const canvas = document.getElementById("hallCanvas");
-    if (canvas) canvas.style.transform = `scale(${zoom})`;
+    const vp = document.getElementById("hallViewport");
+    if (canvas) {
+      canvas.style.transform = `scale(${zoom})`;
+      canvas.style.transformOrigin = "center top";
+      // Expand layout so overflow scroll can pan when zoomed in
+      if (zoom > 1) {
+        const w = canvas.offsetWidth;
+        const h = canvas.offsetHeight;
+        const extraX = ((zoom - 1) * w) / 2;
+        canvas.style.marginLeft = `${extraX}px`;
+        canvas.style.marginRight = `${extraX}px`;
+        canvas.style.marginBottom = `${(zoom - 1) * h}px`;
+      } else {
+        canvas.style.marginLeft = "";
+        canvas.style.marginRight = "";
+        canvas.style.marginBottom = "";
+      }
+    }
+    vp?.classList.toggle("is-zoom-pan", zoom > 1);
     const label = document.getElementById("seatsZoomLabel");
     if (label) label.textContent = Math.round(zoom * 100) + "%";
+  }
+
+  function bindHallPan(vp) {
+    if (!vp || vp.dataset.panBound === "1") return;
+    vp.dataset.panBound = "1";
+
+    let dragging = false;
+    let moved = false;
+    let startX = 0;
+    let startY = 0;
+    let startLeft = 0;
+    let startTop = 0;
+    let pointerId = null;
+    const THRESHOLD = 5;
+
+    const endPan = (e) => {
+      if (!dragging) return;
+      if (pointerId != null && e.pointerId !== pointerId) return;
+      dragging = false;
+      try {
+        if (pointerId != null) vp.releasePointerCapture(pointerId);
+      } catch (_) {}
+      pointerId = null;
+      vp.classList.remove("is-panning");
+      if (moved) {
+        vp.dataset.suppressSeatClick = "1";
+        // Clear after the synthetic click from this gesture
+        requestAnimationFrame(() => {
+          delete vp.dataset.suppressSeatClick;
+        });
+      }
+      moved = false;
+    };
+
+    vp.addEventListener("pointerdown", (e) => {
+      const shellEl = document.getElementById("seatsShell");
+      if (!shellEl || shellEl.dataset.seatsStep !== "seats") return;
+      if (zoom <= 1) return;
+      if (e.button !== 0 && e.button !== 1) return;
+      // Keep seat clicks selectable while zoomed-in.
+      if (e.target && e.target.closest && e.target.closest(".seat")) return;
+      dragging = true;
+      moved = false;
+      pointerId = e.pointerId;
+      startX = e.clientX;
+      startY = e.clientY;
+      startLeft = vp.scrollLeft;
+      startTop = vp.scrollTop;
+      try {
+        vp.setPointerCapture(e.pointerId);
+      } catch (_) {}
+    });
+
+    vp.addEventListener("pointermove", (e) => {
+      if (!dragging || (pointerId != null && e.pointerId !== pointerId)) return;
+      const dx = e.clientX - startX;
+      const dy = e.clientY - startY;
+      if (!moved && Math.hypot(dx, dy) < THRESHOLD) return;
+      if (!moved) {
+        moved = true;
+        vp.classList.add("is-panning");
+      }
+      vp.scrollLeft = startLeft - dx;
+      vp.scrollTop = startTop - dy;
+    });
+
+    vp.addEventListener("pointerup", endPan);
+    vp.addEventListener("pointercancel", endPan);
+
+    // Block seat toggle after a pan gesture
+    vp.addEventListener(
+      "click",
+      (e) => {
+        if (vp.dataset.suppressSeatClick === "1") {
+          e.preventDefault();
+          e.stopPropagation();
+          delete vp.dataset.suppressSeatClick;
+        }
+      },
+      true
+    );
   }
 
   function isFs() {
@@ -277,7 +425,8 @@
       ?.addEventListener("click", toggleFullscreen);
 
     // Mouse wheel / trackpad over the seat map → zoom in/out
-    document.getElementById("hallViewport")?.addEventListener(
+    const hallViewport = document.getElementById("hallViewport");
+    hallViewport?.addEventListener(
       "wheel",
       (e) => {
         const shellEl = document.getElementById("seatsShell");
@@ -290,6 +439,7 @@
       },
       { passive: false }
     );
+    bindHallPan(hallViewport);
 
     document
       .getElementById("accessibleFilterBtn")
@@ -309,6 +459,7 @@
   };
 
   window.updateSeatSummary = function updateSeatSummary() {
+    syncSeatsSummaryHero();
     const sel = [...document.querySelectorAll("#hallCanvas .seat.selected")];
     const summary = document.getElementById("seatsSummary");
     const peek = document.getElementById("seatsSummaryPeek");
@@ -316,18 +467,25 @@
     const onSeatStep = shell?.dataset.seatsStep === "seats";
 
     if (summary) {
-      summary.classList.toggle("is-open", onSeatStep && sel.length > 0);
-      if (!sel.length) {
+      const desktopSeats =
+        onSeatStep && window.matchMedia("(min-width:961px)").matches;
+      if (desktopSeats) {
+        summary.classList.add("is-open");
         summary.classList.remove("is-collapsed");
         if (peek) peek.hidden = true;
-      } else if (summary.classList.contains("is-collapsed")) {
-        if (peek) peek.hidden = false;
+      } else {
+        summary.classList.toggle("is-open", onSeatStep && sel.length > 0);
+        if (!sel.length) {
+          summary.classList.remove("is-collapsed");
+          if (peek) peek.hidden = true;
+        } else if (summary.classList.contains("is-collapsed")) {
+          if (peek) peek.hidden = false;
+        }
       }
     }
 
     const box = document.getElementById("selectedSeats");
     const empty = document.getElementById("selectedSeatsEmpty");
-    const showName = document.getElementById("seatsShowName");
     const btn = document.getElementById("toCart");
     const total = document.getElementById("seatTotal");
     if (sel.length) {
@@ -355,14 +513,12 @@
           })
           .join("");
       }
-      if (showName) showName.hidden = false;
     } else {
       if (empty) empty.hidden = false;
       if (box) {
         box.hidden = true;
         box.innerHTML = "";
       }
-      if (showName) showName.hidden = true;
     }
     const sum = sel.reduce((s, el) => s + Number(el.dataset.price || 185), 0);
     if (total) total.textContent = sum + "\u00a0₪";
