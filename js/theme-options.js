@@ -88,18 +88,20 @@
 
   const CARD_LAYOUTS = ["popular", "all-flip", "all-simple", "popular-special", "popular-special-flip"];
   const SHOW_DATES_QTY = ["default", "medium", "calendar"];
-  const LOGO_VARIANTS = ["light", "pink", "gradient", "cutout"];
+  const LOGO_VARIANTS = ["light", "pink", "gradient", "cutout", "tickets"];
   const LOGO_SRC = {
     light: "assets/images/logowhite.png",
     pink: "assets/images/logo-pink.png",
     gradient: "assets/images/logo-gradient.png",
     cutout: "assets/images/logo-cutout.png",
+    tickets: "assets/images/logo-tickets.png",
   };
   const LOGO_META = {
     light: { title: "בהיר על כהה", subtitle: "טקסט לבן" },
     pink: { title: "ורוד עם טקסט בהיר", subtitle: "כרטיס ורוד" },
     gradient: { title: "גרדיאנט", subtitle: "כרטיס ורוד-סגול" },
     cutout: { title: "ורוד עם חיתוך", subtitle: "ברירת מחדל · מיקרופון שקוף" },
+    tickets: { title: "לוגו כרטיסים", subtitle: "כרטיס ורוד עם טקסט בהיר" },
   };
 
   const TEXT_ANIMATIONS = [

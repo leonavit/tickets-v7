@@ -18,14 +18,15 @@ let favorites=normalizeFavorites(JSON.parse(localStorage.getItem('ticketsFavorit
 let cart=JSON.parse(localStorage.getItem('ticketsCartV6')||'[]');
 let discount=0;
 function normalizeFavorites(list){return[...new Set((list||[]).map(Number).filter(id=>Number.isFinite(id)&&events.some(e=>e.id===id)))]}
-function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),1800)}
+function toast(msg){const t=document.getElementById('toast');t.textContent=msg;t.classList.add('show');setTimeout(()=>t.classList.remove('show'),2800)}
 function setAccountTab(tab){const t=tab||'tickets';document.querySelectorAll('.account-nav [data-account-tab]').forEach(x=>x.classList.toggle('active',x.dataset.accountTab===t));document.querySelectorAll('.account-panel').forEach(x=>x.classList.add('hidden'));const panel=document.getElementById(t+'Panel');if(panel)panel.classList.remove('hidden')}
-function setEventTab(tab){const t=tab||'dates';document.querySelectorAll('.event-tab').forEach(x=>x.classList.toggle('active',x.dataset.tab===t));document.querySelectorAll('.tab-panel').forEach(x=>x.classList.toggle('active',x.dataset.panel===t))}
+function setEventTab(tab){const t=tab||'dates';document.querySelectorAll('.event-tab').forEach(x=>x.classList.toggle('active',x.dataset.tab===t));document.querySelectorAll('.tab-panel').forEach(x=>x.classList.toggle('active',x.dataset.panel===t))}/* tabs moved to seats accordion */
 function isHomeRoute(){return(location.hash.replace('#','')||'home').split('/')[0]==='home'}
 function lockHomeScrollTop(){if(!isHomeRoute())return;const snap=()=>{window.scrollTo(0,0);if(document.documentElement)document.documentElement.scrollTop=0;if(document.body)document.body.scrollTop=0};snap();requestAnimationFrame(()=>{snap();requestAnimationFrame(snap)});[0,50,100,250].forEach(ms=>setTimeout(snap,ms))}
 window.lockHomeScrollTop=lockHomeScrollTop;
-function route(id,fromHash){const raw=(id||'home').replace(/^#/,''),parts=raw.split('/'),screen=parts[0]||'home',tab=parts[1];const prevScreen=(location.hash.replace(/^#/,'')||'home').split('/')[0];document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));const target=document.getElementById(screen)||document.getElementById('home');target.classList.add('active');document.body.classList.toggle('seats-flow-active',screen==='seats');if(screen==='account')setAccountTab(tab||'tickets');if(screen==='event'){if(typeof window.setHeaderSearchOpen==='function')window.setHeaderSearchOpen(false);setEventTab(tab||'dates');syncEventPage(getEventById(activeEventId));renderShowDates();renderRelated();startFullPresaleTicker()}if(screen==='seats'){if(typeof window.setHeaderSearchOpen==='function')window.setHeaderSearchOpen(false);if(typeof window.resetSeatsFlow==='function')window.resetSeatsFlow();else if(typeof window.initSeats==='function')window.initSeats()}if(screen==='seats'||screen==='cart'||screen==='login'||screen==='details'||screen==='payment'){syncFlowHeroes(getEventById(activeEventId));syncEventPosters(getEventById(activeEventId))}if(screen==='success')setTimeout(playSuccessIcon,40);const next=tab?screen+'/'+tab:screen;if(location.hash.replace(/^#/,'')!==next){const url=location.pathname+location.search+'#'+next;try{history[fromHash?'replaceState':'pushState'](null,'',url)}catch(_){location.hash=next}}if(screen==='home')lockHomeScrollTop();else if(prevScreen!==screen){if(!fromHash)window.scrollTo({top:0,behavior:'smooth'});else window.scrollTo(0,0)}}
-function playSuccessIcon(){const icon=document.querySelector('#success lord-icon');if(!icon)return;const clone=icon.cloneNode(true);icon.replaceWith(clone)}
+function setLoginAuthMode(mode){const loginForm=document.getElementById('loginAuthForm'),registerForm=document.getElementById('registerAuthForm');if(!loginForm||!registerForm)return;const showRegister=mode==='register';loginForm.classList.toggle('hidden',showRegister);registerForm.classList.toggle('hidden',!showRegister)}
+function route(id,fromHash){const raw=(id||'home').replace(/^#/,''),parts=raw.split('/'),screen=parts[0]||'home',tab=parts[1];const prevScreen=(location.hash.replace(/^#/,'')||'home').split('/')[0];document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));const target=document.getElementById(screen)||document.getElementById('home');target.classList.add('active');document.body.classList.toggle('seats-flow-active',screen==='seats');if(screen==='account')setAccountTab(tab||'tickets');if(screen==='event'){if(typeof window.setHeaderSearchOpen==='function')window.setHeaderSearchOpen(false);setEventTab(tab||'dates');syncEventPage(getEventById(activeEventId));renderShowDates();renderRelated();startFullPresaleTicker()}if(screen==='seats'){if(typeof window.setHeaderSearchOpen==='function')window.setHeaderSearchOpen(false);if(typeof window.resetSeatsFlow==='function')window.resetSeatsFlow();else if(typeof window.initSeats==='function')window.initSeats()}if(screen==='seats'||screen==='cart'||screen==='login'||screen==='details'||screen==='payment'){syncFlowHeroes(getEventById(activeEventId));syncEventPosters(getEventById(activeEventId))}if(screen==='login')setLoginAuthMode('login');if(screen==='success')setTimeout(playSuccessIcon,40);const next=tab?screen+'/'+tab:screen;if(location.hash.replace(/^#/,'')!==next){const url=location.pathname+location.search+'#'+next;try{history[fromHash?'replaceState':'pushState'](null,'',url)}catch(_){location.hash=next}}if(screen==='home')lockHomeScrollTop();else if(prevScreen!==screen){if(!fromHash)window.scrollTo({top:0,behavior:'smooth'});else window.scrollTo(0,0)}}
+function playSuccessIcon(){const icon=document.querySelector('#success lord-icon');if(!icon)return;const colors='primary:#ffffff,secondary:#ffffff,tertiary:#ffffff';icon.setAttribute('colors',colors);const clone=icon.cloneNode(true);clone.setAttribute('colors',colors);icon.replaceWith(clone)}
 function eventImage(e){return e&&e.image?e.image:`assets/events/${e&&e.id?e.id:1}.jpg`}
 function eventGalleryImages(e){const ev=e||{id:1};const id=Number(ev.id)||1;const imgs=[eventImage(ev)];for(let step=1;imgs.length<3;step++){const nid=((id-1+step)%48)+1;const src=`assets/events/${nid}.jpg`;if(!imgs.includes(src))imgs.push(src)}return imgs.slice(0,3)}
 function getPosterCount(root){return Number(root.dataset.posterCount)||0}
@@ -147,7 +148,61 @@ function ticketMarkup(){const tickets=[{title:'עידן רייכל',meta:'12.08.
 function renderTickets(){document.getElementById('standaloneTickets').innerHTML=ticketMarkup();document.getElementById('accountTickets').innerHTML=ticketMarkup()}
 function pad2(n){return String(n).padStart(2,'0')}
 let activeEventId=(()=>{const n=Number(sessionStorage.getItem('ticketsActiveEventId'));return Number.isFinite(n)&&n>0?n:1})();
-const defaultEventHero={title:'עידן רייכל',subtitle:'מופע חדש ומרגש עם הלהיטים האהובים.',meta:'12.08.2026 · 21:00 · אמפי שוני, בנימינה',infoTitle:'אודות המופע',infoText:'עידן רייכל במופע חדש המשלב את מיטב הלהיטים, עיבודים חדשים והפקה מלאה. ערב מוזיקלי עשיר שחוצה סגנונות, עם אורחים מיוחדים ואווירה אינטימית על הבמה.'};
+const defaultEventHero={title:'עידן רייכל',subtitle:'מופע חדש ומרגש עם הלהיטים האהובים. ערב מוזיקלי עשיר שחוצה סגנונות, עם הפקה מלאה, תאורה חיה ואווירה אינטימית על הבמה. מתאים לקהל רחב — זוגות, משפחות ואוהבי מוזיקה ישראלית שמחפשים חוויית במה חמה ומדויקת. ההפקה משלבת להקה חיה, עיבודים חדשים ונוכחות במה שממלאת את האולם מהשיר הראשון ועד סוף הערב. בחרו מועד והמשיכו לבחירת אזור ומושבים להשלמת חוויית הרכישה.',meta:'12.08.2026 · 21:00 · אמפי שוני, בנימינה',infoTitle:'אודות המופע',infoText:'עידן רייכל במופע חדש המשלב את מיטב הלהיטים, עיבודים חדשים והפקה מלאה. ערב מוזיקלי עשיר שחוצה סגנונות, עם אורחים מיוחדים ואווירה אינטימית על הבמה.'};
+function eventHeroBlurbText(e){
+  if(e&&e.isFullPresale===true){
+    return e.subtitle||'פסטיבל קיץ מציג מועדים של מוזיקה ותרבות. המכירה תיפתח בקרוב לכל המועדים במקביל. השאירו פרטים ונעדכן אתכם ברגע שהכרטיסים יהיו זמינים לרכישה.';
+  }
+  if(e&&e.id===1) return defaultEventHero.subtitle;
+  if(e){
+    const place=[e.venue,e.city].filter(Boolean).join(', ');
+    const lead=e.subtitle||`מופע ${e.genre||'חדש'} — חוויה חיה על הבמה.`;
+    return `${lead} ${e.title}${place?' ב'+place:''} מביא ערב במה מלא עם הפקה מקצועית ואווירה חמה לקהל. בחרו מועד והמשיכו לבחירת אזור ומושבים להשלמת הרכישה.`;
+  }
+  return defaultEventHero.subtitle;
+}
+function heroBlurbShort(full){
+  if(!full||full.length<80)return full;
+  const cut=Math.ceil(full.length/2);
+  let end=full.lastIndexOf(' ',cut);
+  if(end<cut*0.6)end=cut;
+  return full.slice(0,end).trim()+'…';
+}
+function syncEventHeroBlurb(e){
+  const textEl=document.getElementById('eventHeroBlurbText');
+  const btn=document.getElementById('eventHeroReadMore');
+  const full=eventHeroBlurbText(e);
+  if(textEl){
+    textEl.dataset.full=full;
+    textEl.dataset.state='closed';
+    textEl.textContent=heroBlurbShort(full);
+  }
+  if(btn){
+    btn.textContent='קרא עוד';
+    btn.setAttribute('aria-expanded','false');
+    btn.hidden=!full||heroBlurbShort(full)===full;
+  }
+}
+function toggleEventHeroBlurb(e){
+  if(e)e.preventDefault();
+  const text=document.getElementById('eventHeroBlurbText');
+  const btn=document.getElementById('eventHeroReadMore');
+  if(!text||!btn)return;
+  const full=text.dataset.full||text.textContent||'';
+  if(text.dataset.state==='open'){
+    text.textContent=heroBlurbShort(full);
+    text.dataset.state='closed';
+    btn.textContent='קרא עוד';
+    btn.setAttribute('aria-expanded','false');
+  }else{
+    text.textContent=full;
+    text.dataset.state='open';
+    btn.textContent='קרא פחות';
+    btn.setAttribute('aria-expanded','true');
+  }
+}
+window.toggleEventHeroBlurb=toggleEventHeroBlurb;
+
 function eventInfoBodyHtml(e){
   if(!e){
     return `<p>${defaultEventHero.infoText}</p>
@@ -172,13 +227,13 @@ function eventInfoBodyHtml(e){
   return `<p>${lead}</p>
 <p>${e.title} מביא אל הבמה חוויה חיה מקטגוריית ${genre}, עם הפקה מלאה ותשומת לב לקהל מהרגע שנכנסים לאולם ועד סוף המופע.</p>
 <h3>פרטי החוויה</h3>
-<ul class="info-points"><li>מיקום: ${place||'יפורסם בהמשך'}</li><li>משך משוער: כ־75–90 דקות</li><li>ישיבה לפי אזורים ומושבים נבחרים</li><li>מתאים לקהל רחב — בדקו את טאב ״על המופע״ לפני ההגעה</li></ul>
+<ul class="info-points"><li>מיקום: ${place||'יפורסם בהמשך'}</li><li>משך משוער: כ־75–90 דקות</li><li>ישיבה לפי אזורים ומושבים נבחרים</li><li>מתאים לקהל רחב — בדקו את סעיף ״על המופע״ לפני ההגעה</li></ul>
 <h3>איך מזמינים</h3>
-<p>בחרו מועד בטאב המועדים, המשיכו לבחירת אזור ומושבים, והשלימו את הרכישה במספר שלבים קצרים.</p>
+<p>בחרו מועד, המשיכו לבחירת אזור ומושבים, והשלימו את הרכישה במספר שלבים קצרים.</p>
 <p class="info-note">טיפ: אם הזמינות מסומנת כנמוכה — כדאי להזמין מוקדם כדי לשמור על מושבים טובים יחד.</p>`;
 }
 function fillEventInfo(e){
-  const titleEl=document.querySelector('#event .info-copy h2');
+  const titleEl=document.querySelector('#eventInfoCopy h2');
   const body=document.getElementById('eventInfoBody');
   if(titleEl) titleEl.textContent=(e&&e.id===1)?defaultEventHero.infoTitle:'אודות המופע';
   if(body) body.innerHTML=eventInfoBodyHtml(e||null);
@@ -205,7 +260,7 @@ function collectEventDateKeys(e){const keys=[];const push=label=>{const k=parseS
 function eventDateRangeLabel(e){const keys=collectEventDateKeys(e);const fmt=k=>{const[y,m,d]=k.split('-');return `${d}/${m}/${y}`};if(!keys.length)return'12/08/2026 - 22/08/2026';if(keys.length===1)return fmt(keys[0]);return `${fmt(keys[0])} - ${fmt(keys[keys.length-1])}`}
 function eventHeroMetaHtml(e){const range=eventDateRangeLabel(e||null);const chip=(icon,text)=>text?`<li class="event-hero-meta-item"><img src="assets/icons/${icon}.svg" alt="" aria-hidden="true"><span>${text}</span></li>`:'';return `<ul class="event-hero-meta-list">${chip('calendar',range)}</ul>`}function eventMetaLine(e){if(!e)return defaultEventHero.meta;const loc=cardLocation(e);const date=cardDateLabel(e)||e.date||'';return [date,e.time,loc].filter(Boolean).join(' · ')}
 function syncFlowHeroes(e){const ev=e||getEventById(activeEventId);const title=ev&&ev.title?ev.title:defaultEventHero.title;const metaHtml=eventHeroMetaHtml(ev||null);['seats','cart','login','details','payment'].forEach(id=>{const hero=document.querySelector('#'+id+' .event-hero');if(!hero)return;const h1=hero.querySelector('h1');let meta=hero.querySelector('.event-hero-meta');if(h1)h1.textContent=title;if(!meta){meta=document.createElement('div');meta.className='event-hero-meta';if(h1)h1.insertAdjacentElement('afterend',meta)}meta.innerHTML=metaHtml;hero.querySelectorAll('.breadcrumbs a[data-route="event"]').forEach(a=>{a.textContent=title})});const showName=document.getElementById('seatsShowName');if(showName)showName.textContent=title}
-function syncEventSidebar(e){const sidebar=document.getElementById('eventSidebar'),interest=document.getElementById('eventInterestBox'),nameEl=document.getElementById('interestShowName'),layout=document.querySelector('#event .event-layout');const showInterest=!!(e&&e.isFullPresale===true&&isFullPresaleActive(e));if(sidebar)sidebar.hidden=!showInterest;if(interest)interest.hidden=!showInterest;if(layout)layout.classList.toggle('has-interest-sidebar',showInterest);if(nameEl)nameEl.textContent=e&&e.title?e.title:''}function syncEventPage(e){syncEventPosters(e||getEventById(activeEventId));const hero=document.querySelector('#event .event-hero');if(!hero)return;const h1=hero.querySelector('h1'),p=hero.querySelector('p'),meta=hero.querySelector('.event-hero-meta');const badge=document.getElementById('eventHeroBadge'),countdown=document.getElementById('eventHeroCountdown');const datesTitle=document.getElementById('eventDatesTitle'),crumb=document.getElementById('eventBreadcrumbCurrent');const active=!!(e&&e.isFullPresale===true&&isFullPresaleActive(e));if(e&&e.isFullPresale===true){if(h1)h1.textContent=e.title;if(p)p.textContent=e.subtitle||'';if(meta)meta.innerHTML=eventHeroMetaHtml(e);fillEventInfo(e);document.getElementById('event')?.classList.add('event-full-presale');if(datesTitle)datesTitle.textContent=active?'מועדים קרובים':'בחירת מועד';if(crumb&&e.title)crumb.textContent=e.title;if(badge){badge.hidden=!active;badge.textContent='המכירה בקרוב'}if(countdown){if(active){const t=parsePresaleAt(e);countdown.hidden=false;countdown.innerHTML=t==null?'<p class="event-hero-soon">מועד פתיחת המכירה יעודכן בקרוב</p>':`<p class="event-hero-countdown-label">פתיחת המכירה בעוד</p>${fullPresaleClockHtml(e.id,'hero')}`;startFullPresaleTicker()}else{countdown.hidden=true;countdown.innerHTML=''}}syncEventSidebar(e);syncFlowHeroes(e)}else if(e){const isDefault=e.id===1;if(h1)h1.textContent=e.title;if(p)p.textContent=isDefault?defaultEventHero.subtitle:(e.subtitle||`מופע ${e.genre||'חדש'} — חוויה חיה על הבמה.`);if(meta)meta.innerHTML=eventHeroMetaHtml(e);fillEventInfo(e);document.getElementById('event')?.classList.remove('event-full-presale');if(datesTitle)datesTitle.textContent='בחירת מועד';if(crumb)crumb.textContent=e.title;if(badge)badge.hidden=true;if(countdown){countdown.hidden=true;countdown.innerHTML=''}syncEventSidebar(null);syncFlowHeroes(e)}else{if(h1)h1.textContent=defaultEventHero.title;if(p)p.textContent=defaultEventHero.subtitle;if(meta)meta.innerHTML=eventHeroMetaHtml(null);fillEventInfo(null);document.getElementById('event')?.classList.remove('event-full-presale');if(datesTitle)datesTitle.textContent='בחירת מועד';if(crumb)crumb.textContent=defaultEventHero.title;if(badge)badge.hidden=true;if(countdown){countdown.hidden=true;countdown.innerHTML=''}syncEventSidebar(null);syncFlowHeroes(null)}document.dispatchEvent(new CustomEvent('tickets:presaleBadge'))}
+function syncEventSidebar(e){const sidebar=document.getElementById('eventSidebar'),interest=document.getElementById('eventInterestBox'),nameEl=document.getElementById('interestShowName'),layout=document.querySelector('#event .event-layout');const showInterest=!!(e&&e.isFullPresale===true&&isFullPresaleActive(e));if(sidebar)sidebar.hidden=!showInterest;if(interest)interest.hidden=!showInterest;if(layout)layout.classList.toggle('has-interest-sidebar',showInterest);if(nameEl)nameEl.textContent=e&&e.title?e.title:''}function syncEventPage(e){syncEventPosters(e||getEventById(activeEventId));const hero=document.querySelector('#event .event-hero');if(!hero)return;const h1=hero.querySelector('h1'),meta=hero.querySelector('.event-hero-meta');const badge=document.getElementById('eventHeroBadge'),countdown=document.getElementById('eventHeroCountdown');const datesTitle=document.getElementById('eventDatesTitle'),crumb=document.getElementById('eventBreadcrumbCurrent');const active=!!(e&&e.isFullPresale===true&&isFullPresaleActive(e));if(e&&e.isFullPresale===true){if(h1)h1.textContent=e.title;syncEventHeroBlurb(e);if(meta)meta.innerHTML=eventHeroMetaHtml(e);fillEventInfo(e);document.getElementById('event')?.classList.add('event-full-presale');if(datesTitle)datesTitle.textContent=active?'מועדים קרובים':'בחירת מועד';if(crumb&&e.title)crumb.textContent=e.title;if(badge){badge.hidden=!active;badge.textContent='המכירה בקרוב'}if(countdown){if(active){const t=parsePresaleAt(e);countdown.hidden=false;countdown.innerHTML=t==null?'<p class="event-hero-soon">מועד פתיחת המכירה יעודכן בקרוב</p>':`<p class="event-hero-countdown-label">פתיחת המכירה בעוד</p>${fullPresaleClockHtml(e.id,'hero')}`;startFullPresaleTicker()}else{countdown.hidden=true;countdown.innerHTML=''}}syncEventSidebar(e);syncFlowHeroes(e)}else if(e){if(h1)h1.textContent=e.title;syncEventHeroBlurb(e);if(meta)meta.innerHTML=eventHeroMetaHtml(e);fillEventInfo(e);document.getElementById('event')?.classList.remove('event-full-presale');if(datesTitle)datesTitle.textContent='בחירת מועד';if(crumb)crumb.textContent=e.title;if(badge)badge.hidden=true;if(countdown){countdown.hidden=true;countdown.innerHTML=''}syncEventSidebar(null);syncFlowHeroes(e)}else{if(h1)h1.textContent=defaultEventHero.title;syncEventHeroBlurb(null);if(meta)meta.innerHTML=eventHeroMetaHtml(null);fillEventInfo(null);document.getElementById('event')?.classList.remove('event-full-presale');if(datesTitle)datesTitle.textContent='בחירת מועד';if(crumb)crumb.textContent=defaultEventHero.title;if(badge)badge.hidden=true;if(countdown){countdown.hidden=true;countdown.innerHTML=''}syncEventSidebar(null);syncFlowHeroes(null)}document.dispatchEvent(new CustomEvent('tickets:presaleBadge'))}
 function getShowDatesQtyMode(){let m=document.body.dataset.showDatesQty||'medium';if(m!=='medium'&&m!=='calendar'&&m!=='default')m='medium';if(m==='default'&&typeof window.matchMedia==='function'&&window.matchMedia('(max-width:960px)').matches)return'medium';return m}
 function getAvailableShowDatesCount(){const m=getShowDatesQtyMode();if(m==='medium')return 6;return 2}
 function padShowDate(n){return String(n).padStart(2,'0')}
@@ -229,10 +284,129 @@ function closeWaitlist(){document.getElementById('waitlistModal').hidden=true}
 function openQueue(){const overlay=document.getElementById('queueOverlay'),placeEl=document.getElementById('queuePlace'),bar=document.getElementById('queueBarFill');let place=128+Math.floor(Math.random()*40);overlay.hidden=false;placeEl.textContent=place;bar.style.width=Math.max(6,100-place/1.8)+'%';clearInterval(queueTimer);queueTimer=setInterval(()=>{place=Math.max(0,place-Math.floor(3+Math.random()*7));placeEl.textContent=place;bar.style.width=Math.min(100,Math.max(8,100-place/1.8))+'%';if(place<=0){clearInterval(queueTimer);queueTimer=null;overlay.hidden=true;route('seats')}},700)}
 function skipQueueToSeats(){const overlay=document.getElementById('queueOverlay');if(!overlay||overlay.hidden)return;clearInterval(queueTimer);queueTimer=null;overlay.hidden=true;route('seats')}
 function cartThumbHtml(item){const src=item.image||eventImage({id:item.eventId||activeEventId||1});return `<div class="cart-thumb" role="img" aria-label="${item.title||''}" style="background-image:url('${src}')"></div>`}
-function renderCart(){const subtotal=cart.reduce((s,i)=>s+i.price,0),fees=cart.length*5,total=Math.max(0,subtotal+fees-discount);document.getElementById('cartItems').innerHTML=cart.length?cart.map(item=>`<div class="cart-item">${cartThumbHtml(item)}<div><strong>${item.title}</strong><div class="meta">${item.seat}</div><button class="remove-btn" data-remove-cart="${item.id}"><img src="assets/icons/trash.svg" alt=""> הסרה</button></div><strong>${item.price} ₪</strong></div>`).join(''):'<p>הסל ריק.</p>';document.getElementById('cartSubtotal').textContent=subtotal+' ₪';document.getElementById('feesTotal').textContent=fees+' ₪';document.getElementById('discountTotal').textContent=discount?'-'+discount+' ₪':'0 ₪';document.getElementById('cartTotal').textContent=total+' ₪';document.querySelectorAll('.dynamic-total').forEach(x=>x.textContent=total+' ₪');document.getElementById('cartHeaderCount').textContent=cart.length;document.getElementById('cartHeaderCount').classList.toggle('hidden',cart.length===0);document.querySelector('.header-cart-wrap')?.classList.toggle('is-empty',cart.length===0);const preview=document.getElementById('cartPreviewList');if(preview)preview.innerHTML=cart.length?cart.map(item=>`<div class="cart-preview-item">${cartThumbHtml(item)}<div><strong>${item.title}</strong><div class="meta">${item.seat}</div><button class="remove-btn" data-remove-cart="${item.id}"><img src="assets/icons/trash.svg" alt=""> הסרה</button></div><strong>${item.price} ₪</strong></div>`).join(''):'<p class="cart-preview-empty">הסל ריק.</p>'}
+const CART_HOLD_MS=10*60*1000;
+const CART_HOLD_KEY='ticketsCartHoldEndsV6';
+let cartHoldTimerId=null;
+
+function formatCartHold(ms){
+  const s=Math.max(0,Math.ceil(ms/1000));
+  const m=Math.floor(s/60),sec=s%60;
+  return String(m).padStart(2,'0')+':'+String(sec).padStart(2,'0');
+}
+
+function getCartHoldEnds(){
+  const raw=sessionStorage.getItem(CART_HOLD_KEY);
+  const n=Number(raw);
+  return Number.isFinite(n)&&n>0?n:0;
+}
+
+function selectedSeatsCount(){
+  return document.querySelectorAll('#hallCanvas .seat.selected, .seat.selected').length;
+}
+
+function startCartHold(reset){
+  const now=Date.now();
+  let ends=getCartHoldEnds();
+  if(reset||!ends||ends<=now){
+    ends=now+CART_HOLD_MS;
+    sessionStorage.setItem(CART_HOLD_KEY,String(ends));
+  }
+  if(cartHoldTimerId)clearInterval(cartHoldTimerId);
+  cartHoldTimerId=setInterval(tickCartHold,250);
+  tickCartHold();
+}
+
+function clearCartHold(){
+  sessionStorage.removeItem(CART_HOLD_KEY);
+  if(cartHoldTimerId){clearInterval(cartHoldTimerId);cartHoldTimerId=null}
+}
+
+function expireCartHold(){
+  clearCartHold();
+  cart=[];
+  localStorage.setItem('ticketsCartV6',JSON.stringify(cart));
+  discount=0;
+  document.querySelectorAll('#hallCanvas .seat.selected, .seat.selected').forEach(s=>s.classList.remove('selected'));
+  if(typeof window.updateSeatSummary==='function')window.updateSeatSummary();
+  renderCart();
+  if(typeof toast==='function')toast('הזמן לסיום ההזמנה נגמר. המושבים שוחררו.');
+}
+
+function syncHoldVisibility(){
+  const active=getCartHoldEnds()>Date.now();
+  const hasSeats=selectedSeatsCount()>0;
+  const hasCart=cart.length>0;
+  const seatsTimer=document.getElementById('seatsHoldTimer');
+  const cartTimer=document.getElementById('cartHoldTimer');
+  if(seatsTimer)seatsTimer.hidden=!(hasSeats&&active);
+  if(cartTimer)cartTimer.hidden=!(hasCart&&active);
+}
+
+function syncHoldUrgency(remainingMs){
+  let level='ok';
+  if(remainingMs<=3*60*1000)level='urgent';
+  else if(remainingMs<=6*60*1000)level='warn';
+  document.querySelectorAll('.cart-hold-timer').forEach(el=>{
+    el.classList.toggle('is-hold-ok',level==='ok');
+    el.classList.toggle('is-hold-warn',level==='warn');
+    el.classList.toggle('is-hold-urgent',level==='urgent');
+  });
+}
+
+function tickCartHold(){
+  const ends=getCartHoldEnds();
+  const remaining=ends-Date.now();
+  const hasSeats=selectedSeatsCount()>0;
+  const hasCart=cart.length>0;
+  if(!ends){
+    syncHoldVisibility();
+    return;
+  }
+  if(remaining<=0){
+    document.querySelectorAll('.cart-hold-countdown').forEach(el=>{el.textContent='00:00'});
+    syncHoldUrgency(0);
+    expireCartHold();
+    return;
+  }
+  if(!hasSeats&&!hasCart){
+    clearCartHold();
+    syncHoldVisibility();
+    return;
+  }
+  const text=formatCartHold(remaining);
+  document.querySelectorAll('.cart-hold-countdown').forEach(el=>{el.textContent=text});
+  syncHoldUrgency(remaining);
+  syncHoldVisibility();
+}
+
+function syncCartHoldBanner(){
+  if(!cart.length){
+    syncHoldVisibility();
+    if(!selectedSeatsCount())clearCartHold();
+    return;
+  }
+  if(getCartHoldEnds()>Date.now()){
+    if(!cartHoldTimerId)startCartHold(false);
+    else tickCartHold();
+  }else if(getCartHoldEnds()){
+    expireCartHold();
+  }else{
+    startCartHold(true);
+  }
+}
+
+window.syncSeatHoldTimer=function syncSeatHoldTimer(hasSelection){
+  if(hasSelection){
+    startCartHold(false);
+  }else{
+    tickCartHold();
+  }
+};
+
+function renderCart(){const subtotal=cart.reduce((s,i)=>s+i.price,0),fees=cart.length*5,total=Math.max(0,subtotal+fees-discount),discountText=discount?'-'+discount+' ₪':'0 ₪',itemsHtml=cart.length?cart.map(item=>`<div class="cart-item">${cartThumbHtml(item)}<div><strong>${item.title}</strong><div class="meta">${item.seat}</div><button class="remove-btn" data-remove-cart="${item.id}"><img src="assets/icons/trash.svg" alt=""> הסרה</button></div><strong>${item.price} ₪</strong></div>`).join(''):'<p>הסל ריק.</p>';const cartItems=document.getElementById('cartItems');if(cartItems)cartItems.innerHTML=itemsHtml;const detailsItems=document.getElementById('detailsCartItems');if(detailsItems)detailsItems.innerHTML=itemsHtml;const set=(id,val)=>{const el=document.getElementById(id);if(el)el.textContent=val};set('cartSubtotal',subtotal+' ₪');set('detailsSubtotal',subtotal+' ₪');set('feesTotal',fees+' ₪');set('detailsFeesTotal',fees+' ₪');set('discountTotal',discountText);set('detailsDiscountTotal',discountText);set('cartTotal',total+' ₪');set('detailsTotal',total+' ₪');document.querySelectorAll('.dynamic-total').forEach(x=>x.textContent=total+' ₪');document.getElementById('cartHeaderCount').textContent=cart.length;document.getElementById('cartHeaderCount').classList.toggle('hidden',cart.length===0);document.querySelector('.header-cart-wrap')?.classList.toggle('is-empty',cart.length===0);const preview=document.getElementById('cartPreviewList');if(preview)preview.innerHTML=cart.length?cart.map(item=>`<div class="cart-preview-item">${cartThumbHtml(item)}<div><strong>${item.title}</strong><div class="meta">${item.seat}</div><button class="remove-btn" data-remove-cart="${item.id}"><img src="assets/icons/trash.svg" alt=""> הסרה</button></div><strong>${item.price} ₪</strong></div>`).join(''):'<p class="cart-preview-empty">הסל ריק.</p>';syncCartHoldBanner()}
 function counts(){favorites=normalizeFavorites(favorites);const n=favorites.length;const btn=document.getElementById('favoritesHeaderBtn');document.getElementById('favoritesHeaderCount').textContent=n;if(btn)btn.classList.toggle('hidden',n===0);localStorage.setItem('ticketsFavorites',JSON.stringify(favorites))}
 function initSeats(){const map=document.getElementById('seatMap');if(!map||map.children.length)return;const cols=12;for(let i=1;i<=96;i++){const b=document.createElement('button');b.type='button';b.className='seat';const row=Math.ceil(i/cols),col=((i-1)%cols)+1,block=col<=4?'A':col<=8?'B':'C';b.dataset.seat=String(i);b.dataset.row=String(row);b.dataset.block=block;b.dataset.price='229';b.dataset.tooltip=`גוש ${block}\nשורה ${row}\nמושב ${i}\n229 ₪`;b.setAttribute('aria-label',`גוש ${block}, שורה ${row}, מושב ${i}, 229 שקלים`);if(i%11===0||i%17===0){b.classList.add('taken');b.disabled=true}if(i%13===0)b.classList.add('accessible');map.appendChild(b)}}
-function updateSeatSummary(){const sel=[...document.querySelectorAll('.seat.selected')];const summaryPanel=document.getElementById('seatsSummary');if(summaryPanel)summaryPanel.classList.toggle('is-open',sel.length>0);const box=document.getElementById('selectedSeats'),empty=document.getElementById('selectedSeatsEmpty'),showName=document.getElementById('seatsShowName'),btn=document.getElementById('toCart'),total=document.getElementById('seatTotal');if(sel.length){if(empty)empty.hidden=true;if(box){box.hidden=false;box.innerHTML=sel.map(el=>`<div class="selected-seat-row"><div class="selected-seat-lines"><span>${(function(b){b=String(b||'A');if(b.startsWith('גוש')||b==='אורקסטרה'||b==='נגיש')return b;return 'גוש '+b})(el.dataset.block)}</span><span>שורה ${el.dataset.row||'-'}</span><strong>מושב ${el.dataset.seat}</strong></div><strong class="selected-seat-price">${el.dataset.price||229} ₪</strong></div>`).join('')}if(showName)showName.hidden=false}else{if(empty)empty.hidden=false;if(box){box.hidden=true;box.innerHTML=''}if(showName)showName.hidden=true}const sum=sel.reduce((s,el)=>s+Number(el.dataset.price||229),0);if(total)total.textContent=sum+' ₪';if(btn)btn.disabled=!sel.length}
+function updateSeatSummary(){const sel=[...document.querySelectorAll('.seat.selected')];const summaryPanel=document.getElementById('seatsSummary');if(summaryPanel)summaryPanel.classList.toggle('is-open',sel.length>0);const box=document.getElementById('selectedSeats'),empty=document.getElementById('selectedSeatsEmpty'),showName=document.getElementById('seatsShowName'),btn=document.getElementById('toCart'),total=document.getElementById('seatTotal');if(sel.length){if(empty)empty.hidden=true;if(box){box.hidden=false;box.innerHTML=sel.map(el=>`<div class="selected-seat-row"><div class="selected-seat-lines"><span>${(function(b){b=String(b||'A');if(b.startsWith('גוש')||b==='אורקסטרה'||b==='נגיש')return b;return 'גוש '+b})(el.dataset.block)}</span><span>שורה ${el.dataset.row||'-'}</span><strong>מושב ${el.dataset.seat}</strong></div><strong class="selected-seat-price">${el.dataset.price||229} ₪</strong></div>`).join('')}if(showName)showName.hidden=false}else{if(empty)empty.hidden=false;if(box){box.hidden=true;box.innerHTML=''}if(showName)showName.hidden=true}const sum=sel.reduce((s,el)=>s+Number(el.dataset.price||229),0);if(total)total.textContent=sum+' ₪';if(btn){btn.disabled=!sel.length;btn.textContent=sel.length?'המשך לרכישה':'לא בחרת מושב עדיין'}}
 function isCoverflowDesktop(){return window.matchMedia('(min-width:961px)').matches}
 function initCoverflowCarousels(){document.querySelectorAll('.popular-coverflow-carousel').forEach(track=>{const shell=track.closest('.carousel-shell');if(!shell)return;const cards=[...track.querySelectorAll('.event-card')];if(!cards.length)return;if(track._coverflow){track._coverflow.refresh();return}const n=cards.length;let active=Math.min(Math.max(0,Math.floor((n-1)/2)),n-1);const maxSide=3;let moveTimer=null;const MOVE_MS=650;function setMoving(on){track.classList.toggle('is-moving',!!on);track.classList.toggle('dragging',!!on);if(!on)return;clearTimeout(moveTimer);moveTimer=setTimeout(()=>{track.classList.remove('is-moving','dragging')},MOVE_MS)}function wrapIndex(i){return((i%n)+n)%n}function circularOffset(i){let offset=i-active;if(offset>n/2)offset-=n;if(offset<-n/2)offset+=n;return offset}function layout(){if(!isCoverflowDesktop()){track.classList.remove('is-coverflow-active','is-moving','dragging');cards.forEach(c=>{c.style.transform='';c.style.zIndex='';c.style.opacity='';c.style.pointerEvents='';c.classList.remove('is-coverflow-center')});syncCarouselArrows(shell);return}track.classList.add('is-coverflow-active');cards.forEach((card,i)=>{const offset=circularOffset(i);const abs=Math.abs(offset);const scale=Math.max(0.7,1-abs*0.1);const x=offset*172;const z=-abs*90;const rotY=offset*-10;card.style.transform=`translate(-50%,-50%) translateX(${x}px) translateZ(${z}px) rotateY(${rotY}deg) scale(${scale})`;card.style.zIndex=String(200-abs);card.style.opacity=abs>maxSide?'0':String(Math.max(0.35,1-abs*0.12));card.style.pointerEvents=abs>maxSide?'none':'auto';card.classList.toggle('is-coverflow-center',offset===0)});const prev=shell.querySelector('[data-carousel-prev]'),next=shell.querySelector('[data-carousel-next]');if(prev){prev.disabled=false;prev.setAttribute('aria-disabled','false')}if(next){next.disabled=false;next.setAttribute('aria-disabled','false')}}function goTo(i){const next=wrapIndex(i);if(next===active)return;active=next;setMoving(true);layout()}function go(delta){goTo(active+delta)}const prev=shell.querySelector('[data-carousel-prev]'),next=shell.querySelector('[data-carousel-next]');prev?.addEventListener('click',e=>{if(!isCoverflowDesktop())return;e.preventDefault();e.stopPropagation();go(-1)});next?.addEventListener('click',e=>{if(!isCoverflowDesktop())return;e.preventDefault();e.stopPropagation();go(1)});cards.forEach((card,i)=>{card.addEventListener('click',e=>{if(!isCoverflowDesktop())return;if(circularOffset(i)===0)return;if(e.target.closest('button,a'))return;e.preventDefault();e.stopPropagation();goTo(i)},true)});let dragging=false,startX=0,moved=false;track.addEventListener('pointerdown',e=>{if(!isCoverflowDesktop())return;if(e.pointerType==='touch')return;if(e.button!==0)return;if(e.target.closest('button,a,input'))return;dragging=true;moved=false;startX=e.clientX;clearTimeout(moveTimer);track.classList.add('dragging','is-moving');try{track.setPointerCapture(e.pointerId)}catch(_){}});track.addEventListener('pointermove',e=>{if(!dragging||!isCoverflowDesktop())return;if(Math.abs(e.clientX-startX)>8)moved=true});track.addEventListener('pointerup',e=>{if(!dragging)return;dragging=false;if(!isCoverflowDesktop()){track.classList.remove('dragging','is-moving');return}const dx=e.clientX-startX;if(Math.abs(dx)>40){go(dx>0?-1:1)}else{setMoving(true)}moved=false});track.addEventListener('pointercancel',()=>{dragging=false;setMoving(true)});window.addEventListener('resize',layout);layout();track._coverflow={refresh:layout,go,goTo}})}
 function initCarousels(){initCoverflowCarousels();document.querySelectorAll('.carousel-shell').forEach(shell=>{const track=shell.querySelector('.event-carousel');if(!track||track.dataset.dragBound)return;track.dataset.dragBound='1';const prev=shell.querySelector('[data-carousel-prev]'),next=shell.querySelector('[data-carousel-next]');prev?.addEventListener('click',()=>{if(track.classList.contains('is-coverflow-active'))return;if(prev.disabled)return;track.scrollBy({left:track.clientWidth*.8,behavior:'smooth'})});next?.addEventListener('click',()=>{if(track.classList.contains('is-coverflow-active'))return;if(next.disabled)return;track.scrollBy({left:-track.clientWidth*.8,behavior:'smooth'})});const sync=()=>{if(track.classList.contains('is-coverflow-active'))return;syncCarouselArrows(shell)};track.addEventListener('scroll',sync,{passive:true});window.addEventListener('resize',sync);requestAnimationFrame(sync);let dragging=false,startX=0,scrollStart=0,moved=false;const endDrag=()=>{if(!dragging)return;dragging=false;track.classList.remove('dragging');sync()};track.addEventListener('pointerdown',e=>{if(track.classList.contains('is-coverflow-active'))return;if(e.pointerType==='touch')return;if(e.button!==0)return;if(e.target.closest('button,a,input,select,textarea'))return;dragging=true;moved=false;startX=e.clientX;scrollStart=track.scrollLeft;track.classList.add('dragging');try{track.setPointerCapture(e.pointerId)}catch(_){}e.preventDefault()});track.addEventListener('pointermove',e=>{if(!dragging||track.classList.contains('is-coverflow-active'))return;const dx=e.clientX-startX;if(Math.abs(dx)>5)moved=true;track.scrollLeft=scrollStart-dx});track.addEventListener('pointerup',endDrag);track.addEventListener('pointercancel',endDrag);track.addEventListener('click',e=>{if(track.classList.contains('is-coverflow-active'))return;if(!moved)return;e.preventDefault();e.stopPropagation();moved=false},true)})}
@@ -240,9 +414,9 @@ document.addEventListener('tickets:cardLayout',()=>{renderHome();renderEvents();
 document.addEventListener('tickets:palette',()=>{renderHome();setTimeout(initCarousels,0)});
 document.addEventListener('tickets:popularBokeh',()=>{renderHome();setTimeout(initCarousels,0)});
 document.addEventListener('tickets:showDatesQty',()=>{showCalendarCursor=null;renderShowDates()});
-function renderAll(){renderHome();renderEvents();renderRelated();renderFavorites();renderTickets();renderShowDates();renderCart();counts();startFullPresaleTicker();setTimeout(initCarousels,0)}
-document.addEventListener('click',e=>{const calNav=e.target.closest('#showDates [data-cal-nav]');if(calNav){const dir=Number(calNav.dataset.calNav)||0;if(!showCalendarCursor)showCalendarCursor={y:2026,m:7};let y=showCalendarCursor.y,m=showCalendarCursor.m+dir;while(m<0){m+=12;y--}while(m>11){m-=12;y++}showCalendarCursor={y,m};renderShowDates();return}const showRow=e.target.closest('#showDates .show-row[data-show-action], #showDates .show-cal-cell.is-event[data-show-action]');if(showRow){const action=showRow.dataset.showAction;if(action==='seats'){route('seats');return}if(action==='queue'){openQueue();return}if(action==='waitlist'){openWaitlist(showRow);return}if(action==='presale-interest'){openPresaleInterestEvent();return}return}const open=e.target.closest('[data-open-event]');if(open){if(e.target.closest('[data-favorite-id]'))return;const id=Number(open.dataset.openEvent);activeEventId=Number.isFinite(id)?id:1;try{sessionStorage.setItem('ticketsActiveEventId',String(activeEventId))}catch(_){}const ev=getEventById(activeEventId);if(ev){syncEventPage(ev)}else{activeEventId=1;syncEventPage(null)}route('event/dates');renderShowDates();renderRelated();startFullPresaleTicker();return}const fav=e.target.closest('[data-favorite-id]');if(fav){const id=Number(fav.dataset.favoriteId);favorites=normalizeFavorites(favorites.includes(id)?favorites.filter(x=>x!==id):favorites.concat(id));localStorage.setItem('ticketsFavorites',JSON.stringify(favorites));renderAll();toast('המועדפים עודכנו');return}const seat=e.target.closest('.seat');if(seat&&!seat.classList.contains('taken')){seat.classList.toggle('selected');(window.updateSeatSummary||updateSeatSummary)();return}const remove=e.target.closest('[data-remove-cart]');if(remove){cart=cart.filter(x=>x.id!==Number(remove.dataset.removeCart));localStorage.setItem('ticketsCartV6',JSON.stringify(cart));renderCart();return}const account=e.target.closest('[data-account-tab]');if(account){route('account/'+account.dataset.accountTab);return}const tab=e.target.closest('.event-tab');if(tab){route('event/'+tab.dataset.tab);return}const waitlistBtn=e.target.closest('[data-waitlist]');if(waitlistBtn){openWaitlist(waitlistBtn);return}const queueBtn=e.target.closest('[data-enter-queue]');if(queueBtn){openQueue();return}const catEl=e.target.closest('[data-category]');if(catEl){e.preventDefault();openCategory(catEl.dataset.category);return}const routeEl=e.target.closest('[data-route]');if(routeEl){e.preventDefault();if(routeEl.dataset.route==='events'||routeEl.dataset.route==='events/'){eventsCategoryFilter='all';eventsShown=12;syncEventsPageHeader();renderEvents()}route(routeEl.dataset.route);return}if(e.target.closest('[data-logout]')){toast('התנתקתם בהצלחה');return}if(e.target.closest('#whatsappJoin'))toast('נפתחה בקשת הצטרפות לקבוצה');if(e.target.id==='orderDetails')toast('פרטי ההזמנה נפתחו')});
-document.getElementById('toCart').addEventListener('click',()=>{const seats=[...document.querySelectorAll('.seat.selected')];const ev=getEventById(activeEventId);const title=ev&&ev.title?ev.title:'עידן רייכל';const img=eventImage(ev||{id:activeEventId||1});cart=seats.map((el,i)=>({id:Date.now()+i,eventId:Number(activeEventId)||1,title,image:img,seat:`${(function(b){b=String(b||'A');if(b.startsWith('גוש')||b==='אורקסטרה'||b==='נגיש')return b;return 'גוש '+b})(el.dataset.block)} · שורה ${el.dataset.row||(4+i)} · מושב ${el.dataset.col||el.dataset.seat}`,price:Number(el.dataset.price||229)}));localStorage.setItem('ticketsCartV6',JSON.stringify(cart));renderCart();route('cart')});
+function renderAll(){renderHome();renderEvents();renderRelated();renderFavorites();renderTickets();renderShowDates();syncEventHeroBlurb(getEventById(activeEventId));if(cart.length)startCartHold(false);renderCart();counts();startFullPresaleTicker();setTimeout(initCarousels,0)}
+document.addEventListener('click',e=>{const calNav=e.target.closest('#showDates [data-cal-nav]');if(calNav){const dir=Number(calNav.dataset.calNav)||0;if(!showCalendarCursor)showCalendarCursor={y:2026,m:7};let y=showCalendarCursor.y,m=showCalendarCursor.m+dir;while(m<0){m+=12;y--}while(m>11){m-=12;y++}showCalendarCursor={y,m};renderShowDates();return}const showRow=e.target.closest('#showDates .show-row[data-show-action], #showDates .show-cal-cell.is-event[data-show-action]');if(showRow){const action=showRow.dataset.showAction;if(action==='seats'){route('seats');return}if(action==='queue'){openQueue();return}if(action==='waitlist'){openWaitlist(showRow);return}if(action==='presale-interest'){openPresaleInterestEvent();return}return}const open=e.target.closest('[data-open-event]');if(open){if(e.target.closest('[data-favorite-id]'))return;const id=Number(open.dataset.openEvent);activeEventId=Number.isFinite(id)?id:1;try{sessionStorage.setItem('ticketsActiveEventId',String(activeEventId))}catch(_){}const ev=getEventById(activeEventId);if(ev){syncEventPage(ev)}else{activeEventId=1;syncEventPage(null)}route('event/dates');renderShowDates();renderRelated();startFullPresaleTicker();return}const fav=e.target.closest('[data-favorite-id]');if(fav){const id=Number(fav.dataset.favoriteId);favorites=normalizeFavorites(favorites.includes(id)?favorites.filter(x=>x!==id):favorites.concat(id));localStorage.setItem('ticketsFavorites',JSON.stringify(favorites));renderAll();toast('המועדפים עודכנו');return}const seat=e.target.closest('.seat');if(seat&&!seat.classList.contains('taken')){seat.classList.toggle('selected');(window.updateSeatSummary||updateSeatSummary)();return}const remove=e.target.closest('[data-remove-cart]');if(remove){cart=cart.filter(x=>x.id!==Number(remove.dataset.removeCart));localStorage.setItem('ticketsCartV6',JSON.stringify(cart));renderCart();return}const account=e.target.closest('[data-account-tab]');if(account){route('account/'+account.dataset.accountTab);return}const tab=e.target.closest('.event-tab');if(tab){route('event/'+tab.dataset.tab);return}const waitlistBtn=e.target.closest('[data-waitlist]');if(waitlistBtn){openWaitlist(waitlistBtn);return}const queueBtn=e.target.closest('[data-enter-queue]');if(queueBtn){openQueue();return}const catEl=e.target.closest('[data-category]');if(catEl){e.preventDefault();openCategory(catEl.dataset.category);return}const authSwitch=e.target.closest('[data-auth-switch]');if(authSwitch){e.preventDefault();setLoginAuthMode(authSwitch.dataset.authSwitch);return}const routeEl=e.target.closest('[data-route]');if(routeEl){e.preventDefault();if(routeEl.dataset.route==='events'||routeEl.dataset.route==='events/'){eventsCategoryFilter='all';eventsShown=12;syncEventsPageHeader();renderEvents()}route(routeEl.dataset.route);return}if(e.target.closest('[data-logout]')){toast('התנתקתם בהצלחה');return}if(e.target.closest('#whatsappJoin'))toast('נפתחה בקשת הצטרפות לקבוצה');if(e.target.id==='orderDetails')toast('פרטי ההזמנה נפתחו')});
+document.getElementById('toCart').addEventListener('click',()=>{const seats=[...document.querySelectorAll('.seat.selected')];if(!seats.length)return;if(typeof window.hasOrphanEmptySeat==='function'&&window.hasOrphanEmptySeat()){toast('הבחירה אינה אפשרית\nלא ניתן להשאיר מושב יחיד ריק');return}const ev=getEventById(activeEventId);const title=ev&&ev.title?ev.title:'עידן רייכל';const img=eventImage(ev||{id:activeEventId||1});cart=seats.map((el,i)=>({id:Date.now()+i,eventId:Number(activeEventId)||1,title,image:img,seat:`${(function(b){b=String(b||'A');if(b.startsWith('גוש')||b==='אורקסטרה'||b==='נגיש')return b;return 'גוש '+b})(el.dataset.block)} · שורה ${el.dataset.row||(4+i)} · מושב ${el.dataset.col||el.dataset.seat}`,price:Number(el.dataset.price||229)}));localStorage.setItem('ticketsCartV6',JSON.stringify(cart));startCartHold(false);renderCart();route('cart')});
 document.getElementById('applyCoupon').addEventListener('click',()=>{const code=document.getElementById('couponInput').value.trim();discount=code?Math.round(cart.reduce((s,i)=>s+i.price,0)*.1):0;renderCart();toast(code?'הקופון הוחל בהצלחה':'יש להזין קוד קופון')});
 document.getElementById('detailsForm').addEventListener('submit',e=>{e.preventDefault();route('payment')});document.getElementById('paymentForm').addEventListener('submit',e=>{e.preventDefault();route('success')});document.getElementById('profileForm').addEventListener('submit',e=>{e.preventDefault();toast('הפרטים נשמרו')});document.getElementById('newsletterForm').addEventListener('submit',e=>{e.preventDefault();toast('נרשמתם לניוזלטר')});document.getElementById('homeSearch').addEventListener('submit',e=>{e.preventDefault();eventsCategoryFilter='all';eventsShown=12;syncEventsPageHeader();renderEvents();route('events')});
 (function initDateRange(){const display=document.getElementById('dateRangeDisplay'),panel=document.getElementById('dateRangePanel'),from=document.getElementById('dateFrom'),to=document.getElementById('dateTo');if(!display||!panel||!from||!to)return;const labels={any:'בכל תאריך',today:'היום',weekend:'סוף השבוע',month:'החודש'};const fmt=v=>{if(!v)return'';const[y,m,d]=v.split('-');return`${d}.${m}.${y}`};const syncPlaceholders=()=>{from.closest('.date-from-field').classList.toggle('is-empty',!from.value);to.closest('.date-to-field').classList.toggle('is-empty',!to.value)};const syncRange=()=>{syncPlaceholders();if(from.value&&to.value){if(from.value>to.value){[from.value,to.value]=[to.value,from.value];syncPlaceholders()}display.textContent=`${fmt(from.value)} – ${fmt(to.value)}`;panel.querySelectorAll('.date-preset').forEach(b=>b.classList.remove('active'))}};const isMobileDatePanel=()=>{try{return window.matchMedia('(max-width:900px)').matches}catch(_){return false}};
@@ -372,4 +546,68 @@ window.initSeats=window.initSeats||initSeats;window.updateSeatSummary=window.upd
     });
   });
 })();
+
+(function initSeatsEventAccordion(){
+  const root=document.getElementById('seatsEventAccordion');
+  if(!root)return;
+
+  function loadAccIframes(panel){
+    if(!panel)return;
+    panel.querySelectorAll('iframe[data-src]').forEach(f=>{
+      if(!f.getAttribute('src')||f.getAttribute('src')==='about:blank'){
+        f.setAttribute('src',f.getAttribute('data-src'));
+      }
+    });
+  }
+
+  function setAccOpen(acc, open){
+    const btn=acc.querySelector('.seats-acc-toggle');
+    const panel=acc.querySelector('.seats-acc-panel');
+    if(!btn||!panel)return;
+    if(open){
+      root.querySelectorAll('.seats-acc.is-open').forEach(other=>{
+        if(other===acc)return;
+        other.classList.remove('is-open');
+        const ob=other.querySelector('.seats-acc-toggle');
+        const op=other.querySelector('.seats-acc-panel');
+        if(ob)ob.setAttribute('aria-expanded','false');
+        if(op)op.hidden=true;
+      });
+    }
+    acc.classList.toggle('is-open',open);
+    btn.setAttribute('aria-expanded',String(open));
+    panel.hidden=!open;
+    if(open) loadAccIframes(panel);
+  }
+
+  function openSeatsAccordion(key){
+    const acc=root.querySelector('.seats-acc[data-acc="'+key+'"]');
+    if(!acc)return;
+    setAccOpen(acc,true);
+    requestAnimationFrame(()=>{
+      acc.scrollIntoView({behavior:'smooth',block:'start'});
+    });
+  }
+  window.openSeatsAccordion=openSeatsAccordion;
+
+  root.querySelectorAll('.seats-acc').forEach(acc=>{
+    const btn=acc.querySelector('.seats-acc-toggle');
+    const panel=acc.querySelector('.seats-acc-panel');
+    if(!btn||!panel)return;
+    btn.addEventListener('click',()=>{
+      setAccOpen(acc,!acc.classList.contains('is-open'));
+    });
+  });
+
+  document.addEventListener('click',(e)=>{
+    const jump=e.target.closest('[data-acc-jump]');
+    if(!jump)return;
+    const key=jump.getAttribute('data-acc-jump');
+    if(!key)return;
+    e.preventDefault();
+    openSeatsAccordion(key);
+  });
 })();
+
+})();
+
