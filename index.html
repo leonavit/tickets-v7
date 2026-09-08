@@ -8,103 +8,14 @@
 <title>Tickets — V6</title>
 <link rel="icon" type="image/png" href="assets/images/favicon.png?v=favdark7">
 <link rel="apple-touch-icon" href="assets/images/favicon.png?v=favdark7">
-<script>
-(function () {
-  try {
-    var authed = sessionStorage.getItem("ticketsSiteAuthV1") === "1";
-    var loginDisabled = true; // default: no gate
-    try {
-      var themeRaw = localStorage.getItem("ticketsThemeOptions");
-      if (themeRaw) {
-        var themeParsed = JSON.parse(themeRaw);
-        if (themeParsed && Object.prototype.hasOwnProperty.call(themeParsed, "disableSiteLogin")) {
-          loginDisabled = !!themeParsed.disableSiteLogin;
-        }
-      }
-    } catch (e2) { /* ignore */ }
-    if (authed || loginDisabled) {
-      document.documentElement.classList.add("site-auth-ok");
-    }
-  } catch (e) { /* ignore */ }
-  document.documentElement.dataset.palette = "dark";
-  document.documentElement.classList.add("theme-boot-dark");
-  /* Resolve logo before first paint to avoid old-logo flash */
-  var LOGO_SRC = {
-    light: "assets/images/logowhite.png",
-    pink: "assets/images/logo-pink.png",
-    gradient: "assets/images/logo-gradient.png",
-    cutout: "assets/images/logo-cutout.png",
-    tickets: "assets/images/logo-tickets.png"
-  };
-  var logoId = "cutout";
-  try {
-    var logoRaw = localStorage.getItem("ticketsThemeOptions");
-    if (logoRaw) {
-      var logoParsed = JSON.parse(logoRaw);
-      if (logoParsed && LOGO_SRC[logoParsed.logoId]) {
-        logoId = logoParsed.logoId;
-      } else if (logoParsed && LOGO_SRC[logoParsed.headerLogo]) {
-        logoId = logoParsed.headerLogo;
-      }
-    }
-  } catch (e3) { /* ignore */ }
-  document.documentElement.dataset.logo = logoId;
-  window.__ticketsLogoSrc = LOGO_SRC[logoId] || LOGO_SRC.cutout;
-  window.__applyTicketsLogo = function (img) {
-    if (img) img.src = window.__ticketsLogoSrc;
-  };
-})();
-</script>
-<style>
-  /* Prevent FOUC: dark boot vars until theme-options runs */
-  html.theme-boot-dark{
-    --bg:#03051A;--page-fg:#f5f2ff;--muted:#a8a4b8;--line:#3d3560;--dash:#b0aec0;
-    --search-bg:#03051A;--header-bg:#03051A;--header-fg:#ffffff;
-    --carousel-bg-a:#03051A;--carousel-bg-b:#03051A;--categories-bg:#03051A;
-    --footer-bg:#03051A;--carousel-heading-a:#ffffff;--carousel-btn-a:#f00358;
-    --carousel-heading-b:#ffffff;--carousel-btn-b:#f00358;--chrome-bg:#03051A;--soft:#1d1640;
-  }
-</style>
 <link rel="stylesheet" href="css/styles.css?v=mega-close1">
 <link rel="stylesheet" href="css/seats-hall.css?v=sold-only1">
 <link rel="stylesheet" href="css/home2.css">
 <link rel="stylesheet" href="css/home3.css?v=mega-close1">
-<link rel="stylesheet" href="css/theme-options.css">
-<link rel="stylesheet" href="css/site-login.css">
 </head>
-<body class="site-locked theme-palette-dark">
-<script>
-(function () {
-  if (document.documentElement.classList.contains("site-auth-ok")) {
-    document.body.classList.remove("site-locked");
-  }
-  document.body.classList.remove("theme-palette-light");
-  document.body.classList.add("theme-palette-dark");
-})();
-</script>
-<div class="site-login-gate" id="siteLoginGate" role="dialog" aria-modal="true" aria-labelledby="siteLoginTitle">
-  <form class="site-login-card" id="siteLoginForm" autocomplete="on">
-    <div class="site-login-brand">
-      <img data-site-logo alt="Tickets">
-      <script>window.__applyTicketsLogo(document.currentScript.previousElementSibling);</script>
-    </div>
-    <h1 id="siteLoginTitle">התחברות</h1>
-    <p class="site-login-sub">הזינו פרטי גישה להמשך</p>
-    <label class="site-login-field">
-      <span>משתמש</span>
-      <input type="text" id="siteLoginUser" name="username" autocomplete="username" required>
-    </label>
-    <label class="site-login-field">
-      <span>סיסמה</span>
-      <input type="password" id="siteLoginPass" name="password" autocomplete="current-password" required>
-    </label>
-    <p class="site-login-error" id="siteLoginError" hidden>שם משתמש או סיסמה שגויים</p>
-    <button type="submit" class="btn primary wide site-login-submit">כניסה</button>
-  </form>
-</div>
+<body class="theme-palette-dark">
 <header class="site-header site-header-v3"><div class="header-top-row"><div class="container header-inner">
-  <a class="logo" href="#home" data-route="home"><img id="headerLogo" data-site-logo alt="Tickets"></a>
-  <script>window.__applyTicketsLogo(document.getElementById("headerLogo"));</script>
+  <a class="logo" href="#home" data-route="home"><img id="headerLogo" src="assets/images/logo.png" alt="Tickets"></a>
   <nav class="main-nav">
     <a href="#events" data-route="events">כל המופעים</a>
     <div class="nav-item has-mega">
@@ -260,8 +171,7 @@
 </script>
 <nav class="mobile-nav" id="mobileNav" aria-label="תפריט ראשי" aria-hidden="true">
   <div class="mobile-nav-brand">
-    <img data-site-logo alt="Tickets">
-    <script>window.__applyTicketsLogo(document.currentScript.previousElementSibling);</script>
+    <img src="assets/images/logo.png" alt="Tickets">
     <span class="mobile-nav-brand-line" aria-hidden="true"></span>
   </div>
   <div class="mobile-nav-inner">
@@ -707,9 +617,8 @@
     <p class="fineprint" id="queueHint">נא לא לסגור את החלון. המעבר לרכישה יתבצע אוטומטית. לחיצה על אזור ריק תעביר מיד.</p>
   </div>
 </div>
-<footer class="footer"><button type="button" class="footer-back-top" id="footerBackTop" aria-label="חזרה לראש העמוד"><lord-icon src="https://cdn.lordicon.com/xldbursn.json" trigger="hover" state="hover-slide" colors="primary:#ffffff" style="width:32px;height:32px" aria-hidden="true"></lord-icon></button><div class="container footer-grid"><div class="footer-brand"><div class="logo"><img id="footerLogo" data-site-logo alt="Tickets"><script>window.__applyTicketsLogo(document.getElementById("footerLogo"));</script></div><p>הופעות, תרבות וחוויות — במקום אחד.</p><div class="footer-social" aria-label="רשתות חברתיות"><a class="footer-social-link" href="#" aria-label="Facebook"><img src="assets/icons/facebook.svg" alt="" width="22" height="22"></a><a class="footer-social-link" href="#" aria-label="Instagram"><img src="assets/icons/instagram.svg" alt="" width="22" height="22"></a><a class="footer-social-link" href="#" aria-label="TikTok"><img src="assets/icons/tiktok.svg" alt="" width="22" height="22"></a><button type="button" class="footer-whatsapp-btn" id="whatsappJoin"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="#fff" d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.435 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg><span>לקבוצת הווטסאפ</span></button></div></div><div class="footer-col"><h3>ניווט מהיר</h3><div class="footer-links"><a href="index.html">דף הבית</a><a href="#events" data-route="events">כל המופעים</a><a href="#account" data-route="account">האזור האישי</a></div></div><div class="footer-col"><h3>מידע ושירות</h3><div class="footer-links"><a href="#faq" data-route="faq">שאלות נפוצות</a><a href="#accessibility" data-route="accessibility">הצהרת נגישות</a><a href="#contact" data-route="contact">צור קשר</a></div></div><div class="footer-col"><h3>משפטי</h3><div class="footer-links"><a href="#regulations" data-route="regulations">תקנון האתר</a><a href="#privacy" data-route="privacy">מדיניות פרטיות</a><a href="#terms" data-route="terms">תנאי שימוש</a></div></div></div><div class="container footer-bottom"><span>© 2026 Tickets. כל הזכויות שמורות.</span></div></footer>
+<footer class="footer"><button type="button" class="footer-back-top" id="footerBackTop" aria-label="חזרה לראש העמוד"><lord-icon src="https://cdn.lordicon.com/xldbursn.json" trigger="hover" state="hover-slide" colors="primary:#ffffff" style="width:32px;height:32px" aria-hidden="true"></lord-icon></button><div class="container footer-grid"><div class="footer-brand"><div class="logo"><img id="footerLogo" src="assets/images/logo.png" alt="Tickets"></div><p>הופעות, תרבות וחוויות — במקום אחד.</p><div class="footer-social" aria-label="רשתות חברתיות"><a class="footer-social-link" href="#" aria-label="Facebook"><img src="assets/icons/facebook.svg" alt="" width="22" height="22"></a><a class="footer-social-link" href="#" aria-label="Instagram"><img src="assets/icons/instagram.svg" alt="" width="22" height="22"></a><a class="footer-social-link" href="#" aria-label="TikTok"><img src="assets/icons/tiktok.svg" alt="" width="22" height="22"></a><button type="button" class="footer-whatsapp-btn" id="whatsappJoin"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="#fff" d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 0 1-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 0 1-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 0 1 2.893 6.994c-.003 5.45-4.435 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0 0 12.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 0 0 5.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 0 0-3.48-8.413z"/></svg><span>לקבוצת הווטסאפ</span></button></div></div><div class="footer-col"><h3>ניווט מהיר</h3><div class="footer-links"><a href="index.html">דף הבית</a><a href="#events" data-route="events">כל המופעים</a><a href="#account" data-route="account">האזור האישי</a></div></div><div class="footer-col"><h3>מידע ושירות</h3><div class="footer-links"><a href="#faq" data-route="faq">שאלות נפוצות</a><a href="#accessibility" data-route="accessibility">הצהרת נגישות</a><a href="#contact" data-route="contact">צור קשר</a></div></div><div class="footer-col"><h3>משפטי</h3><div class="footer-links"><a href="#regulations" data-route="regulations">תקנון האתר</a><a href="#privacy" data-route="privacy">מדיניות פרטיות</a><a href="#terms" data-route="terms">תנאי שימוש</a></div></div></div><div class="container footer-bottom"><span>© 2026 Tickets. כל הזכויות שמורות.</span></div></footer>
 <script src="https://cdn.lordicon.com/lordicon.js"></script>
-<script src="js/site-login.js?v=20260816b"></script>
 <script src="js/app.js?v=mega-close1"></script>
 <script src="js/seats-hall.js?v=seats-fs-exit1"></script>
 <script src="js/home2-hero.js"></script>
@@ -718,7 +627,6 @@
 <script src="js/search-dropdowns.js"></script>
 <script src="js/vendor/ScrollTrigger.min.js"></script>
 <script src="js/text-animations.js"></script>
-<script src="js/theme-options.js?v=20260827a"></script>
 <script src="js/vendor/lottie.min.js"></script>
 <script src="assets/lottie/music-notes.js"></script>
 <script src="assets/lottie/standup-mic.js"></script>

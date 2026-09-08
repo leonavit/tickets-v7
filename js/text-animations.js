@@ -1,85 +1,20 @@
 /**
  * GSAP text animations for hero + carousel titles.
- * Presets inspired by https://gsapify.com/gsap-text-animations/#text-animation-collection
- * Default: Staggered Letters — plays only when the title enters the viewport.
+ * Staggered Letters — plays only when the title enters the viewport.
  */
 (function initTextAnimations() {
-  const STORAGE_KEY = "ticketsThemeOptions";
-  const DEFAULT_PRESET = "staggered-letters";
   const SELECTOR_HERO = ".hero-v2-text.is-active h1";
   const SELECTOR_CAROUSEL =
     "#homeSections .section-header .heading-icon h2, .categories-section .section-header h2";
 
-  const PRESETS = {
-    "staggered-letters": {
-      label: "Staggered Letters",
-      split: "chars",
-      from: { y: 50, opacity: 0, stagger: 0.03, duration: 0.6, ease: "back.out(1.7)" },
-    },
-    "fade-in": {
-      label: "Fade-In Effect",
-      split: "none",
-      from: { opacity: 0, y: 30, duration: 1, ease: "power2.out" },
-    },
-    "scale-up": {
-      label: "Scale-Up Effect",
-      split: "none",
-      from: { scale: 0, opacity: 0, duration: 0.8, ease: "back.out(1.7)" },
-    },
-    "rotate-in": {
-      label: "Rotate-In Effect",
-      split: "none",
-      from: {
-        rotation: -90,
-        opacity: 0,
-        transformOrigin: "right bottom",
-        duration: 1,
-        ease: "power3.out",
-      },
-    },
-    "slide-from-left": {
-      label: "Slide From Left",
-      split: "none",
-      from: { x: -120, opacity: 0, duration: 1, ease: "power2.out" },
-    },
-    "fade-up-words": {
-      label: "Fade Up Words",
-      split: "words",
-      from: { y: 40, opacity: 0, stagger: 0.12, duration: 0.8, ease: "power2.out" },
-    },
-    "blur-in": {
-      label: "Blur In",
-      split: "none",
-      from: { opacity: 0, filter: "blur(20px)", y: 20, duration: 1, ease: "power2.out" },
-    },
-    none: {
-      label: "ללא אנימציה",
-      split: "none",
-      from: null,
-    },
+  const PRESET = {
+    from: { y: 50, opacity: 0, stagger: 0.03, duration: 0.6, ease: "back.out(1.7)" },
   };
-
-  window.TICKETS_TEXT_ANIMATION_PRESETS = PRESETS;
 
   const reduceMotion = window.matchMedia("(prefers-reduced-motion: reduce)").matches;
   const tracked = new WeakMap();
   let observers = [];
-  let currentPreset = DEFAULT_PRESET;
   let ready = false;
-
-  function readPreset() {
-    const fromDom = document.body?.dataset?.textAnimation;
-    if (fromDom && PRESETS[fromDom]) return fromDom;
-    try {
-      const raw = localStorage.getItem(STORAGE_KEY);
-      if (!raw) return DEFAULT_PRESET;
-      const v = JSON.parse(raw)?.textAnimation;
-      if (v && PRESETS[v]) return v;
-    } catch {
-      /* ignore */
-    }
-    return DEFAULT_PRESET;
-  }
 
   function waitForGsap(cb) {
     if (window.gsap) {
@@ -144,42 +79,15 @@
     return nodes;
   }
 
-  function splitWords(el, text) {
-    el.textContent = "";
-    el.setAttribute("aria-label", text);
-    const parts = text.split(/(\s+)/);
-    const nodes = [];
-    parts.forEach((part) => {
-      if (!part) return;
-      if (/^\s+$/.test(part)) {
-        el.appendChild(document.createTextNode(part));
-        return;
-      }
-      const span = document.createElement("span");
-      span.className = "gsap-word";
-      span.setAttribute("aria-hidden", "true");
-      span.textContent = part;
-      el.appendChild(span);
-      nodes.push(span);
-    });
-    return nodes;
-  }
-
-  function buildTargets(el, preset) {
+  function buildTargets(el) {
     const text = originalText(el);
     const keepPending = el.classList.contains("gsap-text-pending");
     restore(el, { keepPending });
-    if (!text || !preset?.from) {
+    if (!text) {
       el.classList.add("gsap-text-ready");
       return null;
     }
-    if (preset.split === "chars") return splitChars(el, text);
-    if (preset.split === "words") return splitWords(el, text);
-    return el;
-  }
-
-  function presetFor() {
-    return PRESETS[currentPreset] || PRESETS[DEFAULT_PRESET];
+    return splitChars(el, text);
   }
 
   function play(el, { force = false } = {}) {
@@ -191,7 +99,6 @@
       return;
     }
 
-    const preset = presetFor();
     let entry = tracked.get(el);
     if (!entry) {
       entry = { played: false, tween: null };
@@ -199,21 +106,14 @@
     }
     if (entry.played && !force) return;
 
-    if (!preset?.from) {
-      restore(el);
-      el.classList.add("gsap-text-ready");
-      entry.played = true;
-      return;
-    }
-
-    const targets = buildTargets(el, preset);
+    const targets = buildTargets(el);
     if (!targets) return;
 
     el.classList.add("gsap-text-ready", "gsap-text-playing");
     killTween(el);
 
     entry.tween = window.gsap.from(targets, {
-      ...preset.from,
+      ...PRESET.from,
       immediateRender: true,
       overwrite: true,
       onComplete() {
@@ -231,13 +131,11 @@
   }
 
   function armPending(el) {
-    const preset = presetFor();
-    if (!preset?.from || reduceMotion) {
+    if (reduceMotion) {
       restore(el);
       el.classList.add("gsap-text-ready");
       return;
     }
-    // Hide whole title until Scroll/IO plays gsap.from (avoids flash of full text)
     restore(el);
     el.classList.add("gsap-text-ready", "gsap-text-pending");
   }
@@ -250,9 +148,6 @@
     }
 
     armPending(el);
-
-    const preset = presetFor();
-    if (!preset?.from) return;
 
     if (isInView(el)) {
       requestAnimationFrame(() => play(el, { force: true }));
@@ -279,7 +174,7 @@
   }
 
   function syncOriginalFromDom(el) {
-    const hasSplit = el.querySelector(".gsap-char, .gsap-word");
+    const hasSplit = el.querySelector(".gsap-char");
     if (hasSplit) return originalText(el);
     const plain = (el.textContent || "").replace(/\s+/g, " ").trim();
     if (plain) el.dataset.gsapOriginal = plain;
@@ -289,8 +184,6 @@
   function refreshAll() {
     if (!ready) return;
     clearObservers();
-    currentPreset = readPreset();
-    document.body.dataset.textAnimation = currentPreset;
 
     collectTitles().forEach((el) => {
       syncOriginalFromDom(el);
@@ -360,7 +253,6 @@
     tracked.set(badge, entry);
     badge.classList.add("gsap-text-ready", "gsap-text-playing");
 
-    // https://gsapify.com/gsap-text-animations/ — Wavy Baseline (loop)
     entry.tween = window.gsap.to(chars, {
       y: -6,
       stagger: { each: 0.06, from: "start", repeat: -1, yoyo: true },
@@ -373,16 +265,11 @@
   function boot() {
     waitForGsap(() => {
       ready = true;
-      currentPreset = readPreset();
-      document.body.dataset.textAnimation = currentPreset;
       refreshAll();
       syncPresaleBadgeWavy();
     });
 
-    document.addEventListener("tickets:textAnimation", () => {
-      refreshAll();
-    });
-    document.addEventListener("tickets:cardLayout", () => {
+    document.addEventListener("tickets:homeRendered", () => {
       requestAnimationFrame(() => refreshAll());
     });
     document.addEventListener("tickets:heroSlide", onHeroSlide);
