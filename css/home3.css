@@ -282,8 +282,8 @@ body:has(#home.active){
   z-index:101;
 }
 
-.site-header-v3:has(.has-mega:hover) .header-top-row,
-.site-header-v3:has(.has-mega:focus-within) .header-top-row{
+.site-header-v3:has(.has-mega:hover:not(.is-mega-closed)) .header-top-row,
+.site-header-v3:has(.has-mega:focus-within:not(.is-mega-closed)) .header-top-row{
   border-bottom-color:transparent;
   z-index:95;
 }

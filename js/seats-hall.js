@@ -71,6 +71,17 @@
   }
 
 
+  const SEAT_PRICE_TIERS = {
+    premium: { price: 259, className: "price-259" },
+    standard: { price: 199, className: "price-199" },
+  };
+
+  function seatPriceTierForRow(rIdx, rowCount) {
+    return rIdx < Math.ceil(rowCount / 2)
+      ? SEAT_PRICE_TIERS.premium
+      : SEAT_PRICE_TIERS.standard;
+  }
+
   /* Inner halls (upper, near stage): rows 1–24; outer balconies (lower): rows 25–37.
      Seats per row come from the wedge arc, so only rows and pricing live here. */
   const UPPER_ZONE_ROWS = 24;
@@ -228,10 +239,11 @@
     }
   }
 
-  function seatButton({ id, row, col, block, price, accessible, taken }) {
+  function seatButton({ id, row, col, block, price, priceClass, accessible, taken }) {
     const b = document.createElement("button");
     b.type = "button";
     b.className = "seat";
+    if (priceClass) b.classList.add(priceClass);
     if (taken) {
       b.classList.add("taken");
       b.disabled = true;
@@ -391,27 +403,17 @@
 
   function setStageZoom(next, pivot) {
     const apply = () => {
-      stageZoom = Math.min(2.2, Math.max(0.7, next));
+      stageZoom = Math.min(SEAT_ZOOM_MAX, Math.max(SEAT_ZOOM_MIN, next));
       const target = document.getElementById("stageFanZoomTarget");
       const vp = document.getElementById("stageFanViewport");
       if (target) {
-        target.style.transformOrigin = "center center";
-        target.style.transform = `scale(${stageZoom})`;
-        if (stageZoom > 1) {
-          const w = target.offsetWidth;
-          const h = target.offsetHeight;
-          const extraX = ((stageZoom - 1) * w) / 2;
-          const extraY = ((stageZoom - 1) * h) / 2;
-          target.style.marginLeft = `${extraX}px`;
-          target.style.marginRight = `${extraX}px`;
-          target.style.marginTop = `${extraY}px`;
-          target.style.marginBottom = `${extraY}px`;
-        } else {
-          target.style.marginLeft = "";
-          target.style.marginRight = "";
-          target.style.marginTop = "";
-          target.style.marginBottom = "";
-        }
+        target.style.setProperty("--stage-zoom", String(stageZoom));
+        target.style.transform = "";
+        target.style.transformOrigin = "";
+        target.style.marginLeft = "";
+        target.style.marginRight = "";
+        target.style.marginTop = "";
+        target.style.marginBottom = "";
       }
       vp?.classList.toggle("is-zoom-pan", stageZoom > 1);
       const label = document.getElementById("stageZoomLabel");
@@ -544,6 +546,7 @@
     grid.rows.forEach((row, rIdx) => {
       const displayRow = rIdx + 1 + rowOffset;
       const accessibleRow = rIdx + 1 === rowCount;
+      const tier = seatPriceTierForRow(rIdx, rowCount);
       const step = row.spanDeg / row.seats;
       for (let c = 1; c <= row.seats; c++) {
         n += 1;
@@ -553,7 +556,8 @@
           row: displayRow,
           col: c,
           block: def.label,
-          price: def.price,
+          price: tier.price,
+          priceClass: tier.className,
           accessible: accessibleRow && c <= 2,
           taken,
         });
@@ -717,7 +721,9 @@
     vp.addEventListener("pointerdown", (e) => {
       const shellEl = document.getElementById("seatsShell");
       if (!shellEl || shellEl.dataset.seatsStep !== step) return;
-      if (getZoom() <= 1) return;
+      /* Native overflow-scroll on touch; custom pan is for mouse/trackpad */
+      if (e.pointerType === "touch") return;
+      if (getZoom() <= 1 && vp.scrollWidth <= vp.clientWidth + 2 && vp.scrollHeight <= vp.clientHeight + 2) return;
       if (e.button !== 0 && e.button !== 1) return;
       if (
         ignoreSelector &&
@@ -791,19 +797,71 @@
     });
   }
 
+  function bindPinchZoom(vp, options) {
+    if (!vp || vp.dataset.pinchBound === "1") return;
+    vp.dataset.pinchBound = "1";
+    const getZoom = options.getZoom;
+    const setZoomFn = options.setZoom;
+    const step = options.step;
+    let active = false;
+    let startDist = 1;
+    let startZoom = 1;
+    const dist = (a, b) => Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY);
+    const mid = (a, b) => ({
+      x: (a.clientX + b.clientX) / 2,
+      y: (a.clientY + b.clientY) / 2,
+    });
+    vp.addEventListener(
+      "touchstart",
+      (e) => {
+        const shellEl = document.getElementById("seatsShell");
+        if (!shellEl || shellEl.dataset.seatsStep !== step) return;
+        if (e.touches.length !== 2) {
+          active = false;
+          return;
+        }
+        active = true;
+        startDist = dist(e.touches[0], e.touches[1]) || 1;
+        startZoom = getZoom();
+      },
+      { passive: true }
+    );
+    vp.addEventListener(
+      "touchmove",
+      (e) => {
+        if (!active || e.touches.length !== 2) return;
+        e.preventDefault();
+        const d = dist(e.touches[0], e.touches[1]) || 1;
+        setZoomFn(startZoom * (d / startDist), mid(e.touches[0], e.touches[1]));
+      },
+      { passive: false }
+    );
+    const endPinch = () => {
+      active = false;
+    };
+    vp.addEventListener("touchend", endPinch);
+    vp.addEventListener("touchcancel", endPinch);
+  }
+
+  function nativeFullscreenEl() {
+    return (
+      document.fullscreenElement ||
+      document.webkitFullscreenElement ||
+      null
+    );
+  }
+
   function isFs() {
     const shell = document.getElementById("seatsShell");
-    return (
-      document.fullscreenElement === shell ||
-      shell?.classList.contains("is-fullscreen")
-    );
+    return nativeFullscreenEl() === shell || !!shell?.classList.contains("is-fullscreen");
   }
 
   function syncFullscreenUi() {
     const shell = document.getElementById("seatsShell");
     const btn = document.getElementById("seatsFullscreen");
-    const on = isFs();
-    shell?.classList.toggle("is-fullscreen", on && !document.fullscreenElement);
+    const native = nativeFullscreenEl();
+    const on = native === shell || !!shell?.classList.contains("is-fullscreen");
+    shell?.classList.toggle("is-fullscreen", on && !native);
     if (btn) {
       btn.classList.toggle("is-active", on);
       btn.setAttribute("aria-label", on ? "יציאה ממסך מלא" : "מסך מלא");
@@ -811,17 +869,31 @@
     }
   }
 
+  async function exitSeatsFullscreen() {
+    const shell = document.getElementById("seatsShell");
+    shell?.classList.remove("is-fullscreen");
+    const native = nativeFullscreenEl();
+    if (native) {
+      try {
+        if (document.exitFullscreen) await document.exitFullscreen();
+        else if (document.webkitExitFullscreen) document.webkitExitFullscreen();
+      } catch (_) {}
+    }
+    syncFullscreenUi();
+  }
+  window.exitSeatsFullscreen = exitSeatsFullscreen;
+
   async function toggleFullscreen() {
     const shell = document.getElementById("seatsShell");
     if (!shell) return;
     try {
       if (!isFs()) {
         if (shell.requestFullscreen) await shell.requestFullscreen();
+        else if (shell.webkitRequestFullscreen) shell.webkitRequestFullscreen();
         else shell.classList.add("is-fullscreen");
-      } else if (document.fullscreenElement === shell) {
-        await document.exitFullscreen();
-      } else if (shell.classList.contains("is-fullscreen")) {
-        shell.classList.remove("is-fullscreen");
+      } else {
+        await exitSeatsFullscreen();
+        return;
       }
     } catch (_) {
       shell.classList.add("is-fullscreen");
@@ -867,9 +939,18 @@
       tryOpenZone(zone);
     });
 
-    document.getElementById("stageZoomIn")?.addEventListener("click", () => setStageZoom(stageZoom + 0.15));
-    document.getElementById("stageZoomOut")?.addEventListener("click", () => setStageZoom(stageZoom - 0.15));
-    document.getElementById("stageZoomReset")?.addEventListener("click", () => setStageZoom(1));
+    document.getElementById("stageZoomIn")?.addEventListener("click", (e) => {
+      e.preventDefault();
+      setStageZoom(stageZoom + 0.2);
+    });
+    document.getElementById("stageZoomOut")?.addEventListener("click", (e) => {
+      e.preventDefault();
+      setStageZoom(stageZoom - 0.2);
+    });
+    document.getElementById("stageZoomReset")?.addEventListener("click", (e) => {
+      e.preventDefault();
+      setStageZoom(1);
+    });
 
     const stageFanViewport = document.getElementById("stageFanViewport");
     stageFanViewport?.addEventListener(
@@ -886,6 +967,11 @@
       { passive: false }
     );
     bindStagePan(stageFanViewport);
+    bindPinchZoom(stageFanViewport, {
+      step: "stage",
+      getZoom: () => stageZoom,
+      setZoom: setStageZoom,
+    });
 
     document.getElementById("backToStages")?.addEventListener("click", () => {
       activeStage = null;
@@ -894,13 +980,22 @@
 
     document
       .getElementById("seatsZoomIn")
-      ?.addEventListener("click", () => setZoom(zoom + 0.15));
+      ?.addEventListener("click", (e) => {
+        e.preventDefault();
+        setZoom(zoom + 0.2);
+      });
     document
       .getElementById("seatsZoomOut")
-      ?.addEventListener("click", () => setZoom(zoom - 0.15));
+      ?.addEventListener("click", (e) => {
+        e.preventDefault();
+        setZoom(zoom - 0.2);
+      });
     document
       .getElementById("seatsZoomReset")
-      ?.addEventListener("click", () => setZoom(1));
+      ?.addEventListener("click", (e) => {
+        e.preventDefault();
+        setZoom(1);
+      });
     document
       .getElementById("seatsFullscreen")
       ?.addEventListener("click", toggleFullscreen);
@@ -921,6 +1016,11 @@
       { passive: false }
     );
     bindHallPan(hallViewport);
+    bindPinchZoom(hallViewport, {
+      step: "seats",
+      getZoom: () => zoom,
+      setZoom: setZoom,
+    });
     bindSeatHoverTip(hallViewport);
     hallViewport?.addEventListener("scroll", hideSeatHoverTip, { passive: true });
 
@@ -932,7 +1032,9 @@
       });
 
     document.addEventListener("fullscreenchange", syncFullscreenUi);
+    document.addEventListener("webkitfullscreenchange", syncFullscreenUi);
     setSeatsStep("stage");
+    setStageZoom(1);
     setZoom(1);
   };
 
@@ -1009,15 +1111,20 @@
         summary.classList.add("is-open");
         summary.classList.remove("is-collapsed");
         if (peek) peek.hidden = true;
-      } else {
-        summary.classList.toggle("is-open", onSeatStep && sel.length > 0);
-        if (!sel.length) {
-          summary.classList.remove("is-collapsed");
-          if (peek) peek.hidden = true;
+      } else if (onSeatStep && sel.length > 0) {
+        const wasOpen = summary.classList.contains("is-open");
+        summary.classList.add("is-open");
+        if (!wasOpen) {
+          summary.classList.add("is-collapsed");
+          if (peek) peek.hidden = false;
         } else if (summary.classList.contains("is-collapsed")) {
           if (peek) peek.hidden = false;
         }
+      } else {
+        summary.classList.remove("is-open", "is-collapsed");
+        if (peek) peek.hidden = true;
       }
+      syncSheetScrollLock();
     }
 
     const box = document.getElementById("selectedSeats");
@@ -1068,23 +1175,73 @@
     }
   };
 
+  let sheetLockY = 0;
+  let sheetTouchActive = false;
+  let sheetTouchY = 0;
+
+  function isMobileSummary() {
+    return window.matchMedia("(max-width:960px)").matches;
+  }
+
+  function sheetIsExpanded() {
+    const summary = document.getElementById("seatsSummary");
+    const seatsOn = document.getElementById("seats")?.classList.contains("active");
+    const onSeatStep =
+      document.getElementById("seatsShell")?.dataset.seatsStep === "seats";
+    return !!(
+      seatsOn &&
+      onSeatStep &&
+      isMobileSummary() &&
+      summary &&
+      summary.classList.contains("is-open") &&
+      !summary.classList.contains("is-collapsed")
+    );
+  }
+
+  function syncSheetScrollLock() {
+    const html = document.documentElement;
+    const body = document.body;
+    const locked = sheetIsExpanded();
+    if (locked === html.classList.contains("seats-summary-sheet-open")) return;
+    if (locked) {
+      sheetLockY = window.scrollY || window.pageYOffset || 0;
+      html.classList.add("seats-summary-sheet-open");
+      body.classList.add("seats-summary-sheet-open");
+      body.style.top = `-${sheetLockY}px`;
+    } else {
+      html.classList.remove("seats-summary-sheet-open");
+      body.classList.remove("seats-summary-sheet-open");
+      body.style.top = "";
+      window.scrollTo(0, sheetLockY);
+    }
+  }
+  window.syncSeatsSummaryScrollLock = syncSheetScrollLock;
+
   function collapseSummary() {
     const summary = document.getElementById("seatsSummary");
     const peek = document.getElementById("seatsSummaryPeek");
     if (!summary || !summary.classList.contains("is-open")) return;
     summary.classList.add("is-collapsed");
     if (peek) peek.hidden = false;
+    syncSheetScrollLock();
   }
+  window.collapseSeatsSummary = collapseSummary;
 
   function expandSummary() {
     const summary = document.getElementById("seatsSummary");
     const peek = document.getElementById("seatsSummaryPeek");
-    if (!summary) return;
+    if (!summary || !summary.classList.contains("is-open")) return;
     summary.classList.remove("is-collapsed");
     if (peek) peek.hidden = true;
+    syncSheetScrollLock();
   }
 
   document.getElementById("seatsSummaryHide")?.addEventListener("click", (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    collapseSummary();
+  });
+  document.getElementById("seatsPickMore")?.addEventListener("click", (e) => {
     e.preventDefault();
     e.stopPropagation();
     collapseSummary();
@@ -1095,7 +1252,7 @@
     expandSummary();
   });
   document.addEventListener("click", (e) => {
-    if (e.target.closest("#seatsSummaryHide")) {
+    if (e.target.closest("#seatsSummaryHide") || e.target.closest("#seatsPickMore")) {
       e.preventDefault();
       collapseSummary();
       return;
@@ -1105,6 +1262,47 @@
       expandSummary();
     }
   });
+
+  document.addEventListener(
+    "touchstart",
+    (e) => {
+      const summary = document.getElementById("seatsSummary");
+      sheetTouchActive = !!(
+        sheetIsExpanded() &&
+        summary &&
+        summary.contains(e.target)
+      );
+      sheetTouchY = e.touches[0] ? e.touches[0].clientY : 0;
+    },
+    { passive: true }
+  );
+  document.addEventListener(
+    "touchmove",
+    (e) => {
+      if (!sheetTouchActive) return;
+      const summary = document.getElementById("seatsSummary");
+      if (!summary) return;
+      const y = e.touches[0] ? e.touches[0].clientY : sheetTouchY;
+      const dy = y - sheetTouchY;
+      sheetTouchY = y;
+      const canScroll = summary.scrollHeight > summary.clientHeight + 1;
+      if (!canScroll) {
+        e.preventDefault();
+        return;
+      }
+      const atTop = summary.scrollTop <= 0 && dy > 0;
+      const atBottom =
+        summary.scrollTop + summary.clientHeight >= summary.scrollHeight - 1 &&
+        dy < 0;
+      if (atTop || atBottom) e.preventDefault();
+    },
+    { passive: false }
+  );
+
+  const sheetMq = window.matchMedia("(max-width:960px)");
+  if (sheetMq.addEventListener) sheetMq.addEventListener("change", syncSheetScrollLock);
+  else if (sheetMq.addListener) sheetMq.addListener(syncSheetScrollLock);
+  window.addEventListener("hashchange", syncSheetScrollLock);
 })();
 
 document.addEventListener("click", (e) => {

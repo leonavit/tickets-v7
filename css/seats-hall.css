@@ -11,13 +11,13 @@ body.seats-flow-active{background:#fff}
   display:inline-flex;align-items:center;gap:8px;margin:0;
   justify-self:start
 }
-.venue-fan-zoom-bar .btn{min-width:40px;padding:8px 12px}
+.venue-fan-zoom-bar .btn{min-width:40px;padding:8px 12px;touch-action:manipulation}
 .venue-fan-zoom-bar span{font-size:13px;font-weight:700;color:#444;min-width:3.2em;text-align:center}
 .venue-fan-viewport{
   width:100%;overflow:auto;max-height:min(78vh,900px);
   border-radius:0;padding:8px;touch-action:pan-x pan-y;
   overscroll-behavior:contain;background:transparent;
-  scrollbar-gutter:stable
+  scrollbar-gutter:stable;-webkit-overflow-scrolling:touch
 }
 .venue-fan-viewport.is-zoom-pan{cursor:grab}
 .venue-fan-viewport.is-zoom-pan.is-panning{
@@ -25,10 +25,10 @@ body.seats-flow-active{background:#fff}
 }
 .venue-fan-viewport.is-panning .stage-zone{pointer-events:none}
 .venue-fan-zoom-target{
-  transform-origin:center center;transition:transform .12s ease-out;
-  width:100%;will-change:transform
+  width:calc(100% * var(--stage-zoom,1));
+  min-width:calc(100% * var(--stage-zoom,1));
+  margin:0 auto;transform:none;transition:none
 }
-.venue-fan-viewport.is-panning .venue-fan-zoom-target{transition:none}
 .stage-schematic.venue-fan-map{
   background:transparent;border:0;border-radius:0;
   padding:4px;min-width:0;width:100%;max-width:none
@@ -46,13 +46,17 @@ body.seats-flow-active{background:#fff}
   fill:var(--ink,#1d104a);stroke:#fff;stroke-width:9;stroke-linejoin:round;
   cursor:pointer;transition:fill .16s ease,filter .16s ease
 }
-.venue-fan-svg .stage-zone .zone-label{pointer-events:none}
+.venue-fan-svg .stage-zone .zone-label{pointer-events:none;white-space:nowrap}
 .venue-fan-svg .stage-zone .zone-name{
-  fill:#fff;font-size:18.4px;font-weight:800
+  fill:#fff;font-size:18.4px;font-weight:800;white-space:nowrap
 }
 .venue-fan-svg .stage-zone .zone-price{
   fill:#f00358;font-size:12px;font-weight:700;
-  direction:ltr;unicode-bidi:isolate
+  direction:rtl;unicode-bidi:isolate;white-space:nowrap
+}
+.venue-fan-svg .stage-zone .zone-status{
+  fill:#fff;font-size:12px;font-weight:700;
+  direction:rtl;unicode-bidi:isolate;white-space:nowrap
 }
 .venue-fan-svg .stage-zone:not(.is-sold):hover path,
 .venue-fan-svg .stage-zone:not(.is-sold):focus-visible path{
@@ -69,6 +73,12 @@ body.seats-flow-active{background:#fff}
 }
 .venue-fan-svg .stage-zone.is-sold .zone-price,
 .venue-fan-svg .stage-zone[data-available="0"] .zone-price{fill:#fff !important}
+.venue-fan-svg .stage-zone.is-sold .zone-status,
+.venue-fan-svg .stage-zone[data-available="0"] .zone-status{
+  fill:#4a4a4a !important;
+  font-size:18.4px;
+  font-weight:800
+}
 
 /* Stage legend column (mirrors seats-summary) */
 .stage-pick-aside{
@@ -108,25 +118,48 @@ body.seats-flow-active{background:#fff}
 }
 
 @media(max-width:700px){
-  .venue-fan-svg .stage-zone .zone-name{font-size:12.8px}
-  .venue-fan-svg .stage-zone .zone-price{font-size:8.8px}
-  .venue-fan-stage-label{font-size:12.8px}
-  .venue-fan-svg .stage-zone path{stroke-width:6}
+  .venue-fan-viewport{
+    max-height:min(64vh,560px);
+    min-height:300px;
+    padding:10px 6px 48px
+  }
+  .venue-fan-zoom-target{
+    width:calc(168% * var(--stage-zoom,1));
+    min-width:calc(580px * var(--stage-zoom,1))
+  }
+  .venue-fan-svg .stage-zone .zone-name{font-size:16.1px;white-space:nowrap}
+  .venue-fan-svg .stage-zone:not(.is-sold) .zone-price,
+  .venue-fan-svg .stage-zone:not([data-available="0"]) .zone-price{display:none}
+  .venue-fan-svg .stage-zone.is-sold .zone-status,
+  .venue-fan-svg .stage-zone[data-available="0"] .zone-status{font-size:16.1px;white-space:nowrap}
+  .venue-fan-stage-label{font-size:16px}
+  .venue-fan-svg .stage-zone path{stroke-width:8}
 }
 @media(max-width:480px){
   .stage-schematic.venue-fan-map{padding:4px 0}
-  .venue-fan-svg .stage-zone .zone-name{font-size:10.4px}
-  .venue-fan-svg .stage-zone .zone-price{font-size:8px}
+  .venue-fan-svg .stage-zone .zone-name{font-size:15px}
+  .venue-fan-svg .stage-zone.is-sold .zone-status,
+  .venue-fan-svg .stage-zone[data-available="0"] .zone-status{font-size:15px}
+  .venue-fan-stage-label{font-size:15px}
 }
 
 .seats-page .container.seats-shell{width:min(1400px,calc(100% - 36px));margin:auto;position:relative}
 .seats-map-card.seats-map-full{width:100%;padding:22px 22px 28px}
 .seats-map-toolbar{display:flex;justify-content:space-between;align-items:flex-start;gap:16px;flex-wrap:wrap;margin-bottom:14px}
 .seats-zoom{display:inline-flex;gap:8px;align-items:center}
-.seats-zoom .btn{min-width:40px;padding:8px 12px}
+.seats-zoom .btn{min-width:40px;padding:8px 12px;touch-action:manipulation}
 .seats-map-full .seats-legend-row{align-items:flex-end;margin-bottom:8px}
 .seats-map-full .price-tiers{gap:8px}
-.seats-map-full .price-legend{align-items:center;gap:8px}
+.seats-map-full .price-legend{align-items:center;gap:14px;flex-wrap:wrap}
+.seat-legend-item.seat-legend-chip,
+.accessible-legend-btn.seat-legend-chip{
+  display:inline-flex;align-items:center;gap:10px;
+  border:1px solid var(--line,#deded8);border-radius:999px;
+  padding:8px 16px;background:#fff;
+  font-size:14px;font-weight:700;color:#444;
+  line-height:1;min-height:40px;box-sizing:border-box;
+  white-space:nowrap
+}
 .price-legend button.price-chip{
   display:inline-flex;align-items:center;justify-content:center;gap:6px;border:1px solid var(--line);background:#fff;
   border-radius:999px;padding:6px 12px;font:inherit;font-size:13px;font-weight:700;color:#444;cursor:pointer;
@@ -134,14 +167,14 @@ body.seats-flow-active{background:#fff}
 }
 .price-legend button.price-chip.is-active{background:var(--brand-gradient);color:#fff;border-color:var(--brand-border,#c31c61)}
 .price-legend button.price-chip.is-active .dot{box-shadow:0 0 0 1px #fff}
-.accessible-legend-btn{
-  display:inline-flex;align-items:center;gap:6px;
-  border:0;background:transparent;padding:0;margin:0;
-  font:inherit;font-size:13px;font-weight:600;color:#444;
-  cursor:pointer;line-height:1;min-height:0;border-radius:0;box-shadow:none;
-  align-self:auto
+.accessible-legend-btn.seat-legend-chip{
+  margin:0;cursor:pointer;font:inherit;
+  align-self:auto;box-shadow:none
 }
-.accessible-legend-btn.is-active{color:var(--brand-dark,#e72173);font-weight:600;background:transparent;border:0}
+.accessible-legend-btn.seat-legend-chip.is-active{
+  color:var(--brand-dark,#e72173);font-weight:700;
+  background:#fff;border-color:var(--brand-border,#f00358)
+}
 .accessible-toggle{display:none!important}
 
 .hall-viewport{
@@ -149,7 +182,7 @@ body.seats-flow-active{background:#fff}
   border:0;border-radius:14px;
   background:transparent;
   padding:18px;touch-action:pan-x pan-y;
-  overscroll-behavior:contain
+  overscroll-behavior:contain;-webkit-overflow-scrolling:touch
 }
 .hall-viewport.is-zoom-pan{cursor:grab}
 .hall-viewport.is-zoom-pan.is-panning{
@@ -202,20 +235,23 @@ body.seats-flow-active{background:#fff}
 
 .seat-legend-item{display:inline-flex;align-items:center;gap:6px;font-size:13px;font-weight:700;color:#444}
 .seat-dot{
-  width:12px;height:12px;border-radius:50%;display:inline-block;border:1px solid #8aa0c8;background:#f7f9ff;flex:0 0 auto
+  width:14px;height:14px;border-radius:50%;display:inline-block;border:0;background:#f7f9ff;flex:0 0 auto
 }
-.seat-dot.is-taken{background:#9aa8b2;border-color:#7f8c96}
-.seat-dot.is-free{background:#f7f9ff;border-color:#8aa0c8}
-.seat-dot.is-selected{background:var(--brand-dark,#e72173);border-color:var(--brand-border,#c31c61)}
+.seat-dot.is-taken{background:#9aa8b2}
+.seat-dot.is-price-259{background:#359be5}
+.seat-dot.is-price-199{background:#1d1dff}
+.seat-dot.is-selected{background:var(--brand-dark,#e72173)}
 .seat{
   position:relative;width:26px;height:26px;flex:0 0 auto;aspect-ratio:auto;
-  border:1.5px solid #8aa0c8;border-radius:50%;background:#f7f9ff;
+  border:1.5px solid transparent;border-radius:50%;
   padding:0;transition:transform .15s ease,box-shadow .15s ease,border-color .15s ease,background-color .15s ease,opacity .2s ease,color .15s ease;
   z-index:1;
   display:inline-flex;align-items:center;justify-content:center;
-  font-size:11px;font-weight:800;line-height:1;color:var(--ink,#1d104a);
+  font-size:11px;font-weight:800;line-height:1;color:#fff;
   font-variant-numeric:tabular-nums
 }
+.seat.price-259:not(.taken):not(.selected){background:#359be5;border-color:#359be5}
+.seat.price-199:not(.taken):not(.selected){background:#1d1dff;border-color:#1d1dff}
 .seat:hover:not(.taken):not(:disabled){transform:scale(1.18);z-index:60}
 .seat.taken,.seat:disabled{background:#9aa8b2;border-color:#7f8c96;color:#fff;cursor:not-allowed;opacity:.7}
 .seat.selected{background:var(--brand-dark,#e72173);border-color:var(--brand-border,#c31c61);color:#fff;transform:scale(1.16);box-shadow:0 2px 10px rgba(231,33,115,.35);z-index:3}
@@ -290,7 +326,8 @@ body.seats-flow-active{background:#fff}
   fill:#d2d2d2 !important;opacity:.42;filter:grayscale(.35);stroke:#eee;stroke-width:6
 }
 .venue-context-svg .stage-zone.is-dimmed .zone-name,
-.venue-context-svg .stage-zone.is-dimmed .zone-price{opacity:.28;fill:#777}
+.venue-context-svg .stage-zone.is-dimmed .zone-price,
+.venue-context-svg .stage-zone.is-dimmed .zone-status{opacity:.28;fill:#777}
 .venue-context-svg .stage-zone.is-active path{
   fill:rgba(3,5,27,.96) !important;opacity:1;stroke:#fff;stroke-width:10
 }
@@ -452,16 +489,64 @@ body.seats-flow-active{background:#fff}
 .seats-summary .summary-total{
   margin-top:4px;margin-bottom:14px;padding-top:12px;border-top:1px solid #ebe8f2;border-bottom:0
 }
+.seats-summary-actions{display:grid;gap:10px}
+.seats-summary-actions #toCart{width:100%}
+#seatsPickMore{display:none}
 .seats-summary.is-open{transform:translateX(0)!important;opacity:1;pointer-events:auto;visibility:visible}
 .seats-layout,.purchase-grid.seats-layout{display:block}
 .seat-map-wrap,.seat-map,.stage-wrap{display:none}
 
 @media(max-width:960px){
-  .seats-summary{position:fixed;left:0;right:0;top:auto;bottom:0;width:100%;border-radius:16px 16px 0 0;
-    transform:translateY(110%);box-shadow:0 -8px 28px rgba(0,0,0,.12)}
+  .seats-summary{
+    position:fixed;left:0;right:0;top:auto;bottom:0;width:100%;border-radius:16px 16px 0 0;
+    transform:translateY(110%);box-shadow:0 -8px 28px rgba(0,0,0,.12);
+    max-height:min(88dvh,calc(100% - 8px));
+    overflow-x:hidden;overflow-y:auto;
+    overscroll-behavior:contain;
+    -webkit-overflow-scrolling:touch;
+    touch-action:pan-y;
+    padding-bottom:calc(18px + env(safe-area-inset-bottom,0px))
+  }
   .seats-summary.is-open{transform:translateY(0)}
   .seat:hover:not(.taken)::after,
   .seat:hover:not(.taken)::before{display:none}
+  .hall-viewport{
+    max-height:min(62vh,560px);
+    padding:20px 12px calc(150px + env(safe-area-inset-bottom,0px))
+  }
+  .hall-canvas.hall-canvas-venue{
+    padding:12px 0 80px
+  }
+  .seats-map-full .price-tiers{width:100%;min-width:0}
+  .seats-map-full .price-legend{
+    display:flex;
+    flex-wrap:nowrap;
+    align-items:center;
+    gap:8px;
+    overflow-x:auto;
+    overflow-y:hidden;
+    -webkit-overflow-scrolling:touch;
+    overscroll-behavior-x:contain;
+    scrollbar-width:thin;
+    max-width:100%;
+    padding:2px 2px 8px
+  }
+  .seats-map-full .price-legend > *{flex:0 0 auto}
+  .seat-legend-item.seat-legend-chip,
+  .accessible-legend-btn.seat-legend-chip{
+    padding:6px 12px;min-height:34px;font-size:13px
+  }
+  .seats-summary-hide{display:none}
+  #seatsPickMore{display:inline-flex;align-items:center;justify-content:center;text-align:center}
+  .seats-summary-actions{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:8px
+  }
+  .seats-summary-actions .btn{
+    width:100%;min-height:46px;padding:10px 8px;
+    font-size:16px;font-weight:800;line-height:1.25;white-space:normal
+  }
 }
 /* Keep hall structure intact on smaller screens — scroll/zoom instead of reflow */
 @media(max-width:1200px){
@@ -548,6 +633,18 @@ body.seats-flow-active{background:#fff}
     border-radius:999px;border:0;padding:12px 18px;
     height:auto;min-height:0;width:auto
   }
+}
+
+html.seats-summary-sheet-open,
+html.seats-summary-sheet-open body{
+  overscroll-behavior:none
+}
+body.seats-summary-sheet-open{
+  position:fixed;
+  left:0;
+  right:0;
+  width:100%;
+  overflow:hidden
 }
 
 /* Stage + seats desktop layout: map left + sticky aside right */
@@ -761,6 +858,15 @@ body.seats-flow-active{background:#fff}
   .seats-acc-toggle{
     font-size:16px;
     padding:14px 2px;
+  }
+  .seats-acc{
+    scroll-margin-top:88px;
+    scroll-margin-bottom:96px
+  }
+  .seats-acc.is-open .seats-acc-panel{
+    padding:8px 2px 32px;
+    font-size:16px;
+    line-height:1.65
   }
   .seats-acc-panel .info-split,
   .seats-acc-panel .directions-grid{
