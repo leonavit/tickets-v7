@@ -1,102 +1,96 @@
-# מדריך הטמעה לחברת הפיתוח — Tickets
+# מדריך הטמעה — Tickets
 
-מסמך זה מתאר **בדיוק** איך האב־טיפוס הנוכחי בנוי, אילו ספריות בשימוש, איך העיצוב מוטמע, ואיך ה־JavaScript עובד.  
-המטרה: לשחזר את חוויית המשתמש והעיצוב במערכת הייצור (React / Next / backend) בלי לנחש.
+מסמך זה מתאר את האב־טיפוס שיש לשחזר במערכת הייצור: מבנה, ספריות, עיצוב וחוזי JavaScript.
 
-**מה זה הפרויקט:** אב־טיפוס סטטי אינטראקטיבי (HTML + CSS + JS, בלי build).  
+**סוג הפרויקט:** אב־טיפוס סטטי (HTML + CSS + JS, בלי build).  
 **שפה וכיוון:** עברית, `dir="rtl"`, `lang="he"`.  
 **קובץ הכניסה:** [`index.html`](../index.html)
+
+זהו המוצר. אין וריאציות עיצוב, אין פלטות חלופיות, ואין פאנל הגדרות.
 
 ---
 
 ## תוכן עניינים
 
 1. [הרצה מקומית](#1-הרצה-מקומית)
-2. [מה הוחלט בעיצוב (גרסה נעולה)](#2-מה-הוחלט-בעיצוב-גרסה-נעולה)
+2. [עיצוב — מה לבנות](#2-עיצוב--מה-לבנות)
 3. [מבנה הקבצים](#3-מבנה-הקבצים)
 4. [ספריות JavaScript](#4-ספריות-javascript)
-5. [ספריות וקבצי CSS](#5-ספריות-וקבצי-css)
-6. [טוקני עיצוב (Design tokens)](#6-טוקני-עיצוב-design-tokens)
+5. [קבצי CSS](#5-קבצי-css)
+6. [טוקני עיצוב](#6-טוקני-עיצוב)
 7. [כיצד להטמיע את העיצוב](#7-כיצד-להטמיע-את-העיצוב)
-8. [רכיבי UI מרכזיים](#8-רכיבי-ui-מרכזיים)
+8. [רכיבי UI](#8-רכיבי-ui)
 9. [הנחיות JavaScript](#9-הנחיות-javascript)
 10. [ניתוב ומסכים](#10-ניתוב-ומסכים)
 11. [מודל נתונים](#11-מודל-נתונים)
 12. [זרימת רכישה ובחירת מושבים](#12-זרימת-רכישה-ובחירת-מושבים)
-13. [נכסים (Assets)](#13-נכסים-assets)
-14. [נקודות שבירה (Breakpoints)](#14-נקודות-שבירה-breakpoints)
-15. [נגישות ותנועה מופחתת](#15-נגישות-ותנועה-מופחתת)
+13. [נכסים](#13-נכסים)
+14. [נקודות שבירה](#14-נקודות-שבירה)
+15. [נגישות](#15-נגישות)
 16. [מיפוי לייצור](#16-מיפוי-לייצור)
-17. [מה לא לכלול בייצור](#17-מה-לא-לכלול-בייצור)
 
 ---
 
 ## 1. הרצה מקומית
 
-אין npm / webpack / Vite. פתיחה דרך שרת סטטי (לא `file://`, בגלל מודולים ווידאו):
+אין npm / webpack / Vite. להריץ שרת סטטי (לא `file://`):
 
 ```bash
 python3 -m http.server 8000
-# ואז: http://127.0.0.1:8000/index.html
+# http://127.0.0.1:8000/index.html
 ```
-
-`intro.html` הוא מסך הקדמה ישן לסקירת UX בלבד — **לא חלק מהמוצר הנעול**.
 
 ---
 
-## 2. מה הוחלט בעיצוב (גרסה נעולה)
+## 2. עיצוב — מה לבנות
 
-האב־טיפוס כלל בעבר פאנל «הגדרות אתר» להדגמה מול הלקוח. הפאנל **הוסר**. הערכים הבאים הם ברירת המחדל הקבועה:
-
-| נושא | ערך נעול |
-|------|----------|
-| פלטה | כהה בלבד (`body.theme-palette-dark`) |
-| לוגו | `assets/images/logo.png` בכל המשטחים (האדר, תפריט מובייל, פוטר) |
-| מבנה כרטיסיות | **מופעים פופולריים מיוחד**: Cover Flow + כרטיס פליפ בדסקטופ (≥961px). בשאר הקרוסלות ובקטלוג — כרטיס רגיל |
-| אנימציית כותרות | Staggered Letters (פיצול לאותיות + `gsap.from`) |
-| מועדים בעמוד מופע | כמות בינונית: 5 מועדים בזמינות גבוהה + נמוכה + אזלו + פרה־סייל |
-| שער התחברות לאתר | אין (האתר נפתח ישירות) |
-
-אין לבחור בין גרסאות לוגו, פלטות בהירות, או מבני כרטיסיות חלופיים.
+| נושא | מימוש |
+|------|--------|
+| רקע האתר | כהה: `#03051A` |
+| לוגו | `assets/images/logo.png` בהאדר, תפריט מובייל ופוטר |
+| כרטיסי «הכי פופולריים» בדסקטופ (≥961px) | Cover Flow + כרטיס פליפ |
+| שאר הקרוסלות וקטלוג המופעים | כרטיס לבן רגיל |
+| כותרות (הירו, קרוסלות, קטגוריות) | פיצול לאותיות + GSAP stagger |
+| מועדים בעמוד מופע | רשימה אנכית: 5 מועדים זמינים + נמוכה + אזלו + פרה־סייל |
+| כניסה לאתר | ישירה — בלי שער התחברות. מסך `#login` הוא שלב ברכישה בלבד |
 
 ---
 
 ## 3. מבנה הקבצים
 
 ```
-index.html                 ← SPA: האדר/פוטר קבועים + כל המסכים כ־.screen
+index.html                 SPA: האדר/פוטר קבועים + כל המסכים כ־.screen
 css/
-  styles.css               ← ליבה: טוקנים, האדר, כרטיסים, טפסים, פוטר, מובייל
-  home2.css                ← הירו סליידר (hero-v2)
-  home3.css                ← פריסת האדר v3: לוגו/ניווט, חיפוש בשורה נפרדת
-  seats-hall.css           ← מפת אולם, זום, סיכום בחירה
-  intro.css                ← רק intro.html (לא לייצור)
+  styles.css               ליבה: טוקנים, האדר, כרטיסים, טפסים, פוטר, מובייל
+  home2.css                סליידר הירו בדף הבית
+  home3.css                האדר: שורת לוגו/ניווט + פאנל חיפוש
+  seats-hall.css           מפת אולם, זום, סיכום בחירה
 js/
-  app.js                   ← נתונים מדומים, ניתוב, כרטיסים, סל, מועדים, קרוסלות
-  seats-hall.js            ← בחירת אזור/מושבים באולם המקומי
-  home2-hero.js            ← סליידר הירו
-  header-search-toggle.js  ← פתיחה/סגירת חיפוש בהאדר + תפריט מובייל (GSAP)
-  search-dropdowns.js      ← דרופדאונים למיקום/קטגוריה
-  text-animations.js       ← אנימציית כותרות
-  category-lottie.js       ← אייקוני קטגוריה Lottie
-  category-carousel.js     ← קרוסלת קטגוריות במובייל
-  vendor/gsap.min.js       ← GSAP 3.12.7
+  app.js                   נתונים מדומים, ניתוב, כרטיסים, סל, מועדים, קרוסלות
+  seats-hall.js            בחירת אזור/מושבים באולם המקומי
+  home2-hero.js            סליידר הירו
+  header-search-toggle.js  פתיחה/סגירת חיפוש בהאדר + תפריט מובייל (GSAP)
+  search-dropdowns.js      דרופדאונים למיקום/קטגוריה
+  text-animations.js       אנימציית כותרות
+  category-lottie.js       אייקוני קטגוריה Lottie
+  category-carousel.js     קרוסלת קטגוריות במובייל
+  vendor/gsap.min.js       GSAP 3.12.7
   vendor/ScrollTrigger.min.js
-  vendor/lottie.min.js     ← lottie-web (bodymovin)
-  seatsio/                 ← POC ל־Seats.io
-  seatmap/                 ← POC ל־Seatmap.pro + fallback
-  data/venue-seats.js      ← נתוני אולם מדומים
+  vendor/lottie.min.js     lottie-web
+  seatsio/                 POC ל־Seats.io
+  seatmap/                 POC ל־Seatmap.pro
+  data/venue-seats.js      נתוני אולם מדומים
 assets/
-  images/logo.png          ← הלוגו היחיד
+  images/logo.png          הלוגו
   images/favicon.png
-  icons/                   ← SVG להאדר, כרטיסים, רשתות
-  events/1.jpg … 48.jpg    ← תמונות מופעים לפי id
-  hero/                    ← סליידים, וידאו רקע, ניוזלטר
-  lottie/                  ← JSON/JS של אנימציות קטגוריה
-  categories/              ← SVG קטגוריה (גיבוי)
+  icons/                   SVG להאדר, כרטיסים, רשתות
+  events/1.jpg … 48.jpg    תמונות מופעים לפי id
+  hero/                    סליידים, וידאו רקע, ניוזלטר
+  lottie/                  JSON/JS של אנימציות קטגוריה
+  categories/              SVG קטגוריה (גיבוי)
 ```
 
-סדר טעינת CSS ב־`index.html` (חובה לשמור את הסדר — קבצים מאוחרים דורסים מוקדמים):
+סדר טעינת CSS ב־`index.html` (חובה — קבצים מאוחרים דורסים מוקדמים):
 
 1. `css/styles.css`
 2. `css/seats-hall.css`
@@ -136,20 +130,26 @@ assets/
 | `js/vendor/gsap.min.js` | ליבת האנימציה. רישיון: [GSAP Standard License](https://gsap.com/standard-license) |
 | `js/vendor/ScrollTrigger.min.js` | תוסף גלילה. נרשם ב־`text-animations.js` אם קיים |
 
-**איפה בשימוש בפועל:**
+שימוש:
 
-- `js/text-animations.js` — `gsap.from` על אותיות כותרת (`y: 50`, `stagger: 0.03`, `duration: 0.6`, `ease: "back.out(1.7)"`). כותרות מוסתרות עד כניסה ל־viewport (`.gsap-text-pending { opacity: 0 }`). באדג' «המכירה בקרוב»: `gsap.to` גלי (Wavy Baseline).
+- `js/text-animations.js` — `gsap.from` על אותיות כותרת (`y: 50`, `stagger: 0.03`, `duration: 0.6`, `ease: "back.out(1.7)"`). כותרות מוסתרות עד כניסה ל־viewport (`.gsap-text-pending { opacity: 0 }`). באדג' «המכירה בקרוב»: `gsap.to` גלי.
 - `js/header-search-toggle.js` — אנימציית כפתור חיפוש; כניסת לוגו בתפריט מובייל (`y: 48 → 0`).
 
-בייצור: להתקין `gsap@3.12.7` (או תואם 3.12) ולשמור את אותם פרמטרים. אם אין רישיון Club, ה־Standard License מכסה שימוש באתר.
+בייצור: `gsap@3.12.7` (או תואם 3.12) עם אותם פרמטרים.
 
-### 4.2 lottie-web (bodymovin) — מקומי
+### 4.2 lottie-web — מקומי
 
 `js/vendor/lottie.min.js` חושף `window.lottie`.
 
-טעינה: `lottie.loadAnimation({ container, renderer: "svg", loop: false, autoplay: false, animationData })`.
-
-מפתחות גלובליים אחרי טעינת קבצי הנתונים:
+```js
+lottie.loadAnimation({
+  container,
+  renderer: "svg",
+  loop: false,
+  autoplay: false,
+  animationData,
+});
+```
 
 | מפתח DOM `data-category-lottie-key` | משתנה גלובלי |
 |-------------------------------------|--------------|
@@ -159,7 +159,7 @@ assets/
 | `sports` | `window.CATEGORY_LOTTIE_SPORTS` |
 | `kids` | `window.CATEGORY_LOTTIE_KIDS` |
 
-התנהגות חובה:
+התנהגות:
 
 - פריים 0 שקוף — במנוחה לעצור **בפריים האחרון** (`goToAndStop(last)`).
 - בסקשן «מה תרצו לראות היום» צבע סגול ב־JSON מוחלף ללבן (`recolorLottiePurpleToWhite`).
@@ -171,19 +171,15 @@ assets/
 <script src="https://cdn.lordicon.com/lordicon.js"></script>
 ```
 
-Web Component: `<lord-icon src="https://cdn.lordicon.com/….json" …>`.
-
-| מזהה קובץ | שימוש | צבעים בפרוטוטייפ |
-|-----------|--------|-------------------|
-| `nhvkplrv.json` | כפתור «למופעים בקטגוריה» בקרוסלות (נוצר ב־`renderHome`) | `primary:#ffffff,secondary:#ffffff` |
-| `jqgudngh.json` | אייקון קטגוריית ילדים בדף הבית (כרטיס אחד) | `primary:#ffffff,secondary:#e72173` |
+| מזהה קובץ | שימוש | צבעים |
+|-----------|--------|--------|
+| `nhvkplrv.json` | כפתור «למופעים בקטגוריה» בקרוסלות | `primary:#ffffff,secondary:#ffffff` |
+| `jqgudngh.json` | אייקון קטגוריית ילדים בדף הבית | `primary:#ffffff,secondary:#e72173` |
 | `rhmbrqqg.json` | מסך הצלחת רכישה | לבן מלא, `trigger="loop"` |
 | `ojbonimq.json` | כרטיס טלפון ביצירת קשר | `primary:#ffffff,secondary:#e72173` |
 | `xldbursn.json` | כפתור חזרה לראש הפוטר | `primary:#ffffff`, `state="hover-slide"` |
 
-בייצור: אפשר להמשיך ב־CDN או להוריד JSON מקומית. לשמור `colors` ו־`trigger` כמו באב־טיפוס.
-
-### 4.4 Seats.io — אופציונלי (POC)
+### 4.4 Seats.io — אופציונלי (POC מושבים)
 
 CDN לפי אזור, למשל `https://cdn-eu.seatsio.net/chart.js`.  
 הגדרה: `js/seatsio/config.js` → `window.TicketsSeatsioConfig`.  
@@ -191,13 +187,13 @@ CDN לפי אזור, למשל `https://cdn-eu.seatsio.net/chart.js`.
 **אסור** לשים secret key בפרונט. מפתח workspace ציבורי בלבד.  
 פירוט: [`docs/SEATSIO-POC-REPORT.md`](SEATSIO-POC-REPORT.md).
 
-### 4.5 Seatmap.pro — אופציונלי (POC)
+### 4.5 Seatmap.pro — אופציונלי (POC מושבים)
 
 ```
 https://cdn.jsdelivr.net/npm/@seatmap.pro/renderer/+esm
 ```
 
-הגדרה: `js/seatmap/config.js`. ברירת מחדל `mode: "auto"` — בלי מפתחות נופל ל־fallback מקומי.  
+הגדרה: `js/seatmap/config.js`. ברירת מחדל `mode: "auto"` — בלי מפתחות נופל לאולם המקומי.  
 פירוט: [`docs/SEATMAP-PRO-REPORT.md`](SEATMAP-PRO-REPORT.md).
 
 ### 4.6 Google Fonts — Assistant
@@ -208,25 +204,24 @@ https://cdn.jsdelivr.net/npm/@seatmap.pro/renderer/+esm
 @import url('https://fonts.googleapis.com/css2?family=Assistant:wght@300;400;500;600;700;800&display=swap');
 ```
 
-משקלים בשימוש: 300–800. משקל טיפוסי לכותרות/כפתורים: **800**.
-
-בייצור: `@font-face` עצמי או אותו `@import`, עם `font-display: swap`.
+משקלים: 300–800. משקל טיפוסי לכותרות/כפתורים: **800**.
 
 ---
 
-## 5. ספריות וקבצי CSS
+## 5. קבצי CSS
 
-**אין Bootstrap, Tailwind, Normalize או Reset חיצוני.**  
-יש CSS מותאם במלואו + `@import` לגופן.
+**אין Bootstrap, Tailwind, Normalize או Reset חיצוני.** CSS מותאם + `@import` לגופן.
 
 | קובץ | אחריות |
 |------|---------|
-| `styles.css` | `:root` טוקנים, טיפוגרפיה, האדר/ניווט/מגה־תפריט, כרטיסי מופע, קרוסלות, פוטר, טפסים, מובייל, אנימציות GSAP (`.gsap-char`) |
+| `styles.css` | `:root` טוקנים, טיפוגרפיה, האדר/ניווט/מגה־תפריט, כרטיסי מופע, קרוסלות, פוטר, טפסים, מובייל, `.gsap-char` |
 | `home2.css` | `.hero.hero-v2` — שכבות סליידים, טקסט, נקודות התקדמות |
 | `home3.css` | `.site-header-v3` — שורת לוגו/ניווט + שורת חיפוש כ־overlay מתחת להאדר |
 | `seats-hall.css` | מפת האולם, זום, פאנל סיכום, מובייל sticky |
 
-כללים גלובליים שחייבים להישאר:
+שמות המחלקות `hero-v2` / `site-header-v3` הם שמות הקוד בפועל — זה המימוש היחיד.
+
+כללים גלובליים:
 
 ```css
 html { overflow-x: hidden; }
@@ -241,21 +236,21 @@ body { margin: 0; font-family: var(--font); background: var(--bg); color: var(--
 - רגיל: `.container` = `min(1400px, calc(100% - 36px))`
 - הירו מופע / רכישה / התחברות: `min(1160px, calc(100% - 36px))`
 
-פינות כרטיסים וכפתורים: `--radius: 16px` לרכיבים גדולים; כפתורים `border-radius: 11px`; כרטיס מופע `17px`.
+פינות: `--radius: 16px` לרכיבים גדולים; כפתורים `11px`; כרטיס מופע `17px`.
 
 ---
 
-## 6. טוקני עיצוב (Design tokens)
+## 6. טוקני עיצוב
 
-ערכים **נעולים** מתוך `:root` ב־`css/styles.css` (הפלטה הכהה):
+מתוך `:root` ב־`css/styles.css`:
 
 ```css
 :root {
   --font: 'Assistant', Arial, sans-serif;
-  --bg: #03051A;              /* רקע body */
-  --surface: #ffffff;         /* משטחי כרטיס/טופס לבנים */
-  --ink: #03051A;             /* טקסט על רקע בהיר (כרטיסים) */
-  --page-fg: #f5f2ff;         /* טקסט על רקע כהה */
+  --bg: #03051A;
+  --surface: #ffffff;
+  --ink: #03051A;
+  --page-fg: #f5f2ff;
   --muted: #a8a4b8;
   --line: #3d3560;
   --dash: #b0aec0;
@@ -276,66 +271,54 @@ body { margin: 0; font-family: var(--font); background: var(--bg); color: var(--
   --brand-dark: #f00358;
   --brand-pink: #f00358;
   --brand-border: #f00358;
-  --brand-gradient: #f00358;  /* מילוי אחיד — לא גרדיאנט דו־צבעי */
+  --brand-gradient: #f00358;  /* מילוי אחיד */
   --radius: 16px;
   --shadow: 0 12px 34px rgba(0,0,0,.08);
   --header-search-h: 0px;
 }
 ```
 
-צבעי מותג קשיחים שמופיעים גם מחוץ לטוקנים:
-
 | שימוש | ערך |
 |--------|------|
 | מותג / כפתור ראשי / כותרות קטגוריה | `#f00358` |
-| קו תחתון בהאדר (גרדיאנט שקוף→ורוד→שקוף) | `#f00358` ב־42%–58% |
+| קו תחתון בהאדר (שקוף→ורוד→שקוף) | `#f00358` ב־42%–58% |
 | לב מועדפים פעיל | `#fc226b` |
 | WhatsApp | `#25d366` |
-| כרטיס קטגוריה (גבול) | `1px solid #f00358`, רקע `#0a0d26` |
-| כרטיס מופע (גבול) | `#2b2d3d` על רקע לבן |
+| כרטיס קטגוריה | גבול `1px solid #f00358`, רקע `#0a0d26` |
+| כרטיס מופע | גבול `#2b2d3d` על רקע לבן |
 
-**חשוב:** `--ink` כהה במכוון — כרטיסי המופע לבנים עם טקסט כהה, גם כשהאתר כהה.
-
-גוף העמוד חייב לכלול:
-
-```html
-<body class="theme-palette-dark">
-```
-
-יש כללי CSS שתלויים במחלקה הזו (ניווט אזור אישי, קטגוריות, כותרות related).
+`--ink` כהה במכוון: כרטיסי המופע לבנים עם טקסט כהה, על אתר כהה.
 
 ---
 
 ## 7. כיצד להטמיע את העיצוב
 
-### 7.1 שלב א׳ — שלד המסמך
+### 7.1 שלד המסמך
 
 ```html
 <html lang="he" dir="rtl">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <link rel="icon" type="image/png" href="assets/images/favicon.png">
+<body>
 ```
 
-במסך מושבים האב־טיפוס מחליף זמנית ל־`maximum-scale=1, user-scalable=no` (`setSeatsPageZoomLock`). בייצור: לשקול חלופה נגישה יותר, אבל הזום במפה דורש מניעת pinch כפול עם הדפדפן.
+במסך מושבים האב־טיפוס מחליף זמנית ל־`maximum-scale=1, user-scalable=no` (`setSeatsPageZoomLock`) כדי שהזום במפה לא יתנגש עם pinch של הדפדפן.
 
-### 7.2 שלב ב׳ — העברת טוקנים
+### 7.2 טוקנים
 
-להעתיק את בלוק `:root` כלשונו ל־CSS של הייצור (או ל־theme object ב־JS שמייצר את אותם custom properties על `document.documentElement`).  
-לא לערבב פלטה בהירה.
+להעתיק את בלוק `:root` כלשונו (או לייצר אותם על `document.documentElement`).
 
-### 7.3 שלב ג׳ — האדר (חובה v3)
-
-המבנה הנעול:
+### 7.3 האדר
 
 ```
 header.site-header.site-header-v3
-  .header-top-row          ← גובה 74px, רקע --header-bg
+  .header-top-row          ← גובה 74px בדסקטופ, רקע --header-bg
     .container.header-inner  ← grid: 1fr auto 1fr  (לוגו | ניווט | פעולות)
   .header-search-row       ← position:absolute מתחת לשורה; לא דוחף את ההירו
 ```
 
 - לוגו: `<img src="assets/images/logo.png" alt="Tickets">`, גובה `40px`, `object-fit: contain`.
-- אייקוני האדר (חיפוש/משתמש/עגלה): SVG שחור → לבן ב־CSS:
+- אייקוני האדר (חיפוש/משתמש/עגלה):
 
 ```css
 .header-actions .header-button img {
@@ -343,12 +326,12 @@ header.site-header.site-header-v3
 }
 ```
 
-- קו ורוד דק בתחתית `.header-top-row::after` (גרדיאנט אופקי).
-- ניווט ממורכז; פעולות בצד הנגדי ללוגו (ב־RTL: לוגו בימין, פעולות בשמאל).
+- קו ורוד דק בתחתית `.header-top-row::after`.
+- ב־RTL: לוגו בימין, פעולות בשמאל, ניווט ממורכז.
 
-חיפוש: לא בשורה קבועה מתחת להירו. הוא **פאנל נפתח** (`#headerSearchRow.is-open`). בדף הבית, אחרי גלילה ≥100px הפאנל מקבל שטיפה שקופה (`color-mix` עם `--search-bg`).
+חיפוש: פאנל נפתח (`#headerSearchRow.is-open`). בדף הבית, אחרי גלילה ≥100px הפאנל מקבל שטיפה שקופה (`color-mix` עם `--search-bg`).
 
-### 7.4 שלב ד׳ — טיפוגרפיה
+### 7.4 טיפוגרפיה
 
 | רכיב | גודל / משקל |
 |------|-------------|
@@ -359,9 +342,9 @@ header.site-header.site-header-v3
 | כותרת כרטיס מופע | weight 800 על `--ink` |
 | כפתור `.btn` | weight 800, padding `11px 17px`, radius 11px |
 
-קו תחתון לקישורים (ניווט, מגה, פוטר): `background-image: linear-gradient(currentColor, currentColor)` שמתרחב ב־hover מימין לשמאל (מתאים ל־RTL).
+קו תחתון לקישורים (ניווט, מגה, פוטר): `background-image: linear-gradient(currentColor, currentColor)` שמתרחב ב־hover מימין לשמאל (RTL).
 
-### 7.5 שלב ה׳ — כפתורים
+### 7.5 כפתורים
 
 ```css
 .btn.primary {
@@ -373,54 +356,48 @@ header.site-header.site-header-v3
 .btn.wide { width: 100%; }
 ```
 
-אין גרדיאנט ורוד־סגול דו־צבעי. המילוי אחיד `#f00358`.
+מילוי אחיד `#f00358` — לא גרדיאנט דו־צבעי.
 
-### 7.6 שלב ו׳ — העברת רכיבים לפי מחלקות
+### 7.6 רכיבים
 
-להעתיק מחלקות 1:1 מהאב־טיפוס (או למפות ב־design system עם אותם שמות). הרכיבים הקריטיים מפורטים בסעיף 8.  
-אם עובדים ב־React: כל בלוק HTML עם המחלקות הקיימות + CSS כמו שהוא, ורק אחר כך לפצל לקומפוננטות.
+להעתיק מחלקות 1:1 מהאב־טיפוס בשלב הראשון. ב־React: HTML + CSS כמו שהם, ורק אחר כך לפצל לקומפוננטות.
 
-### 7.7 שלב ז׳ — RTL
+### 7.7 RTL
 
 - `dir="rtl"` על `html`.
-- Grid/flex כבר מתיישרים אוטומטית.
-- חיצים בקרוסלה: ב־RTL `scrollBy({ left: negative })` לדפדוף «הבא» — כך זה ממומש ב־`initCarousels`.
-- Cover Flow: `offset * 172px` על ציר X — לבדוק ויזואלית ב־RTL אחרי מיגרציה.
+- חיצים בקרוסלה: ב־RTL `scrollBy({ left: negative })` לדפדוף «הבא».
+- Cover Flow: `offset * 172px` על ציר X — לבדוק ויזואלית אחרי מיגרציה.
 
-### 7.8 שלב ח׳ — אימות ויזואלי
-
-לפני סגירת ספרינט עיצוב, להשוות מול האב־טיפוס:
+### 7.8 אימות ויזואלי
 
 1. האדר כהה, לוגו 40px, קו ורוד.
 2. הירו עם טקסט ממורכז אנכית ושלוש נקודות התקדמות.
 3. חמש קטגוריות עם אייקון Lottie ושם ורוד.
 4. סקשן «הכי פופולריים» ב־Cover Flow בדסקטופ.
-5. קרוסלות נוספות כרטיס לבן רגיל.
+5. קרוסלות נוספות — כרטיס לבן רגיל.
 6. פוטר כהה עם אותו לוגו.
 
 ---
 
-## 8. רכיבי UI מרכזיים
+## 8. רכיבי UI
 
-### 8.1 כרטיס מופע רגיל — `.event-card`
-
-מבנה:
+### 8.1 כרטיס מופע — `.event-card`
 
 ```
 article.event-card
   .event-media          ← גובה 220px, img cover
-    .favorite-btn       ← לב, שמאל עליון
+    .favorite-btn
     .presale-ribbon     ← רק אם isFullPresale
   .event-body
     h3
-    ul.event-facts      ← מיקום + טווח תאריכים
-    .event-availability ← נקודה ירוקה/כתומה + טקסט
+    ul.event-facts
+    .event-availability
     .event-footer
       .price
       button.btn.primary
 ```
 
-מדיניות זמינות באב־טיפוס (דמו): `id % 2 === 0` → נמוכה, אחרת גבוהה. בייצור: מהשרת.
+בדמו: `id % 2 === 0` → זמינות נמוכה. בייצור: מהשרת.
 
 ### 8.2 כרטיס פליפ — `.event-card-flip`
 
@@ -428,82 +405,74 @@ article.event-card
 
 ```
 article.event-card.event-card-flip
-  .event-card-inner          ← transform-style: preserve-3d; hover → rotateY(180deg)
-    .event-card-face.event-card-front  ← תמונה + כותרת + תאריך
-    .event-card-face.event-card-back   ← גוף כרטיס מלא
+  .event-card-inner
+    .event-card-face.event-card-front
+    .event-card-face.event-card-back
 ```
 
-`perspective: 1200px`. מתחת ל־960px אין פליפ ב־hover (ובכל מקרה Cover Flow כבוי).
+`perspective: 1200px`. hover → `rotateY(180deg)`. מתחת ל־960px בלי פליפ.
 
 ### 8.3 Cover Flow — דסקטופ בלבד
 
 תנאי: `window.matchMedia('(min-width:961px)')`.
 
-מחלקות על הקרוסלה: `event-carousel popular-coverflow-carousel popular-flip-carousel`.  
-על הסקשן: `popular-coverflow-section flip-cards-section popular-flip-section`.
+מחלקות: `event-carousel popular-coverflow-carousel popular-flip-carousel` על הקרוסלה; `popular-coverflow-section` על הסקשן.
 
-לוגיקה ב־`initCoverflowCarousels` (`js/app.js`):
+`initCoverflowCarousels` ב־`js/app.js`:
 
-- כרטיס פעיל במרכז; עד 3 כרטיסים לכל צד נראים.
+- כרטיס פעיל במרכז; עד 3 כרטיסים לכל צד.
 - `translateX(offset * 172px) translateZ(-abs * 90px) rotateY(offset * -10deg) scale(max(0.7, 1 - abs * 0.1))`
-- גרירה אופקית / חיצים / קליק על כרטיס צדדי מחליפים מרכז.
-- מתחת ל־961px: אותה רשימה הופכת לקרוסלה אופקית רגילה (כרטיסים לא־פליפ).
+- גרירה / חיצים / קליק על כרטיס צדדי.
+- מתחת ל־961px: קרוסלה אופקית רגילה, בלי פליפ.
 
-בשינוי רוחב דרך ה־breakpoint האב־טיפוס קורא שוב ל־`renderHome()` + `initCarousels()`.
+במעבר דרך ה־breakpoint: `renderHome()` + `initCarousels()` מחדש.
 
 ### 8.4 קרוסלה רגילה
 
-`.carousel-shell` > `.event-carousel` (CSS grid אוטומטי לרוחב כרטיס) + `.carousel-side-arrow.prev/.next`.  
-חיצים `disabled` בקצוות (`syncCarouselArrows`). גרירת pointer בדסקטופ.
+`.carousel-shell` > `.event-carousel` + `.carousel-side-arrow.prev/.next`.  
+חיצים `disabled` בקצוות. גרירת pointer בדסקטופ.
 
 ### 8.5 קטגוריות
 
 חמישה כרטיסים: מוזיקה, סטנדאפ, תרבות, ילדים, ספורט.  
-לחיצה: `data-category="music|standup|culture|kids|sports"` → סינון קטלוג.
+`data-category="music|standup|culture|kids|sports"` → סינון קטלוג.
 
-במובייל (≤960px): קרוסלה אינסופית (`category-carousel.js`), פריט אמצעי ממורכז בטעינה (תרבות, אינדקס 2), autoplay כל 5 שניות (נעצר באינטראקציה / `prefers-reduced-motion`).
+במובייל (≤960px): קרוסלה אינסופית (`category-carousel.js`), פריט אמצעי ממורכז בטעינה (תרבות), autoplay כל 5 שניות (נעצר באינטראקציה / `prefers-reduced-motion`).
 
 ### 8.6 הירו בית
 
-`.hero.hero-v2` (שכבות מלאות) בתוך פריסת v3.  
-מרווח: `js/home2-hero.js`, `INTERVAL = 5500`.  
-אירוע אחרי החלפת שקופית: `tickets:heroSlide` (כדי שאנימציית הכותרת תרוץ מחדש).
+`.hero.hero-v2.hero-v3`. מרווח שקופית: `INTERVAL = 5500` ב־`js/home2-hero.js`.  
+אחרי החלפה: אירוע `tickets:heroSlide`.
 
 ### 8.7 שורות מועדים — `.show-row`
 
-עמוד מופע, טאב «מועדים»:
-
 - תאריך גדול (`font-size: 2em`) + יום/שעה + אולם.
-- סטטוס: `high-stock-label` / `low-stock-label` / `sold-out-label` (צהוב מסובב) / שעון פרה־סייל.
+- סטטוס: `high-stock-label` / `low-stock-label` / `sold-out-label` / שעון פרה־סייל.
 - `data-show-action="seats|queue|waitlist|presale-interest"`.
 
-זמינות נמוכה → אוברליי תור (`#queueOverlay`). לחיצה על רקע ריק מדלגת למושבים.  
+זמינות נמוכה → אוברליי תור (`#queueOverlay`); לחיצה על רקע ריק מדלגת למושבים.  
 אזלו → מודל רשימת המתנה.
 
 ### 8.8 מגה־תפריט קטגוריות
 
-`.nav-item.has-mega` נפתח ב־hover/focus-within בדסקטופ.  
-רקע כהה שקוף + blur. חמש עמודות עם כרטיס קטגוריה + קישורים.
+`.nav-item.has-mega` נפתח ב־hover/focus-within בדסקטופ. רקע כהה שקוף + blur. חמש עמודות.
 
 ---
 
 ## 9. הנחיות JavaScript
 
-### 9.1 דפוס כללי
+### 9.1 דפוס
 
-כל מודול הוא IIFE. אין מערכת מודולים (`import`/`export`) מלבד Seatmap.pro ESM בטעינה דינמית.  
-`app.js` עטוף ב־`(function(){ … })();` ומשתנים פנימיים לא מיוצאים, מלבד כמה `window.*` למושבים.
+כל מודול הוא IIFE. אין `import`/`export` מלבד Seatmap.pro ESM בטעינה דינמית.
 
-### 9.2 ניתוב — חובה לשחזר את החוזה
+### 9.2 ניתוב
 
-פונקציה: `route(id, fromHash)`.
+`route(id, fromHash)`:
 
 - מסך = `location.hash` בלי `#`, חלק ראשון לפני `/`.
-- כל מסך הוא `<section class="screen" id="…">`. פעיל = מחלקה `active`.
-- `data-route="events"` על קישור/כפתור קורא ל־`route('events')`.
+- כל מסך: `<section class="screen" id="…">`. פעיל = מחלקה `active`.
+- `data-route="events"` קורא ל־`route('events')`.
 - `tickets` ב־hash ממופה ל־`account` + טאב `tickets`.
-
-אלgorיתם:
 
 1. להסיר `active` מכל `.screen`.
 2. להוסיף `active` ל־`#${screen}` או `#home`.
@@ -516,14 +485,14 @@ article.event-card.event-card-flip
 
 האזנה: `hashchange` + `popstate`.
 
-### 9.3 מאפייני data (API של ה־DOM)
+### 9.3 מאפייני data
 
 | מאפיין | פעולה |
 |--------|--------|
 | `data-route` | ניווט למסך |
-| `data-open-event="{id}"` | פתיחת עמוד מופע (שומר `sessionStorage.ticketsActiveEventId`) |
-| `data-favorite-id` | הוספה/הסרה ממועדפים |
-| `data-category` | סינון קטלוג + מעבר ל־`#events` |
+| `data-open-event="{id}"` | פתיחת עמוד מופע (`sessionStorage.ticketsActiveEventId`) |
+| `data-favorite-id` | מועדפים |
+| `data-category` | סינון קטלוג + `#events` |
 | `data-show-action` | seats / queue / waitlist / presale-interest |
 | `data-account-tab` | טאב באזור אישי |
 | `data-events-range` | all / today / week / month |
@@ -540,32 +509,32 @@ article.event-card.event-card-flip
 | `tickets:heroSlide` | החלפת שקופית הירו | אנימציית כותרת הירו |
 | `tickets:presaleBadge` | אחרי `syncEventPage` | אנימציית באדג' פרה־סייל |
 
-בייצור: אחרי רינדור מחדש של קרוסלות הבית **חובה** לפלוט אירוע שקול, אחרת הכותרות לא יונפשו / יישארו שקופות (`.gsap-text-pending`).
+אחרי רינדור מחדש של קרוסלות הבית **חובה** לפלוט אירוע שקול, אחרת הכותרות יישארו שקופות (`.gsap-text-pending`).
 
-### 9.5 אחסון מקומי (דמו בלבד)
+### 9.5 אחסון מקומי (דמו)
 
 | מפתח | סוג | תוכן |
 |------|-----|------|
 | `ticketsFavorites` | localStorage | מערך id־ים |
-| `ticketsCartV6` | localStorage | פריטי סל `{ id, eventId, title, image, seat, price }` |
+| `ticketsCartV6` | localStorage | `{ id, eventId, title, image, seat, price }` |
 | `ticketsActiveEventId` | sessionStorage | מופע פתוח |
 | `ticketsCartHoldEndsV6` | sessionStorage | תום השהיית 10 דקות למושבים |
 
-עמלת שירות בדמו: 5 ₪ לפריט. קופון: כל מחרוזת לא־ריקה נותנת 10% מהסכום (לפני עמלה) — אין רשימת קופונים אמיתית.
+עמלת שירות בדמו: 5 ₪ לפריט. קופון: כל מחרוזת לא־ריקה = 10% מהסכום (לפני עמלה).
 
-### 9.6 רנדור בית — חוקים
+### 9.6 רנדור בית
 
-`renderHome()` ב־`js/app.js`:
+`renderHome()`:
 
 - סדר סקשנים: פופולריים → קרובים → סטנדאפ → ילדים → ספורט → תרבות.
-- סקשנים זוגיים/אי־זוגיים מקבלים `.section` / `.section.alt` (אותו רקע כהה בפלטה הנעולה, אבל הכותרות/כפתורים משתמשים בזוג טוקנים A/B).
+- סקשנים זוגיים/אי־זוגיים: `.section` / `.section.alt`.
 - פופולריים: עד 12 כרטיסים; אם חסרים — השלמה ממופעים אחרים.
-- Cover Flow + פליפ **רק** אם פופולריים **וגם** דסקטופ.
+- Cover Flow + פליפ רק בפופולריים בדסקטופ.
 - כפתור «למופעים בקטגוריה» עם Lordicon לבן.
 
-אחרי הרנדור: `initCarousels()` (Cover Flow + גרירה).
+אחרי הרנדור: `initCarousels()`.
 
-### 9.7 אנימציית טקסט — פרטים מדויקים
+### 9.7 אנימציית טקסט
 
 סלקטורים:
 
@@ -573,23 +542,18 @@ article.event-card.event-card-flip
 - כותרות קרוסלה: `#homeSections .section-header .heading-icon h2`
 - כותרת קטגוריות: `.categories-section .section-header h2`
 
-פיצול: כל תו ב־`<span class="gsap-char">`, רווח עם `.is-space`.  
-`aria-label` על הכותרת המקורית.  
-אם `prefers-reduced-motion: reduce` — בלי אנימציה, טקסט מלא מיד.
+כל תו ב־`<span class="gsap-char">`, רווח עם `.is-space`, `aria-label` על הכותרת.  
+אם `prefers-reduced-motion: reduce` — בלי אנימציה.
 
 ### 9.8 חיפוש בהאדר
 
-`js/header-search-toggle.js`:
+`js/header-search-toggle.js`: מובייל לחיפוש/תפריט ב־`max-width: 1179px`. תפריט המבורגר: `.mobile-nav`. סגירה ב־Escape ובמעבר מסך.
 
-- מובייל לחיפוש/תפריט: `max-width: 1179px`.
-- תפריט המבורגר: פאנל `.mobile-nav`, אנימציית לוגו מלמטה.
-- סגירה ב־Escape, ב־route, בהתנתקות.
-
-`js/search-dropdowns.js`: ב־`max-width: 900px` הפאנלים מועברים ל־`document.body` (`position: fixed`) כדי שלא ייחתכו תחת blur/transform של ההאדר.
+`js/search-dropdowns.js`: ב־`max-width: 900px` הפאנלים מועברים ל־`document.body` (`position: fixed`).
 
 ### 9.9 קרוסלת קטגוריות מובייל
 
-`max-width: 960px`. שיבוט כרטיסים ללולאה אינסופית. אחרי שיבוט: לאפס `data-lottie-bound` ולקרוא ל־`refreshCategoryLotties` אם קיים.
+`max-width: 960px`. שיבוט ללולאה אינסופית. אחרי שיבוט: לאפס `data-lottie-bound` ולקרוא ל־`refreshCategoryLotties`.
 
 ---
 
@@ -602,11 +566,11 @@ article.event-card.event-card-flip
 | `#event` / `#event/dates` / `#event/info` | `event` | מופע: מועדים / מידע |
 | `#seats` | `seats` | בחירת אזור ומושבים |
 | `#cart` | `cart` | סל + קופון + טיימר 10 דק׳ |
-| `#login` | `login` | התחברות/הרשמה **לרכישה** (לא שער אתר) |
+| `#login` | `login` | התחברות/הרשמה לרכישה |
 | `#details` | `details` | פרטי מזמין |
 | `#payment` | `payment` | תשלום דמו |
 | `#success` | `success` | אישור + ניוזלטר |
-| `#account` / `#account/tickets` וכו׳ | `account` | אזור אישי |
+| `#account` / `#account/tickets` | `account` | אזור אישי |
 | `#tickets` | ממופה ל־`account/tickets` | |
 | `#contact` | `contact` | צור קשר |
 | `#faq` | `faq` | שאלות נפוצות |
@@ -615,34 +579,34 @@ article.event-card.event-card-flip
 | `#terms` | `terms` | תנאי שימוש |
 | `#accessibility` | `accessibility` | נגישות |
 
-זרימת רכישה המצופה:
+זרימת רכישה:
 
 ```
 מופע → מועד → [תור / המתנה] → מושבים → סל → התחברות → פרטים → תשלום → הצלחה
 ```
 
-טאבי אזור אישי (`data-account-tab`): `tickets` | `favorites` | `orders` | `profile`  
+טאבי אזור אישי: `tickets` | `favorites` | `orders` | `profile`  
 פאנלים: `#ticketsPanel`, `#favoritesPanel`, `#ordersPanel`, `#profilePanel`.
 
 ---
 
 ## 11. מודל נתונים
 
-אובייקט מופע באב־טיפוס (`js/app.js` מערך `events`):
+אובייקט מופע (`js/app.js`, מערך `events`):
 
 ```ts
 {
   id: number;                 // 1…48, תואם assets/events/{id}.jpg
   title: string;
   category: string;           // "מופעים פופולריים" | "מופעים קרובים" | "סטנדאפ" | "ילדים" | "ספורט" | "תרבות"
-  genre: string;              // לסינון קטלוג
+  genre: string;
   city: string;
   venue: string;
   date: string;               // "DD.MM.YYYY"
   time: string;               // "HH:MM"
   price: number;              // 0 = כניסה חופשית
   availability: string;
-  image?: string;             // אופציונלי; ברירת מחדל לפי id
+  image?: string;
   isFullPresale?: boolean;
   presaleStartAt?: string;    // ISO
   subtitle?: string;
@@ -650,7 +614,7 @@ article.event-card.event-card-flip
 }
 ```
 
-מיפוי קטגוריה ל־`data-category`:
+מיפוי `data-category`:
 
 ```
 music → genre === 'מוזיקה'
@@ -664,77 +628,63 @@ upcoming → category === 'מופעים קרובים'
 
 תמונה: `assets/events/${id}.jpg`. גלריית פוסטר: התמונה + שתי תמונות id הבאות מודולו 48.
 
-בייצור: להחליף את המערך ב־API, **לשמור** את שמות השדות שכרטיס/עמוד מופע מצפים להם או לעשות adapter.
+בייצור: להחליף את המערך ב־API ולשמור את שמות השדות, או adapter.
 
 ---
 
 ## 12. זרימת רכישה ובחירת מושבים
 
-שלוש שכבות אפשריות:
-
-1. **אולם מקומי (ברירת מחדל ויזואלית באב־טיפוס)** — `js/seats-hall.js` + SVG מניפה. מחירים 199 / 259. סינון נגישות, זום, מסך מלא. כלל: לא להשאיר מושב יחיד ריק (`hasOrphanEmptySeat`).
+1. **אולם מקומי** — `js/seats-hall.js` + SVG. מחירים 199 / 259. סינון נגישות, זום, מסך מלא. כלל: לא להשאיר מושב יחיד ריק (`hasOrphanEmptySeat`).
 2. **Seats.io** — אם יש `workspaceKey` + `eventKey`.
 3. **Seatmap.pro** — אם יש `publicKey` + `eventId`.
 
-`js/data/venue-seats.js` מגדיר אולם דמו, מחלקות מחיר (169–319), ועמלה 5 ₪.
+`js/data/venue-seats.js`: אולם דמו, מחלקות מחיר 169–319, עמלה 5 ₪.
 
 טיימר סל: 10 דקות מבחירת מושבים. ב־0: איפוס בחירה + טוסט.
 
-מסך התחברות `#login` הוא **שלב ברכישה**, לא שער לאתר.
+`#login` הוא שלב ברכישה בלבד.
 
 ---
 
-## 13. נכסים (Assets)
+## 13. נכסים
 
 | נתיב | שימוש |
 |------|--------|
-| `assets/images/logo.png` | הלוגו היחיד |
+| `assets/images/logo.png` | לוגו האתר |
 | `assets/images/favicon.png` | favicon + apple-touch-icon |
-| `assets/icons/*.svg` | חיפוש, משתמש, עגלה, לב, מיקום, לוח שנה, שעון, PDF, רשתות, וכו׳ |
+| `assets/icons/*.svg` | חיפוש, משתמש, עגלה, לב, מיקום, לוח שנה, שעון, PDF, רשתות |
 | `assets/events/{1-48}.jpg` | תמונות כרטיס/פוסטר |
-| `assets/hero/slide-1.jpg` (+ סליידים נוספים בהירו) | הירו בית |
-| `assets/hero/events-bg.mp4` + `.png` | רקע עמוד קטלוג/צור קשר |
+| `assets/hero/slide-1.jpg` (+ סליידים נוספים) | הירו בית |
+| `assets/hero/events-bg.mp4` + `.png` | רקע קטלוג / צור קשר |
 | `assets/hero/event-bg.mp4` | רקע עמוד מופע וזרימת רכישה |
-| `assets/hero/newsletter-bg.jpg` | בלוק ניוזלטר / הצלחה |
+| `assets/hero/newsletter-bg.jpg` | ניוזלטר / הצלחה |
 | `tickets/*.pdf` | כרטיסים דיגיטליים לדוגמה |
-
-לוגו: לא להחליף בגרסאות ישנות (`logo-cutout` וכו׳ — הוסרו).
 
 ---
 
-## 14. נקודות שבירה (Breakpoints)
+## 14. נקודות שבירה
 
-להשתמש **באותם** ערכים, לא ב־768/1024 גנריים.
+להשתמש בערכים האלה, לא ב־768/1024 גנריים.
 
 | רוחב | מה קורה |
 |------|---------|
 | **≥961px** | Cover Flow לפופולריים; האדר 74px; 4 עמודות קטלוג; 5 כרטיסים בקרוסלה |
 | **≤1179px** | האדר 60px; לוגיקת חיפוש/תפריט מובייל ב־`header-search-toggle.js` |
-| **≤960px** | תפריט המבורגר; קרוסלת קטגוריות; 2 עמודות קטלוג; כרטיסי קרוסלה ~חצי רוחב; Cover Flow/פליפ כבויים; פוטר בעמודות מוערמות |
+| **≤960px** | תפריט המבורגר; קרוסלת קטגוריות; 2 עמודות קטלוג; Cover Flow/פליפ כבויים; פוטר מוערם |
 | **≤900px** | דרופדאוני חיפוש ב־portal ל־`body`; הסתרת חיצי קרוסלה בחלק מהכללים |
 | **≤640px / 600px** | עמודה אחת לקטלוג; כיווץ שעונים וטפסים |
 
-גובה האדר:
-
-- דסקטופ: **74px** קשיח (`.header-inner`, `.nav-trigger`)
-- ≤1179px: **60px** (`.site-header-v3 .header-inner`)
+גובה האדר: 74px בדסקטופ, 60px ב־≤1179px.
 
 ---
 
-## 15. נגישות ותנועה מופחתת
+## 15. נגישות
 
-חובה לכבד:
-
-```css
-@media (prefers-reduced-motion: reduce) { … }
-```
-
-ו־`matchMedia('(prefers-reduced-motion: reduce)')` ב־JS:
+חובה לכבד `prefers-reduced-motion`:
 
 - בלי GSAP על כותרות / לוגו מובייל / באדג'.
-- בלי autoplay הירו מתקדם עם אנימציית טבעת (יש נתיב סטטי).
+- בלי autoplay הירו עם אנימציית טבעת.
 - בלי autoplay קרוסלת קטגוריות.
-- פוסטר מופע בלי interval אם reduce.
 
 עוד באב־טיפוס:
 
@@ -742,27 +692,19 @@ upcoming → category === 'מופעים קרובים'
 - נקודות זמינות עם `title`.
 - פיצול אותיות: `aria-hidden` על הספאנים, `aria-label` על הכותרת.
 
-צבעי סטטוס:
-
-- זמינות גבוהה — נקודה ירוקה.
-- זמינות נמוכה — כתומה.
-- אזלו — תווית צהובה מסובבת (`rotate(-6deg)`).
+צבעי סטטוס: ירוק (גבוהה) / כתום (נמוכה) / תווית צהובה מסובבת (`rotate(-6deg)`) לאזלו.
 
 ---
 
 ## 16. מיפוי לייצור
 
-המלצת הטמעה פרקטית:
-
-1. **לייצר Design Tokens** (CSS variables או theme) 1:1 מהטבלה בסעיף 6.
-2. **להעתיק את ארבעת קבצי ה־CSS** כבסיס, או לפצל לקומפוננטות תוך שמירת שמות מחלקות בשלב הראשון.
-3. **לבנות Layout**: `html[dir=rtl]` + האדר v3 + `.screen` / router מקביל.
-4. **לחבר GSAP + Lottie + Lordicon** באותם פרמטרים.
-5. **להחליף `events[]` ב־API**; לשמור חוזה השדות לכרטיס.
-6. **להחליף סל/מועדפים/רכישה** ב־backend; לשמור את סדר המסכים והטיימר.
-7. **לבחור ספק מושבים** (מקומי / Seats.io / Seatmap.pro) מאחורי adapter — ה־UI של הסיכום נשאר זהה.
-
-ספריות מומלצות לייצור (מקבילות למה שיש כאן):
+1. Design Tokens 1:1 מהטבלה בסעיף 6.
+2. ארבעת קבצי ה־CSS כבסיס, או פיצול לקומפוננטות תוך שמירת שמות מחלקות בשלב הראשון.
+3. Layout: `html[dir=rtl]` + האדר כמו ב־`index.html` + router מקביל ל־hash.
+4. GSAP + Lottie + Lordicon באותם פרמטרים.
+5. להחליף `events[]` ב־API; לשמור חוזה השדות לכרטיס.
+6. סל / מועדפים / רכישה ב־backend; לשמור את סדר המסכים והטיימר.
+7. ספק מושבים (מקומי / Seats.io / Seatmap.pro) מאחורי adapter — ה־UI של הסיכום נשאר זהה.
 
 | באב־טיפוס | בייצור |
 |-----------|---------|
@@ -772,21 +714,13 @@ upcoming → category === 'מופעים קרובים'
 | Assistant מ־Google Fonts | אותם משקלים |
 | Seats.io / Seatmap.pro | לפי בחירת מוצר, מאחורי אותו adapter |
 
-אין צורך ב־CSS framework. אם מוסיפים Tailwind — להגדיר את הטוקנים ב־`theme.extend` **לפי הערכים כאן**, לא לפי ברירות Tailwind.
+אין צורך ב־CSS framework. אם מוסיפים Tailwind — להגדיר את הטוקנים ב־`theme.extend` לפי הערכים כאן.
+
+האב־טיפוס משתמש בנתונים מדומים וב־`localStorage` לסל/מועדפים. בייצור אלה מוחלפים בשרת. מפתחות POC של מפות מושבים — ציבוריים בלבד, בלי secret בפרונט.
 
 ---
 
-## 17. מה לא לכלול בייצור
-
-- פאנל «הגדרות אתר» / בחירת לוגו / פלטה בהירה.
-- `intro.html` כחלק מהמוצר.
-- נתונים מדומים ומפתחות POC בצד הלקוח מעבר למפתח ציבורי של מפת מושבים.
-- תלות ב־`localStorage` כמקור אמת לסל אחרי שיש שרת.
-- README הישן מזכיר `index2.html` / `index3.html` / מצב הדגמה — **לא בגרסה הנעולה**. הקובץ החי הוא `index.html` עם `home3` + `hero-v2`.
-
----
-
-## נספח א׳ — Lordicon: הטמעה
+## נספח א׳ — Lordicon
 
 ```html
 <script src="https://cdn.lordicon.com/lordicon.js"></script>
@@ -800,9 +734,7 @@ upcoming → category === 'מופעים קרובים'
 </lord-icon>
 ```
 
-ב־React: `import lottie from 'lottie-web'` + ספריית Lordicon הרשמית, או `<lord-icon>` אחרי טעינת הסקריפט ב־`_document` / layout.
-
-## נספח ב׳ — GSAP כותרות (העתק מדויק)
+## נספח ב׳ — GSAP כותרות
 
 ```js
 gsap.from(charSpans, {
@@ -816,10 +748,9 @@ gsap.from(charSpans, {
 });
 ```
 
-להפעיל רק כשהאלמנט נכנס ל־viewport (`IntersectionObserver`, threshold ≈ 0.35). עד אז: `opacity: 0` על הכותרת השלמה.
+להפעיל כשהאלמנט נכנס ל־viewport (`IntersectionObserver`, threshold ≈ 0.35). עד אז: `opacity: 0` על הכותרת.
 
-## נספח ג׳ — מסמכים נלווים
+## נספח ג׳ — מפות מושבים
 
-- [`docs/SEATSIO-POC-REPORT.md`](SEATSIO-POC-REPORT.md) — מפת מושבים Seats.io
-- [`docs/SEATMAP-PRO-REPORT.md`](SEATMAP-PRO-REPORT.md) — Seatmap.pro
-- [`AUDIT.md`](../AUDIT.md) — אודיט ישן יותר; במקרה של סתירה **הקוד הנוכחי וקובץ זה גוברים**
+- [`docs/SEATSIO-POC-REPORT.md`](SEATSIO-POC-REPORT.md)
+- [`docs/SEATMAP-PRO-REPORT.md`](SEATMAP-PRO-REPORT.md)

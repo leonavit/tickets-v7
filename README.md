@@ -1,18 +1,17 @@
 # Tickets
 
-אב־טיפוס סטטי אינטראקטיבי (HTML / CSS / JS) למערכת כרטיסים — עברית, RTL.  
-הגרסה הנעולה: פלטה כהה, לוגו קבוע, Cover Flow למופעים פופולריים בדסקטופ.
+אב־טיפוס סטטי אינטראקטיבי (HTML / CSS / JS) למערכת כרטיסים — עברית, RTL.
 
 ## למפתחים
 
-**[מדריך הטמעה לחברת הפיתוח](docs/DEVELOPMENT-GUIDE.md)** — ספריות, CSS, טוקני עיצוב, ניתוב, חוזה JS, וכיצד לשחזר את העיצוב בייצור.
+**[מדריך הטמעה](docs/DEVELOPMENT-GUIDE.md)** — ספריות, CSS, טוקני עיצוב, ניתוב, חוזה JS, וכיצד לשחזר את העיצוב בייצור.
 
 מסמכים נלווים לבחירת מושבים:
 
 - [`docs/SEATSIO-POC-REPORT.md`](docs/SEATSIO-POC-REPORT.md)
 - [`docs/SEATMAP-PRO-REPORT.md`](docs/SEATMAP-PRO-REPORT.md)
 
-## התחלה מהירה
+## הרצה
 
 קובץ הכניסה: [`index.html`](index.html)
 
@@ -22,5 +21,3 @@ python3 -m http.server 8000
 ```
 
 אין build. נתונים מדומים ב־`js/app.js`.
-
-`intro.html` הוא מסך הקדמה ישן לסקירת UX בלבד — לא חלק מהמוצר הנעול.

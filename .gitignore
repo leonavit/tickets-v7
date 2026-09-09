@@ -7,3 +7,8 @@ _*.txt
 Thumbs.db
 .env
 .env.*
+
+# Local leftovers — not part of the product
+*.zip
+ChatGPT Image*.png
+לוגו בהיר.png
